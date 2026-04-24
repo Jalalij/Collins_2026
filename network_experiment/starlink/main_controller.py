@@ -6,13 +6,15 @@ import time
 import threading
 import subprocess
 from datetime import datetime
-from network_experiment.starlink.config import SLEEP_TIME
+from network_experiment.starlink.config import (
+    SLEEP_TIME, SERVER_IP, PING_INTERVAL, PING_PACKET_SIZE, IPERF3_INTERVAL
+)
 
 DURATION      = 600
 PROTOCOLS     = [
-    {"name": "udp",   "protocol": "udp",  "congestion": None},
-    {"name": "bbr",   "protocol": "tcp",  "congestion": "bbr"},
-    {"name": "cubic", "protocol": "tcp",  "congestion": "cubic"},
+    {"name": "udp",   "protocol": "udp", "congestion": None},
+    {"name": "bbr",   "protocol": "tcp", "congestion": "bbr"},
+    {"name": "cubic", "protocol": "tcp", "congestion": "cubic"},
 ]
 BANDWIDTH_CONFIGS = [
     {"dl": 100, "ul": 20},
@@ -20,6 +22,7 @@ BANDWIDTH_CONFIGS = [
 ]
 
 BASE_DATA_DIR = "data"
+COLLECTOR_DIR = "../application_scripts"
 
 
 # --------------------------------------------------------------------------- #
@@ -31,6 +34,11 @@ def _make_run_dir(label: str) -> str:
     run_dir = os.path.join(BASE_DATA_DIR, f"starlink_{label}_{ts}")
     os.makedirs(run_dir, exist_ok=True)
     return run_dir
+
+
+def _collector(script: str) -> str:
+    """Resolve path to a collector script in application_scripts/."""
+    return os.path.join(COLLECTOR_DIR, script)
 
 
 def _run(cmd, timeout=None, label=""):
@@ -54,8 +62,11 @@ def _run(cmd, timeout=None, label=""):
 
 def _launch_ping(run_dir, duration, source=None):
     cmd = [
-        "python3", "ping_collector.py",
+        "python3", _collector("ping_collector.py"),
         "--duration",    str(duration),
+        "--server-ip",   SERVER_IP,
+        "--interval",    str(PING_INTERVAL),
+        "--packet-size", str(PING_PACKET_SIZE),
         "--raw-file",    os.path.join(run_dir, "ping.json"),
         "--parsed-file", os.path.join(run_dir, "ping.csv"),
     ]
@@ -66,8 +77,8 @@ def _launch_ping(run_dir, duration, source=None):
 
 def _launch_starlink(run_dir, duration):
     return [
-        "python3", "starlink_collector.py",
-        "--duration", str(duration),
+        "python3", _collector("starlink_collector.py"),
+        "--duration",    str(duration),
         "--raw-file",    os.path.join(run_dir, "starlink.json"),
         "--parsed-file", os.path.join(run_dir, "starlink.csv"),
     ]
@@ -75,7 +86,7 @@ def _launch_starlink(run_dir, duration):
 
 def _launch_satellite(run_dir, duration):
     return [
-        "python3", "satellite_tracker.py",
+        "python3", _collector("satellite_tracker.py"),
         "--duration",    str(duration),
         "--parsed-file", os.path.join(run_dir, "satellite.csv"),
     ]
@@ -83,7 +94,7 @@ def _launch_satellite(run_dir, duration):
 
 def _launch_weather(run_dir, duration):
     return [
-        "python3", "weather_collector.py",
+        "python3", _collector("weather_collector.py"),
         "--duration",    str(duration),
         "--raw-file",    os.path.join(run_dir, "weather.json"),
         "--parsed-file", os.path.join(run_dir, "weather.csv"),
@@ -92,10 +103,12 @@ def _launch_weather(run_dir, duration):
 
 def _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion=None):
     cmd = [
-        "python3", "iperf3_collector.py",
+        "python3", _collector("iperf3_collector.py"),
         "--direction",   direction,
         "--bandwidth",   str(bandwidth),
         "--duration",    str(duration),
+        "--server-ip",   SERVER_IP,
+        "--interval",    str(IPERF3_INTERVAL),
         "--protocol",    protocol,
         "--raw-file",    os.path.join(run_dir, "iperf.json"),
         "--parsed-file", os.path.join(run_dir, "iperf.csv"),

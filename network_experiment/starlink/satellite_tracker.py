@@ -1,10 +1,7 @@
 """
 satellite_tracker.py
 --------------------
-Stripped-down Starlink connected-satellite tracker.
-
-All estimation logic is identical to the original repo. Removed: scheduling,
-CSV/parquet storage, video generation, latency, pop, gs, plotting.
+Stripped-down LEOViz for Starlink satellite tracker estimation.
 
 Usage:
     python3 satellite_tracker.py [--tle-file path] [--duration N] [--grpc addr:port]

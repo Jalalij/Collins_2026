@@ -8,8 +8,8 @@ import csv
 import time
 import argparse
 from datetime import datetime, timezone
-from network_experiment.quectel.config import TIMESTAMP_FORMAT
 
+TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 BAUDRATE = 115200
 
 

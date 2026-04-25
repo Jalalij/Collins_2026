@@ -37,7 +37,7 @@ import config
 sys.path.insert(0, str(Path("./starlink-grpc-tools").resolve()))
 import starlink_grpc
 
-from network_experiment.starlink.config import TIMESTAMP_FORMAT
+TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)

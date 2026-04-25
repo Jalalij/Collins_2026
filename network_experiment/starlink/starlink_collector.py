@@ -7,7 +7,9 @@ import csv
 import time
 import argparse
 from datetime import datetime, timezone
-from network_experiment.starlink.config import TIMESTAMP_FORMAT, STARLINK_INTERVAL
+
+TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+STARLINK_INTERVAL = 0.2
 
 DISH_ADDRESS = "192.168.100.1:9200"
 DISH_SERVICE = "SpaceX.API.Device.Device/Handle"

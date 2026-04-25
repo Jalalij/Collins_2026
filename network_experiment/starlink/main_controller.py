@@ -7,7 +7,7 @@ import threading
 import subprocess
 from datetime import datetime
 from network_experiment.starlink.config import (
-    SLEEP_TIME, SERVER_IP, PING_INTERVAL, PING_PACKET_SIZE, IPERF3_INTERVAL
+    SLEEP_TIME, SERVER_IP, PING_INTERVAL, PING_PACKET_SIZE, IPERF3_INTERVAL, WEATHER_INTERVAL
 )
 
 DURATION      = 600
@@ -22,7 +22,7 @@ BANDWIDTH_CONFIGS = [
 ]
 
 BASE_DATA_DIR = "data"
-COLLECTOR_DIR = "../application_scripts"
+COLLECTOR_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "application_scripts")
 
 
 # --------------------------------------------------------------------------- #
@@ -77,16 +77,15 @@ def _launch_ping(run_dir, duration, source=None):
 
 def _launch_starlink(run_dir, duration):
     return [
-        "python3", _collector("starlink_collector.py"),
+        "python3", os.path.join(os.path.dirname(os.path.abspath(__file__)), "starlink_collector.py"),
         "--duration",    str(duration),
         "--raw-file",    os.path.join(run_dir, "starlink.json"),
         "--parsed-file", os.path.join(run_dir, "starlink.csv"),
     ]
 
-
 def _launch_satellite(run_dir, duration):
     return [
-        "python3", _collector("satellite_tracker.py"),
+        "python3", os.path.join(os.path.dirname(os.path.abspath(__file__)), "satellite_tracker.py"),
         "--duration",    str(duration),
         "--parsed-file", os.path.join(run_dir, "satellite.csv"),
     ]
@@ -95,9 +94,10 @@ def _launch_satellite(run_dir, duration):
 def _launch_weather(run_dir, duration):
     return [
         "python3", _collector("weather_collector.py"),
-        "--duration",    str(duration),
-        "--raw-file",    os.path.join(run_dir, "weather.json"),
-        "--parsed-file", os.path.join(run_dir, "weather.csv"),
+        "--duration",      str(duration),
+        "--poll-interval", str(WEATHER_INTERVAL),
+        "--raw-file",      os.path.join(run_dir, "weather.json"),
+        "--parsed-file",   os.path.join(run_dir, "weather.csv"),
     ]
 
 

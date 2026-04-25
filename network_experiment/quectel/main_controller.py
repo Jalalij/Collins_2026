@@ -7,7 +7,7 @@ import threading
 import subprocess
 from datetime import datetime
 from network_experiment.quectel.config import (
-    SLEEP_TIME, SERVER_IP, PING_INTERVAL, PING_PACKET_SIZE, IPERF3_INTERVAL
+    SLEEP_TIME, SERVER_IP, PING_INTERVAL, PING_PACKET_SIZE, IPERF3_INTERVAL, WEATHER_INTERVAL
 )
 
 DURATION      = 600
@@ -22,7 +22,7 @@ BANDWIDTH_CONFIGS = [
 ]
 
 BASE_DATA_DIR    = "data"
-COLLECTOR_DIR    = "../application_scripts"
+COLLECTOR_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "application_scripts")
 
 
 # --------------------------------------------------------------------------- #
@@ -77,7 +77,7 @@ def _launch_ping(run_dir, duration, source=None):
 
 def _launch_quectel(run_dir, duration):
     return [
-        "python3", _collector("quectel_collector.py"),
+        "python3", os.path.join(os.path.dirname(os.path.abspath(__file__)), "quectel_collector.py"),
         "--duration",    str(duration),
         "--raw-file",    os.path.join(run_dir, "quectel.json"),
         "--parsed-file", os.path.join(run_dir, "quectel.csv"),
@@ -87,9 +87,10 @@ def _launch_quectel(run_dir, duration):
 def _launch_weather(run_dir, duration):
     return [
         "python3", _collector("weather_collector.py"),
-        "--duration",    str(duration),
-        "--raw-file",    os.path.join(run_dir, "weather.json"),
-        "--parsed-file", os.path.join(run_dir, "weather.csv"),
+        "--duration",      str(duration),
+        "--poll-interval", str(WEATHER_INTERVAL),
+        "--raw-file",      os.path.join(run_dir, "weather.json"),
+        "--parsed-file",   os.path.join(run_dir, "weather.csv"),
     ]
 
 

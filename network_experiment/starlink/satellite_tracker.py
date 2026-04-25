@@ -27,6 +27,7 @@ from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import List, Tuple, Any, Optional, Dict
 
+import argparse
 import numpy as np
 import pandas as pd
 from skyfield.api import load, wgs84
@@ -36,7 +37,7 @@ import config
 sys.path.insert(0, str(Path("./starlink-grpc-tools").resolve()))
 import starlink_grpc
 
-from network_experiment.testing.config import TIMESTAMP_FORMAT, generate_satellite_tracker_filename
+from network_experiment.starlink.config import TIMESTAMP_FORMAT
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -833,7 +834,7 @@ class StatusCollector:
 # Main loop  — duration-based, mirrors ping/iperf/starlink collectors
 # ══════════════════════════════════════════════════════════════════════════════
 
-def run(tle_file: Optional[str] = None, duration: int = 120):
+def run(tle_file: Optional[str] = None, duration: int = 120, parsed_output_file: str = None):
     if not config.MOBILE and not all([config.LATITUDE, config.LONGITUDE, config.ALTITUDE]):
         raise ValueError("Set LATITUDE, LONGITUDE, and ALTITUDE in config.py before running.")
 
@@ -846,7 +847,6 @@ def run(tle_file: Optional[str] = None, duration: int = 120):
     status_collector = StatusCollector(grpc)
     status_collector.start()
 
-    parsed_output_file   = generate_satellite_tracker_filename("csv")
     samples              = []
     experiment_timestamp = datetime.now(timezone.utc).strftime(TIMESTAMP_FORMAT) + "Z"
     deadline             = time.time() + duration
@@ -922,18 +922,15 @@ def run(tle_file: Optional[str] = None, duration: int = 120):
 # ══════════════════════════════════════════════════════════════════════════════
 # CLI
 # ══════════════════════════════════════════════════════════════════════════════
-
 if __name__ == "__main__":
-    import argparse
-
     parser = argparse.ArgumentParser(description="Starlink connected-satellite tracker")
-    parser.add_argument("--tle-file", type=str, default=None,  help="Path to local TLE file (optional)")
-    parser.add_argument("--duration", type=int, default=120,   help="Collection duration in seconds")
-    parser.add_argument("--grpc",     type=str, default="192.168.100.1:9200",
-                                                                help="Starlink gRPC address:port")
+    parser.add_argument("--tle-file",    type=str, default=None,             help="Path to local TLE file (optional)")
+    parser.add_argument("--duration",    type=int, default=120,              help="Collection duration in seconds")
+    parser.add_argument("--parsed-file", required=True,                      help="Output path for parsed CSV")
+    parser.add_argument("--grpc",        type=str, default="192.168.100.1:9200", help="Starlink gRPC address:port")
     args = parser.parse_args()
 
     config.STARLINK_GRPC_ADDR_PORT = args.grpc
 
     print(f"Starting satellite tracker: duration={args.duration}s")
-    run(tle_file=args.tle_file, duration=args.duration)
+    run(tle_file=args.tle_file, duration=args.duration, parsed_output_file=args.parsed_file)

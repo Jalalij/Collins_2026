@@ -8,7 +8,7 @@ import csv
 import time
 import argparse
 from datetime import datetime, timezone
-from network_experiment.quectel.config import TIMESTAMP_FORMAT, generate_quectel_filename
+from network_experiment.quectel.config import TIMESTAMP_FORMAT
 
 BAUDRATE = 115200
 
@@ -87,13 +87,11 @@ def _read_sample(signal):
     return None
 
 
-def collect_quectel_data(duration):
+def collect_quectel_data(duration, raw_output_file, parsed_output_file):
     """
     Read Quectel modem signal stats for duration seconds.
     Produces one sample per AT command response (~1/second).
     """
-    raw_output_file    = generate_quectel_filename("json")
-    parsed_output_file = generate_quectel_filename("csv")
 
     dev_file = _find_device()
     if not dev_file:
@@ -153,25 +151,19 @@ def collect_quectel_data(duration):
                 writer.writeheader()
                 writer.writerows(samples)
 
-    return raw_output_file, parsed_output_file, len(samples)
+    return len(samples)
 
-
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Collect Quectel 5G modem signal stats")
-    parser.add_argument("--duration", type=int, required=True, help="Collection duration in seconds")
+    parser.add_argument("--duration",    type=int, required=True, help="Collection duration in seconds")
+    parser.add_argument("--raw-file",    required=True,           help="Output path for raw JSON")
+    parser.add_argument("--parsed-file", required=True,           help="Output path for parsed CSV")
     args = parser.parse_args()
 
     print(f"Starting Quectel: duration={args.duration}s")
 
-    raw_file, parsed_file, sample_count = collect_quectel_data(args.duration)
+    count = collect_quectel_data(args.duration, args.raw_file, args.parsed_file)
 
-    if raw_file and parsed_file:
-        print(f"Quectel complete: {sample_count} samples")
-        print(f"  Raw:    {raw_file}")
-        print(f"  Parsed: {parsed_file}")
-    else:
-        print("Quectel collection failed")
-
-
-if __name__ == "__main__":
-    main()
+    print(f"Quectel complete: {count} samples")
+    print(f"  Raw:    {args.raw_file}")
+    print(f"  Parsed: {args.parsed_file}")

@@ -7,7 +7,7 @@ import csv
 import time
 import argparse
 from datetime import datetime, timezone
-from network_experiment.starlink.config import TIMESTAMP_FORMAT, STARLINK_INTERVAL, generate_starlink_filename
+from network_experiment.starlink.config import TIMESTAMP_FORMAT, STARLINK_INTERVAL
 
 DISH_ADDRESS = "192.168.100.1:9200"
 DISH_SERVICE = "SpaceX.API.Device.Device/Handle"
@@ -100,10 +100,8 @@ def _parse_location(data: dict) -> dict:
 # Main collection loop
 # --------------------------------------------------------------------------- #
 
-def collect_starlink_data(duration: int):
+def collect_starlink_data(duration: int, raw_output_file: str, parsed_output_file: str):
     """Poll the Starlink dish every STARLINK_INTERVAL seconds for duration seconds."""
-    raw_output_file    = generate_starlink_filename("json")
-    parsed_output_file = generate_starlink_filename("csv")
 
     start_time           = datetime.now(timezone.utc)
     experiment_timestamp = start_time.strftime(TIMESTAMP_FORMAT) + "Z"
@@ -202,7 +200,7 @@ def collect_starlink_data(duration: int):
                 writer.writeheader()
                 writer.writerows(samples)
 
-        return raw_output_file, parsed_output_file, len(samples)
+        return len(samples)
 
     except Exception as e:
         print(f"Starlink collection error: {e}")
@@ -213,22 +211,17 @@ def collect_starlink_data(duration: int):
 # CLI entry point
 # --------------------------------------------------------------------------- #
 
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Collect Starlink dish telemetry")
-    parser.add_argument("--duration", type=int, default=120, help="Collection duration in seconds")
+    parser.add_argument("--duration",    type=int, required=True, help="Collection duration in seconds")
+    parser.add_argument("--raw-file",    required=True,           help="Output path for raw JSON")
+    parser.add_argument("--parsed-file", required=True,           help="Output path for parsed CSV")
     args = parser.parse_args()
 
     print(f"Starting Starlink: duration={args.duration}s poll_interval={STARLINK_INTERVAL}s")
 
-    raw_file, parsed_file, sample_count = collect_starlink_data(args.duration)
+    count = collect_starlink_data(args.duration, args.raw_file, args.parsed_file)
 
-    if raw_file and parsed_file:
-        print(f"Starlink complete: {sample_count} samples")
-        print(f"  Raw:    {raw_file}")
-        print(f"  Parsed: {parsed_file}")
-    else:
-        print("Starlink collection failed")
-
-
-if __name__ == "__main__":
-    main()
+    print(f"Starlink complete: {count} samples")
+    print(f"  Raw:    {args.raw_file}")
+    print(f"  Parsed: {args.parsed_file}")

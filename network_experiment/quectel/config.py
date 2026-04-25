@@ -47,7 +47,3 @@ def generate_iperf_filename(direction, target_bw, extension="json"):
 def generate_weather_filename(extension="json"):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return os.path.join(WEATHER_DIR, f"{timestamp}_weather.{extension}")
-
-def generate_quectel_filename(extension="json"):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return os.path.join(QUECTEL_DIR, f"{timestamp}_quectel.{extension}")

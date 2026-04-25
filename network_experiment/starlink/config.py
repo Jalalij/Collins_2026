@@ -57,11 +57,3 @@ def generate_iperf_filename(direction, target_bw, extension="json"):
 def generate_weather_filename(extension="json"):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return os.path.join(WEATHER_DIR, f"{timestamp}_weather.{extension}")
-
-def generate_starlink_filename(extension="json"):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return os.path.join(STARLINK_DIR, f"{timestamp}_starlink.{extension}")
-
-def generate_satellite_filename(extension="csv"):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return os.path.join(SATELLITE_DIR, f"{timestamp}_satellite.{extension}")

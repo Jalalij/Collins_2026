@@ -29,15 +29,13 @@ COLLECTOR_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "
 # Helpers
 # --------------------------------------------------------------------------- #
 
-def _make_run_dir(label: str) -> str:
-    ts      = datetime.now().strftime("%Y%m%d_%H%M%S")
-    run_dir = os.path.join(BASE_DATA_DIR, f"starlink_{label}_{ts}")
+def _make_run_dir(slot_dir, label):
+    run_dir = os.path.join(slot_dir, label)
     os.makedirs(run_dir, exist_ok=True)
     return run_dir
 
 
-def _collector(script: str) -> str:
-    """Resolve path to a collector script in application_scripts/."""
+def _collector(script):
     return os.path.join(COLLECTOR_DIR, script)
 
 
@@ -75,6 +73,18 @@ def _launch_ping(run_dir, duration, source=None):
     return cmd
 
 
+def _launch_ping_cloudflare(run_dir, duration):
+    return [
+        "python3", _collector("ping_collector.py"),
+        "--duration",    str(duration),
+        "--server-ip",   "1.1.1.1",
+        "--interval",    str(PING_INTERVAL),
+        "--packet-size", str(PING_PACKET_SIZE),
+        "--raw-file",    os.path.join(run_dir, "ping_1_1_1_1.json"),
+        "--parsed-file", os.path.join(run_dir, "ping_1_1_1_1.csv"),
+    ]
+
+
 def _launch_starlink(run_dir, duration):
     return [
         "python3", os.path.join(os.path.dirname(os.path.abspath(__file__)), "starlink_collector.py"),
@@ -82,6 +92,7 @@ def _launch_starlink(run_dir, duration):
         "--raw-file",    os.path.join(run_dir, "starlink.json"),
         "--parsed-file", os.path.join(run_dir, "starlink.csv"),
     ]
+
 
 def _launch_satellite(run_dir, duration):
     return [
@@ -119,23 +130,61 @@ def _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion=
 
 
 # --------------------------------------------------------------------------- #
-# Run one test block
+# Baseline block
 # --------------------------------------------------------------------------- #
 
-def run_test_block(label, direction, bandwidth, duration, protocol, congestion=None):
+def run_baseline(slot_dir, duration):
+    """ping + ping_cloudflare + starlink + satellite + weather with no iperf."""
+    run_dir = _make_run_dir(slot_dir, "baseline")
+    print(f"  Starting baseline → {run_dir}")
+
+    cmds = {
+        "ping":           _launch_ping(run_dir, duration),
+        "ping_cloudflare": _launch_ping_cloudflare(run_dir, duration),
+        "starlink":       _launch_starlink(run_dir, duration),
+        "satellite":      _launch_satellite(run_dir, duration),
+        "weather":        _launch_weather(run_dir, duration),
+    }
+
+    threads = {}
+    results = {}
+
+    def _run_collector(name, cmd):
+        results[name] = _run(cmd, timeout=duration + 30, label=name)
+
+    for name, cmd in cmds.items():
+        t = threading.Thread(target=_run_collector, args=(name, cmd))
+        t.start()
+        threads[name] = t
+
+    for name, t in threads.items():
+        t.join()
+
+    ok = all(results.values())
+    print(f"  Baseline complete: " +
+          ", ".join(f"{k}={'OK' if v else 'FAIL'}" for k, v in results.items()))
+    return ok
+
+
+# --------------------------------------------------------------------------- #
+# Test block
+# --------------------------------------------------------------------------- #
+
+def run_test_block(slot_dir, label, direction, bandwidth, duration, protocol, congestion=None):
     """
-    Run iperf, ping, starlink, satellite, and weather simultaneously
-    for duration seconds. All output saved to a single timestamped directory.
+    Run iperf, ping, ping_cloudflare, starlink, satellite, and weather
+    simultaneously for duration seconds. All output saved under slot_dir/label/.
     """
-    run_dir = _make_run_dir(label)
+    run_dir = _make_run_dir(slot_dir, label)
     print(f"  Starting block: {label} → {run_dir}")
 
     cmds = {
-        "iperf":     _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion),
-        "ping":      _launch_ping(run_dir, duration),
-        "starlink":  _launch_starlink(run_dir, duration),
-        "satellite": _launch_satellite(run_dir, duration),
-        "weather":   _launch_weather(run_dir, duration),
+        "iperf":           _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion),
+        "ping":            _launch_ping(run_dir, duration),
+        "ping_cloudflare": _launch_ping_cloudflare(run_dir, duration),
+        "starlink":        _launch_starlink(run_dir, duration),
+        "satellite":       _launch_satellite(run_dir, duration),
+        "weather":         _launch_weather(run_dir, duration),
     }
 
     threads = {}
@@ -159,35 +208,26 @@ def run_test_block(label, direction, bandwidth, duration, protocol, congestion=N
 
 
 # --------------------------------------------------------------------------- #
-# Baseline ping block
-# --------------------------------------------------------------------------- #
-
-def run_baseline(duration):
-    """Standalone ping-only baseline at the start of each slot."""
-    run_dir = _make_run_dir("baseline_ping")
-    print(f"  Starting baseline ping → {run_dir}")
-    cmd = _launch_ping(run_dir, duration)
-    ok  = _run(cmd, timeout=duration + 30, label="ping_baseline")
-    print(f"  Baseline complete: {'OK' if ok else 'FAIL'}")
-    return ok
-
-
-# --------------------------------------------------------------------------- #
 # Full experiment slot
 # --------------------------------------------------------------------------- #
 
 def run_experiment_slot(test_name="slot"):
     """
     Full sequence for one scheduled slot:
-      1. 10-min ping baseline
-      2. For each protocol × each bandwidth config:
-           DL block → 60s sleep → UL block → 60s sleep
+      1. baseline — ping + ping_cloudflare + starlink + satellite + weather, 10 min
+      2. For each protocol x each bandwidth config:
+           DL block -> 60s sleep -> UL block -> 60s sleep
     """
+    slot_ts  = datetime.now().strftime("%Y%m%d_%H%M%S")
+    slot_dir = os.path.join(BASE_DATA_DIR, f"starlink_{slot_ts}")
+    os.makedirs(slot_dir, exist_ok=True)
+
     print(f"\n{'='*60}")
     print(f"SLOT START: {test_name.upper()} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"Slot directory: {slot_dir}")
     print(f"{'='*60}")
 
-    run_baseline(DURATION)
+    run_baseline(slot_dir, DURATION)
 
     for proto in PROTOCOLS:
         proto_name = proto["name"]
@@ -199,18 +239,19 @@ def run_experiment_slot(test_name="slot"):
             ul_bw = cfg["ul"]
 
             dl_label = f"{proto_name}_dl_{dl_bw}"
-            run_test_block(dl_label, "DL", dl_bw, DURATION, protocol, congestion)
+            run_test_block(slot_dir, dl_label, "DL", dl_bw, DURATION, protocol, congestion)
             print(f"  Sleeping {SLEEP_TIME}s...")
             time.sleep(SLEEP_TIME)
 
             ul_label = f"{proto_name}_ul_{ul_bw}"
-            run_test_block(ul_label, "UL", ul_bw, DURATION, protocol, congestion)
+            run_test_block(slot_dir, ul_label, "UL", ul_bw, DURATION, protocol, congestion)
 
             if not (proto == PROTOCOLS[-1] and cfg == BANDWIDTH_CONFIGS[-1]):
                 print(f"  Sleeping {SLEEP_TIME}s...")
                 time.sleep(SLEEP_TIME)
 
     print(f"\nSlot complete: {test_name} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"  Data: {slot_dir}")
 
 
 # --------------------------------------------------------------------------- #

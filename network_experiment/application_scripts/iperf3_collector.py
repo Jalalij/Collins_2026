@@ -41,44 +41,89 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
         # Raw JSON
         with open(raw_output_file, 'w') as f:
             json.dump({
-                "command":           " ".join(cmd),
-                "start_time":        experiment_time.isoformat(),
-                "direction":         direction,
-                "protocol":          protocol,
+                "command":            " ".join(cmd),
+                "start_time":         experiment_time.isoformat(),
+                "direction":          direction,
+                "protocol":           protocol,
                 "congestion_control": congestion,
-                "port":              port,
-                "server_ip":         server_ip,
-                "target_bandwidth":  bandwidth,
-                "duration":          duration,
-                "interval":          interval,
-                "stdout":            result.stdout,
-                "stderr":            result.stderr,
-                "return_code":       result.returncode,
+                "port":               port,
+                "server_ip":          server_ip,
+                "target_bandwidth":   bandwidth,
+                "duration":           duration,
+                "interval":           interval,
+                "stdout":             result.stdout,
+                "stderr":             result.stderr,
+                "return_code":        result.returncode,
             }, f, indent=2)
 
         if result.returncode == 0:
-            data      = json.loads(result.stdout)
+            data       = json.loads(result.stdout)
             iperf_data = []
 
-            for interval_block in data.get('intervals', []):
-                for stream in interval_block.get('streams', []):
-                    interval_start = experiment_time + timedelta(seconds=stream['start'])
-                    iperf_data.append({
-                        'timestamp':           interval_start.strftime(TIMESTAMP_FORMAT) + "Z",
-                        'interval_start':      stream['start'],
-                        'interval_end':        stream['end'],
-                        'throughput_mbps':     stream.get('bits_per_second', 0) / 1e6,
-                        'jitter_ms':           stream.get('jitter_ms', 0),
-                        'packet_loss_percent': stream.get('lost_percent', 0),
-                        'retransmits':         stream.get('retransmits', 0),
-                        'rtt_ms':              stream.get('rtt', 0) / 1e3,
-                        'direction':           direction,
-                        'protocol':            protocol,
-                        'congestion_control':  congestion or 'N/A',
-                        'port':                port,
-                        'target_bandwidth':    bandwidth,
-                        'experiment_time':     experiment_timestamp,
-                    })
+            if direction == 'DL':
+                # cwnd/retr come from server (sender) intervals
+                client_intervals = data.get('intervals', [])
+                server_intervals = data.get('server_output', {}).get('intervals', [])
+
+                # build a retr/cwnd lookup by interval index from server side
+                server_lookup = {}
+                for i, iv in enumerate(server_intervals):
+                    for stream in iv.get('streams', []):
+                        server_lookup[i] = {
+                            'retransmits': stream.get('retransmits', 0),
+                            'cwnd_bytes':  stream.get('snd_cwnd', 0),
+                        }
+
+                for i, interval_block in enumerate(client_intervals):
+                    for stream in interval_block.get('streams', []):
+                        interval_start = experiment_time + timedelta(seconds=stream['start'])
+                        server_stats   = server_lookup.get(i, {'retransmits': None, 'cwnd_bytes': None})
+                        iperf_data.append({
+                            'timestamp':           interval_start.strftime(TIMESTAMP_FORMAT) + "Z",
+                            'interval_start':      stream['start'],
+                            'interval_end':        stream['end'],
+                            'throughput_mbps':     stream.get('bits_per_second', 0) / 1e6,
+                            'jitter_ms':           stream.get('jitter_ms', 0),
+                            'packet_loss_percent': stream.get('lost_percent', 0),
+                            'retransmits':         server_stats['retransmits'],
+                            'cwnd_bytes':          server_stats['cwnd_bytes'],
+                            'rtt_ms':              stream.get('rtt', 0) / 1e3,
+                            'direction':           direction,
+                            'protocol':            protocol,
+                            'congestion_control':  congestion or 'N/A',
+                            'port':                port,
+                            'target_bandwidth':    bandwidth,
+                            'experiment_time':     experiment_timestamp,
+                        })
+
+            else:  # UL — cwnd/retr come from client (sender)
+                for interval_block in data.get('intervals', []):
+                    for stream in interval_block.get('streams', []):
+                        interval_start = experiment_time + timedelta(seconds=stream['start'])
+                        iperf_data.append({
+                            'timestamp':           interval_start.strftime(TIMESTAMP_FORMAT) + "Z",
+                            'interval_start':      stream['start'],
+                            'interval_end':        stream['end'],
+                            'throughput_mbps':     stream.get('bits_per_second', 0) / 1e6,
+                            'jitter_ms':           stream.get('jitter_ms', 0),
+                            'packet_loss_percent': stream.get('lost_percent', 0),
+                            'retransmits':         stream.get('retransmits', 0),
+                            'cwnd_bytes':          stream.get('snd_cwnd', 0),
+                            'rtt_ms':              stream.get('rtt', 0) / 1e3,
+                            'direction':           direction,
+                            'protocol':            protocol,
+                            'congestion_control':  congestion or 'N/A',
+                            'port':                port,
+                            'target_bandwidth':    bandwidth,
+                            'experiment_time':     experiment_timestamp,
+                        })
+
+            # Save server output separately
+            server_out = data.get('server_output')
+            if server_out:
+                server_file = raw_output_file.replace('.json', '_server.json')
+                with open(server_file, 'w') as f:
+                    json.dump(server_out, f, indent=2)
 
             # Parsed CSV
             if iperf_data:
@@ -86,8 +131,9 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
                     fieldnames = [
                         'timestamp', 'interval_start', 'interval_end',
                         'throughput_mbps', 'jitter_ms', 'packet_loss_percent',
-                        'retransmits', 'rtt_ms', 'direction', 'protocol',
-                        'congestion_control', 'port', 'target_bandwidth', 'experiment_time',
+                        'retransmits', 'cwnd_bytes', 'rtt_ms',
+                        'direction', 'protocol', 'congestion_control',
+                        'port', 'target_bandwidth', 'experiment_time',
                     ]
                     writer = csv.DictWriter(f, fieldnames=fieldnames)
                     writer.writeheader()

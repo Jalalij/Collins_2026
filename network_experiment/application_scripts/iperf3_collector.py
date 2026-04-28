@@ -10,16 +10,43 @@ from datetime import datetime, timedelta, timezone
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
 
+def save_server_output(data, raw_output_file):
+    """
+    Always persist whatever server output iperf3 returned.
+
+    iperf3 can return server data in two different shapes depending on
+    version and mode:
+      - 'server_output'      : structured list of interval dicts  (JSON)
+      - 'server_output_text' : plain-text human-readable summary
+
+    Both are written; whichever key is absent is simply skipped.
+    The JSON form goes to  <base>_server.json
+    The text  form goes to  <base>_server.txt
+    """
+    base = raw_output_file.replace('.json', '')
+
+    server_json = data.get('server_output')
+    if server_json is not None:
+        with open(f'{base}_server.json', 'w') as f:
+            json.dump(server_json, f, indent=2)
+
+    server_text = data.get('server_output_text')
+    if server_text is not None:
+        with open(f'{base}_server.txt', 'w') as f:
+            f.write(server_text)
+
+
 def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, parsed_output_file,
                     protocol='udp', congestion=None, port=5201, interval=0.2):
     """Run iperf3 test and collect results with timestamps."""
     cmd = [
         'iperf3', '-c', server_ip,
-        '--port',      str(port),
-        '--bandwidth', f'{bandwidth}M',
-        '--time',      str(duration),
-        '--interval',  str(interval),
+        '--port',            str(port),
+        '--bandwidth',       f'{bandwidth}M',
+        '--time',            str(duration),
+        '--interval',        str(interval),
         '--json',
+        '--get-server-output',   # always request server output
     ]
 
     if protocol == 'udp':
@@ -28,9 +55,8 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
         cmd += ['--congestion', congestion]
 
     if direction == 'DL':
-        cmd += ['--reverse', '--get-server-output']
-    else:  # UL
-        cmd.append('--get-server-output')
+        cmd.append('--reverse')
+    # '--get-server-output' already added above for both DL and UL
 
     experiment_time      = datetime.now(timezone.utc)
     experiment_timestamp = experiment_time.strftime(TIMESTAMP_FORMAT) + "Z"
@@ -38,7 +64,7 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=duration + 30)
 
-        # Raw JSON
+        # ── Raw JSON (full iperf3 stdout + metadata) ──────────────────────────
         with open(raw_output_file, 'w') as f:
             json.dump({
                 "command":            " ".join(cmd),
@@ -60,12 +86,15 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
             data       = json.loads(result.stdout)
             iperf_data = []
 
+            # ── Always save server output ─────────────────────────────────────
+            save_server_output(data, raw_output_file)
+
+            # ── Parse client intervals into CSV rows ──────────────────────────
             if direction == 'DL':
-                # cwnd/retr come from server (sender) intervals
+                # cwnd/retr live on the server (sender) side
                 client_intervals = data.get('intervals', [])
                 server_intervals = data.get('server_output', {}).get('intervals', [])
 
-                # build a retr/cwnd lookup by interval index from server side
                 server_lookup = {}
                 for i, iv in enumerate(server_intervals):
                     for stream in iv.get('streams', []):
@@ -118,14 +147,7 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
                             'experiment_time':     experiment_timestamp,
                         })
 
-            # Save server output separately
-            server_out = data.get('server_output')
-            if server_out:
-                server_file = raw_output_file.replace('.json', '_server.json')
-                with open(server_file, 'w') as f:
-                    json.dump(server_out, f, indent=2)
-
-            # Parsed CSV
+            # ── Parsed CSV (client intervals) ─────────────────────────────────
             if iperf_data:
                 with open(parsed_output_file, 'w', newline='') as f:
                     fieldnames = [

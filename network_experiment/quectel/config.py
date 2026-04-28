@@ -4,15 +4,6 @@ import os
 
 # Directories
 BASE_DATA_DIR = "data"
-WEATHER_DIR   = os.path.join(BASE_DATA_DIR, "weather")
-QUECTEL_DIR   = os.path.join(BASE_DATA_DIR, "radio")
-PING_DIR      = os.path.join(BASE_DATA_DIR, "ping")
-IPERF_DIR     = os.path.join(BASE_DATA_DIR, "iperf")
-
-os.makedirs(WEATHER_DIR, exist_ok=True)
-os.makedirs(QUECTEL_DIR, exist_ok=True)
-os.makedirs(PING_DIR,    exist_ok=True)
-os.makedirs(IPERF_DIR,   exist_ok=True)
 
 # Network configuration
 SERVER_IP = "10.188.0.9"

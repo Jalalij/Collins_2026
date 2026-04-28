@@ -4,17 +4,6 @@ import os
 
 # Directories
 BASE_DATA_DIR = "data"
-WEATHER_DIR   = os.path.join(BASE_DATA_DIR, "weather")
-STARLINK_DIR  = os.path.join(BASE_DATA_DIR, "terminal")
-PING_DIR      = os.path.join(BASE_DATA_DIR, "ping")
-IPERF_DIR     = os.path.join(BASE_DATA_DIR, "iperf")
-SATELLITE_DIR = os.path.join(BASE_DATA_DIR, "satellite")
-
-os.makedirs(WEATHER_DIR,   exist_ok=True)
-os.makedirs(STARLINK_DIR,  exist_ok=True)
-os.makedirs(PING_DIR,      exist_ok=True)
-os.makedirs(IPERF_DIR,     exist_ok=True)
-os.makedirs(SATELLITE_DIR, exist_ok=True)
 
 # Network configuration
 SERVER_IP = "10.188.0.9"

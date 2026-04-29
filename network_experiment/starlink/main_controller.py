@@ -128,6 +128,26 @@ def _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion=
         cmd += ["--congestion", congestion]
     return cmd
 
+def _start_collector_process(cmd):
+    """Launch a collector as a background process (non-blocking)."""
+    return subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def _wait_for_process(proc, name, timeout):
+    """Wait for a Popen process to finish, with timeout."""
+    try:
+        proc.wait(timeout=timeout)
+        if proc.returncode != 0:
+            print(f"    [{name}] failed with code {proc.returncode}")
+            return False
+        return True
+    except subprocess.TimeoutExpired:
+        print(f"    [{name}] timed out")
+        proc.kill()
+        return False
+
+
+SATELLITE_WARMUP = 30  # seconds to wait after launching satellite_tracker
 
 # --------------------------------------------------------------------------- #
 # Baseline block
@@ -138,12 +158,18 @@ def run_baseline(slot_dir, duration):
     run_dir = _make_run_dir(slot_dir, "baseline")
     print(f"  Starting baseline → {run_dir}")
 
-    cmds = {
-        "ping":           _launch_ping(run_dir, duration),
+    # 1. Start satellite first and give it time to initialize
+    sat_cmd = _launch_satellite(run_dir, duration + SATELLITE_WARMUP)
+    print(f"  Launching satellite_tracker, waiting {SATELLITE_WARMUP}s for it to initialize...")
+    sat_proc = _start_collector_process(sat_cmd)
+    time.sleep(SATELLITE_WARMUP)
+
+    # 2. Start everything else in parallel
+    other_cmds = {
+        "ping":            _launch_ping(run_dir, duration),
         "ping_cloudflare": _launch_ping_cloudflare(run_dir, duration),
-        "starlink":       _launch_starlink(run_dir, duration),
-        "satellite":      _launch_satellite(run_dir, duration),
-        "weather":        _launch_weather(run_dir, duration),
+        "starlink":        _launch_starlink(run_dir, duration),
+        "weather":         _launch_weather(run_dir, duration),
     }
 
     threads = {}
@@ -152,13 +178,16 @@ def run_baseline(slot_dir, duration):
     def _run_collector(name, cmd):
         results[name] = _run(cmd, timeout=duration + 30, label=name)
 
-    for name, cmd in cmds.items():
+    for name, cmd in other_cmds.items():
         t = threading.Thread(target=_run_collector, args=(name, cmd))
         t.start()
         threads[name] = t
 
     for name, t in threads.items():
         t.join()
+
+    # 3. Wait for satellite to finish
+    results["satellite"] = _wait_for_process(sat_proc, "satellite", timeout=duration + SATELLITE_WARMUP + 30)
 
     ok = all(results.values())
     print(f"  Baseline complete: " +
@@ -172,18 +201,24 @@ def run_baseline(slot_dir, duration):
 
 def run_test_block(slot_dir, label, direction, bandwidth, duration, protocol, congestion=None):
     """
-    Run iperf, ping, ping_cloudflare, starlink, satellite, and weather
-    simultaneously for duration seconds. All output saved under slot_dir/label/.
+    Start satellite_tracker first, wait SATELLITE_WARMUP seconds, then launch
+    all other collectors (iperf, ping, starlink, weather) simultaneously.
     """
     run_dir = _make_run_dir(slot_dir, label)
     print(f"  Starting block: {label} → {run_dir}")
 
-    cmds = {
+    # 1. Start satellite first and give it time to initialize
+    sat_cmd = _launch_satellite(run_dir, duration + SATELLITE_WARMUP)
+    print(f"  Launching satellite_tracker, waiting {SATELLITE_WARMUP}s for it to initialize...")
+    sat_proc = _start_collector_process(sat_cmd)
+    time.sleep(SATELLITE_WARMUP)
+
+    # 2. Start everything else in parallel
+    other_cmds = {
         "iperf":           _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion),
         "ping":            _launch_ping(run_dir, duration),
         "ping_cloudflare": _launch_ping_cloudflare(run_dir, duration),
         "starlink":        _launch_starlink(run_dir, duration),
-        "satellite":       _launch_satellite(run_dir, duration),
         "weather":         _launch_weather(run_dir, duration),
     }
 
@@ -193,13 +228,16 @@ def run_test_block(slot_dir, label, direction, bandwidth, duration, protocol, co
     def _run_collector(name, cmd):
         results[name] = _run(cmd, timeout=duration + 30, label=name)
 
-    for name, cmd in cmds.items():
+    for name, cmd in other_cmds.items():
         t = threading.Thread(target=_run_collector, args=(name, cmd))
         t.start()
         threads[name] = t
 
     for name, t in threads.items():
         t.join()
+
+    # 3. Wait for satellite to finish
+    results["satellite"] = _wait_for_process(sat_proc, "satellite", timeout=duration + SATELLITE_WARMUP + 30)
 
     ok = all(results.values())
     print(f"  Block complete: {label} — " +

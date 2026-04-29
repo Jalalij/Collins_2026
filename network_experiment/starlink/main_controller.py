@@ -7,7 +7,7 @@ import threading
 import subprocess
 from datetime import datetime
 from network_experiment.starlink.config import (
-    SLEEP_TIME, SERVER_IP, PING_INTERVAL, PING_PACKET_SIZE, IPERF3_INTERVAL, WEATHER_INTERVAL
+    SLEEP_TIME, SERVER_IP, PING_INTERVAL, PING_PACKET_SIZE, IPERF3_INTERVAL, WEATHER_INTERVAL, TUNNEL_IP
 )
 
 DURATION      = 600
@@ -130,7 +130,7 @@ def _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion=
         "--direction",   direction,
         "--bandwidth",   str(bandwidth),
         "--duration",    str(duration),
-        "--server-ip",   SERVER_IP,
+        "--server-ip",   TUNNEL_IP,
         "--interval",    str(IPERF3_INTERVAL),
         "--protocol",    protocol,
         "--raw-file",    os.path.join(run_dir, "iperf.json"),

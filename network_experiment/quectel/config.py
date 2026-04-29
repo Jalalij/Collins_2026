@@ -12,7 +12,7 @@ TUNNEL_IP = "10.77.0.1"
 # Collector intervals
 PING_INTERVAL    = 0.2   # seconds between ping packets
 PING_PACKET_SIZE = 56    # bytes
-IPERF3_INTERVAL  = 0.2   # seconds between iperf3 reports
+IPERF3_INTERVAL  = 1.0   # seconds between iperf3 reports
 WEATHER_INTERVAL = 1.0   # seconds between weather polls
 
 # Experiment parameters

@@ -70,8 +70,8 @@ def _run(cmd, timeout=None, label=""):
 # Collector launchers
 # --------------------------------------------------------------------------- #
 
-def _launch_ping(run_dir, duration, source=None):
-    cmd = [
+def _launch_ping(run_dir, duration):
+    return [
         "python3", _collector("ping_collector.py"),
         "--duration",    str(duration),
         "--server-ip",   SERVER_IP,
@@ -81,9 +81,6 @@ def _launch_ping(run_dir, duration, source=None):
         "--raw-file",    os.path.join(run_dir, "ping.json"),
         "--parsed-file", os.path.join(run_dir, "ping.csv"),
     ]
-    if source:
-        cmd += ["--source", source]
-    return cmd
 
 
 def _launch_ping_cloudflare(run_dir, duration):

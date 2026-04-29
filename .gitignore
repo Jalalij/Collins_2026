@@ -1,7 +1,13 @@
+# Data
+data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
 *$py.class
+network_experiment/quectel/__pycache__
+network_experiment/starlink/__pycache__
+network_experiment/oneweb/__pycache__
 
 # C extensions
 *.so

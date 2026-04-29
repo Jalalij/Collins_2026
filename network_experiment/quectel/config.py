@@ -8,6 +8,7 @@ BASE_DATA_DIR = "data"
 # Network configuration
 SERVER_IP = "10.188.0.9"
 TUNNEL_IP = "10.77.0.1"
+IPERF_PORT = 5202
 
 # Collector intervals
 PING_INTERVAL    = 0.2   # seconds between ping packets

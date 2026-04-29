@@ -101,6 +101,7 @@ def _launch_weather(run_dir, duration):
         "--poll-interval", str(WEATHER_INTERVAL),
         "--raw-file",      os.path.join(run_dir, "weather.json"),
         "--parsed-file",   os.path.join(run_dir, "weather.csv"),
+        "--stations",      "WilsonHall",
     ]
 
 

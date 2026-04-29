@@ -17,8 +17,8 @@ PROTOCOLS     = [
     {"name": "cubic", "protocol": "tcp", "congestion": "cubic"},
 ]
 BANDWIDTH_CONFIGS = [
-    {"dl": 100, "ul": 20},
-    {"dl": 50,  "ul": 10},
+    {"dl": 320, "ul": 40},
+    {"dl": 160,  "ul": 20},
 ]
 
 GRACE_PERIOD = 10
@@ -75,6 +75,7 @@ def _launch_ping(run_dir, duration, source=None):
         "python3", _collector("ping_collector.py"),
         "--duration",    str(duration),
         "--server-ip",   SERVER_IP,
+        "--source",      "eth1",
         "--interval",    str(PING_INTERVAL),
         "--packet-size", str(PING_PACKET_SIZE),
         "--raw-file",    os.path.join(run_dir, "ping.json"),
@@ -90,6 +91,7 @@ def _launch_ping_cloudflare(run_dir, duration):
         "python3", _collector("ping_collector.py"),
         "--duration",    str(duration),
         "--server-ip",   "1.1.1.1",
+        "--source",      "eth1",
         "--interval",    str(PING_INTERVAL),
         "--packet-size", str(PING_PACKET_SIZE),
         "--raw-file",    os.path.join(run_dir, "ping_1_1_1_1.json"),

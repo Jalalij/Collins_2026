@@ -26,16 +26,3 @@ BACKUP_COUNT = 10
 
 # Timestamp format
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
-
-
-def generate_ping_filename(extension="json"):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return os.path.join(PING_DIR, f"{timestamp}_ping.{extension}")
-
-def generate_iperf_filename(direction, target_bw, extension="json"):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return os.path.join(IPERF_DIR, f"{timestamp}_{direction}_{target_bw}mbps_iperf3.{extension}")
-
-def generate_weather_filename(extension="json"):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return os.path.join(WEATHER_DIR, f"{timestamp}_weather.{extension}")

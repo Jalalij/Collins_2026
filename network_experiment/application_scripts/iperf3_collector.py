@@ -8,20 +8,15 @@ import argparse
 from datetime import datetime, timedelta, timezone
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+GRACE_PERIOD     = 10  # seconds after timeout to wait for clean exit before SIGKILL
 
 
 def save_server_output(data, raw_output_file):
     """
-    Always persist whatever server output iperf3 returned.
-
-    iperf3 can return server data in two different shapes depending on
-    version and mode:
-      - 'server_output'      : structured list of interval dicts  (JSON)
+    Persist whatever server output iperf3 returned.
+    iperf3 can return server data in two shapes:
+      - 'server_output'      : structured list of interval dicts (JSON)
       - 'server_output_text' : plain-text human-readable summary
-
-    Both are written; whichever key is absent is simply skipped.
-    The JSON form goes to  <base>_server.json
-    The text  form goes to  <base>_server.txt
     """
     base = raw_output_file.replace('.json', '')
 
@@ -46,7 +41,7 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
         '--time',            str(duration),
         '--interval',        str(interval),
         '--json',
-        '--get-server-output',   # always request server output
+        '--get-server-output',
     ]
 
     if protocol == 'udp':
@@ -56,15 +51,28 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
 
     if direction == 'DL':
         cmd.append('--reverse')
-    # '--get-server-output' already added above for both DL and UL
 
     experiment_time      = datetime.now(timezone.utc)
     experiment_timestamp = experiment_time.strftime(TIMESTAMP_FORMAT) + "Z"
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=duration + 30)
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
-        # ── Raw JSON (full iperf3 stdout + metadata) ──────────────────────────
+        try:
+            stdout, stderr = proc.communicate(timeout=duration + 30)
+        except subprocess.TimeoutExpired:
+            print(f"iperf3 {direction} timeout reached, sending SIGTERM...")
+            proc.terminate()
+            try:
+                stdout, stderr = proc.communicate(timeout=GRACE_PERIOD)
+                print(f"iperf3 {direction} cleanly terminated")
+            except subprocess.TimeoutExpired:
+                print(f"iperf3 {direction} did not stop cleanly, killing")
+                proc.kill()
+                stdout, stderr = proc.communicate()
+            return 0
+
+        # Raw JSON
         with open(raw_output_file, 'w') as f:
             json.dump({
                 "command":            " ".join(cmd),
@@ -77,30 +85,30 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
                 "target_bandwidth":   bandwidth,
                 "duration":           duration,
                 "interval":           interval,
-                "stdout":             result.stdout,
-                "stderr":             result.stderr,
-                "return_code":        result.returncode,
+                "stdout":             stdout,
+                "stderr":             stderr,
+                "return_code":        proc.returncode,
             }, f, indent=2)
 
-        if result.returncode == 0:
-            data       = json.loads(result.stdout)
+        if proc.returncode == 0:
+            data       = json.loads(stdout)
             iperf_data = []
 
-            # ── Always save server output ─────────────────────────────────────
             save_server_output(data, raw_output_file)
 
-            # ── Parse client intervals into CSV rows ──────────────────────────
             if direction == 'DL':
-                # cwnd/retr live on the server (sender) side
+                # cwnd/retr live on the server (sender) side for TCP DL
+                # lost/total live on the client (receiver) side for UDP DL
                 client_intervals = data.get('intervals', [])
-                server_intervals = data.get('server_output', {}).get('intervals', [])
+                server_intervals = data.get('server_output', {}).get('intervals', []) \
+                                   if isinstance(data.get('server_output'), dict) else []
 
                 server_lookup = {}
                 for i, iv in enumerate(server_intervals):
                     for stream in iv.get('streams', []):
                         server_lookup[i] = {
-                            'retransmits': stream.get('retransmits', 0),
-                            'cwnd_bytes':  stream.get('snd_cwnd', 0),
+                            'retransmits': stream.get('retransmits', None),
+                            'cwnd_bytes':  stream.get('snd_cwnd', None),
                         }
 
                 for i, interval_block in enumerate(client_intervals):
@@ -112,8 +120,10 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
                             'interval_start':      stream['start'],
                             'interval_end':        stream['end'],
                             'throughput_mbps':     stream.get('bits_per_second', 0) / 1e6,
-                            'jitter_ms':           stream.get('jitter_ms', 0),
-                            'packet_loss_percent': stream.get('lost_percent', 0),
+                            'jitter_ms':           stream.get('jitter_ms', None),
+                            'packet_loss_percent': stream.get('lost_percent', None),
+                            'lost_packets':        stream.get('lost_packets', None),
+                            'total_packets':       stream.get('packets', None),
                             'retransmits':         server_stats['retransmits'],
                             'cwnd_bytes':          server_stats['cwnd_bytes'],
                             'rtt_ms':              stream.get('rtt', 0) / 1e3,
@@ -125,7 +135,7 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
                             'experiment_time':     experiment_timestamp,
                         })
 
-            else:  # UL — cwnd/retr come from client (sender)
+            else:  # UL — cwnd/retr/lost from client (sender)
                 for interval_block in data.get('intervals', []):
                     for stream in interval_block.get('streams', []):
                         interval_start = experiment_time + timedelta(seconds=stream['start'])
@@ -134,10 +144,12 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
                             'interval_start':      stream['start'],
                             'interval_end':        stream['end'],
                             'throughput_mbps':     stream.get('bits_per_second', 0) / 1e6,
-                            'jitter_ms':           stream.get('jitter_ms', 0),
-                            'packet_loss_percent': stream.get('lost_percent', 0),
-                            'retransmits':         stream.get('retransmits', 0),
-                            'cwnd_bytes':          stream.get('snd_cwnd', 0),
+                            'jitter_ms':           stream.get('jitter_ms', None),
+                            'packet_loss_percent': stream.get('lost_percent', None),
+                            'lost_packets':        stream.get('lost_packets', None),
+                            'total_packets':       stream.get('packets', None),
+                            'retransmits':         stream.get('retransmits', None),
+                            'cwnd_bytes':          stream.get('snd_cwnd', None),
                             'rtt_ms':              stream.get('rtt', 0) / 1e3,
                             'direction':           direction,
                             'protocol':            protocol,
@@ -147,12 +159,12 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
                             'experiment_time':     experiment_timestamp,
                         })
 
-            # ── Parsed CSV (client intervals) ─────────────────────────────────
             if iperf_data:
                 with open(parsed_output_file, 'w', newline='') as f:
                     fieldnames = [
                         'timestamp', 'interval_start', 'interval_end',
                         'throughput_mbps', 'jitter_ms', 'packet_loss_percent',
+                        'lost_packets', 'total_packets',
                         'retransmits', 'cwnd_bytes', 'rtt_ms',
                         'direction', 'protocol', 'congestion_control',
                         'port', 'target_bandwidth', 'experiment_time',
@@ -163,12 +175,9 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
 
             return len(iperf_data)
         else:
-            print(f"iperf3 {direction} failed: {result.stderr}")
+            print(f"iperf3 {direction} failed: {stderr.strip()}")
             return 0
 
-    except subprocess.TimeoutExpired:
-        print(f"iperf3 {direction} timed out")
-        return 0
     except Exception as e:
         print(f"iperf3 {direction} error: {e}")
         return 0

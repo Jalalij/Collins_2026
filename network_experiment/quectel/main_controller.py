@@ -21,6 +21,8 @@ BANDWIDTH_CONFIGS = [
     {"dl": 50,  "ul": 10},
 ]
 
+GRACE_PERIOD = 10
+
 BASE_DATA_DIR = "data"
 COLLECTOR_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "application_scripts")
 
@@ -41,14 +43,24 @@ def _collector(script):
 
 def _run(cmd, timeout=None, label=""):
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
-        if result.returncode != 0:
-            print(f"    [{label}] failed: {result.stderr.strip()}")
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            stdout, stderr = proc.communicate(timeout=timeout)
+            if proc.returncode != 0:
+                print(f"    [{label}] failed: {stderr.strip()}")
+                return False
+            return True
+        except subprocess.TimeoutExpired:
+            print(f"    [{label}] timeout reached, sending SIGTERM...")
+            proc.terminate()
+            try:
+                proc.communicate(timeout=GRACE_PERIOD)
+                print(f"    [{label}] cleanly terminated")
+            except subprocess.TimeoutExpired:
+                print(f"    [{label}] did not stop cleanly, killing")
+                proc.kill()
+                proc.communicate()
             return False
-        return True
-    except subprocess.TimeoutExpired:
-        print(f"    [{label}] timed out")
-        return False
     except Exception as e:
         print(f"    [{label}] error: {e}")
         return False

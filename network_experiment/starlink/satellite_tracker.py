@@ -775,10 +775,12 @@ def process_timeslot_thread(
 
         for _, row in result_df.iterrows():
             samples.append({
-                "timestamp":    row["Timestamp"].strftime(TIMESTAMP_FORMAT) + "Z",
-                "satellite_id": row["Connected_Satellite"],
-                "distance_km":  round(row["Distance"], 1),
-                "experiment_time":    experiment_timestamp,
+                "timestamp":       row["Timestamp"].strftime(TIMESTAMP_FORMAT) + "Z",
+                "satellite_id":    row["Connected_Satellite"],
+                "distance_km":     round(row["Distance"], 1),
+                "elevation_deg":   round(row.get("Elevation", 0), 3),
+                "azimuth_deg":     round(row.get("Azimuth", 0), 3),
+                "experiment_time": experiment_timestamp,
             })
 
     except Exception as e:
@@ -911,7 +913,7 @@ def run(tle_file: Optional[str] = None, duration: int = 120, parsed_output_file:
 
         if samples:
             with open(parsed_output_file, "w", newline="") as f:
-                writer = csv.DictWriter(f, fieldnames=["timestamp", "satellite_id", "distance_km", "experiment_time"])
+                writer = csv.DictWriter(f, fieldnames=["timestamp", "satellite_id", "distance_km", "elevation_deg", "azimuth_deg", "experiment_time"])
                 writer.writeheader()
                 writer.writerows(samples)
 

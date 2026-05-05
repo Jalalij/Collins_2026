@@ -17,8 +17,8 @@ PROTOCOLS     = [
     {"name": "cubic", "protocol": "tcp", "congestion": "cubic"},
 ]
 BANDWIDTH_CONFIGS = [
-    {"dl": 320, "ul": 40},
-    {"dl": 160,  "ul": 20},
+    {"dl": 400, "ul": 40},
+    {"dl": 200,  "ul": 20},
 ]
 
 GRACE_PERIOD = 10

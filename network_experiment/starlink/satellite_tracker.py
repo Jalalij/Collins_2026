@@ -34,7 +34,7 @@ from skyfield.api import load, wgs84
 
 import config
 
-sys.path.insert(0, str(Path("./starlink-grpc-tools").resolve()))
+sys.path.insert(0, str(Path(__file__).parent / "starlink-grpc-tools"))
 import starlink_grpc
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
@@ -48,7 +48,7 @@ TLE_DIR          = Path("TLE")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# TimeslotManager  — original, unchanged
+# TimeslotManager
 # ══════════════════════════════════════════════════════════════════════════════
 
 class TimeslotManager:
@@ -77,7 +77,7 @@ class TimeslotManager:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# LocationProvider  — original, unchanged
+# LocationProvider
 # ══════════════════════════════════════════════════════════════════════════════
 
 class LocationProvider:
@@ -102,8 +102,7 @@ class LocationProvider:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# ObstructionMap  — original process_timeslot logic, CSV writer removed
-#                   (we return the rows as a DataFrame instead of writing CSV)
+# ObstructionMap
 # ══════════════════════════════════════════════════════════════════════════════
 
 class ObstructionMap:
@@ -143,7 +142,7 @@ class ObstructionMap:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# DataFeatureExtraction  — original, unchanged
+# DataFeatureExtraction
 # ══════════════════════════════════════════════════════════════════════════════
 
 class DataFeatureExtraction:
@@ -245,11 +244,6 @@ class DataFeatureExtraction:
         df_status: pd.DataFrame,
         df_location: Optional[pd.DataFrame] = None,
     ) -> pd.DataFrame:
-        """
-        Original merge logic — identical to the original except obstruction data
-        is passed as a CSV string (in-memory) instead of a file path, to avoid
-        disk I/O while keeping every line of logic unchanged.
-        """
         try:
             df_obstruction = pd.read_csv(StringIO(obstruction_csv_str))
             df_obstruction["timestamp"] = pd.to_datetime(df_obstruction["timestamp"], format="%Y-%m-%d %H:%M:%S")
@@ -291,10 +285,6 @@ class DataFeatureExtraction:
         merged_df: pd.DataFrame,
         timestamp: str,
     ) -> Optional[List[Tuple[datetime, Tuple[float, float]]]]:
-        """
-        Original process_observed_data logic — reads from the merged DataFrame
-        instead of a saved CSV file. Everything else is identical.
-        """
         try:
             df = merged_df.copy()
             if df["timestamp"].dt.tz is not None:
@@ -325,7 +315,7 @@ class DataFeatureExtraction:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# GrpcCommand  — original, unchanged
+# GrpcCommand
 # ══════════════════════════════════════════════════════════════════════════════
 
 class GrpcCommand:
@@ -365,11 +355,11 @@ class GrpcCommand:
         try:
             result = self.execute(self.reset_obstruction_cmd)
             if result is None:
-                raise Exception("Failed to reset obstruction map")
-            # logger.info("Resetting dish obstruction map")
+                logger.warning("Failed to reset obstruction map, continuing anyway")
+                return
+            logger.info("Resetting dish obstruction map")
         except Exception as e:
-            logger.error(f"Failed resetting obstruction map: {str(e)}")
-            raise
+            logger.warning(f"Failed resetting obstruction map: {e}, continuing anyway")
 
     def status(self, current_time: float) -> Optional[List[Any]]:
         try:
@@ -408,7 +398,6 @@ class GrpcCommand:
             return 0, "UNKNOWN"
 
     def get_obstruction_data(self) -> Optional[Tuple[float, np.ndarray]]:
-        """Original: creates a new context per call."""
         try:
             context          = starlink_grpc.ChannelContext(target=config.STARLINK_GRPC_ADDR_PORT)
             obstruction_data = np.array(starlink_grpc.obstruction_map(context), dtype=int)
@@ -420,7 +409,6 @@ class GrpcCommand:
             return None
 
     def collect_timeslot_data(self, timeslot_start: float) -> Optional[Dict[str, List[Any]]]:
-        """Original _collect_timeslot_data from jobs.py."""
         try:
             obstruction_data_array = []
             timestamp_array        = []
@@ -437,7 +425,7 @@ class GrpcCommand:
                 return None
 
             return {
-                "timestamp":      timestamp_array,
+                "timestamp":       timestamp_array,
                 "obstruction_map": obstruction_data_array,
             }
         except Exception as e:
@@ -446,7 +434,7 @@ class GrpcCommand:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SatelliteProcessor  — original, unchanged
+# SatelliteProcessor
 # ══════════════════════════════════════════════════════════════════════════════
 
 class SatelliteProcessor:
@@ -519,61 +507,58 @@ class SatelliteProcessor:
 
     def process_feature_time_interval(
         self,
-        merged_df:        pd.DataFrame,
-        year:             int,
-        month:            int,
-        day:              int,
-        hour:             int,
-        minute:           int,
-        second:           int,
-        satellites:       List[Any],
-        frame_type:       int,
+        merged_df:          pd.DataFrame,
+        year:               int,
+        month:              int,
+        day:                int,
+        hour:               int,
+        minute:             int,
+        second:             int,
+        satellites:         List[Any],
+        frame_type:         int,
         df_gps_diagnostics: Optional[pd.DataFrame] = None,
-    ) -> Tuple[Optional[List], Optional[List[str]], Optional[List[float]]]:
-        """Original process_feature_time_interval — reads from merged_df instead of CSV files."""
+    ) -> Tuple[Optional[List], Optional[List[str]], Optional[List[float]], Optional[Any]]:
         initial_time      = datetime(year, month, day, hour, minute, second, tzinfo=timezone.utc)
         observer_location = self.location_provider.get_observer_location(df_gps_diagnostics)
         if observer_location is None:
             logger.error("Failed to get observer location")
-            return None, None, None
+            return None, None, None, None
 
         observed_positions_with_timestamps = self.data_extracter.process_observed_data_from_df(
             merged_df, initial_time.strftime("%Y-%m-%dT%H:%M:%SZ")
         )
         if observed_positions_with_timestamps is None:
-            return None, None, None
+            return None, None, None, None
 
         matching_satellites = self.find_matching_satellites(
             satellites, observer_location, observed_positions_with_timestamps, frame_type
         )
         if not matching_satellites:
-            return observed_positions_with_timestamps, None, None
+            return observed_positions_with_timestamps, None, None, None
 
         best_match_satellite = next(sat for sat in satellites if sat.name == matching_satellites[0])
         distances = self.calculate_distance_for_best_match(
             best_match_satellite, observer_location, initial_time, 14
         )
 
-        return observed_positions_with_timestamps, matching_satellites, distances
+        return observed_positions_with_timestamps, matching_satellites, distances, best_match_satellite
 
     def process_intervals(
         self,
-        merged_df:        pd.DataFrame,
-        start_time:       datetime,
-        end_time:         datetime,
-        satellites:       List[Any],
-        frame_type:       int,
+        merged_df:          pd.DataFrame,
+        start_time:         datetime,
+        end_time:           datetime,
+        satellites:         List[Any],
+        frame_type:         int,
         df_gps_diagnostics: Optional[pd.DataFrame] = None,
-    ) -> Optional[pd.DataFrame]:
-        """Original process_intervals — operates on in-memory merged_df."""
+    ) -> Tuple[Optional[pd.DataFrame], Optional[Any]]:
         try:
             results      = []
             current_time = start_time
+            best_sat_obj = None
 
             while current_time <= end_time:
-                # logger.info(f"Estimating connected satellites for timeslot {current_time}")
-
-                _, matching_satellites, distances = self.process_feature_time_interval(
+                _, matching_satellites, distances, sat_obj = self.process_feature_time_interval(
                     merged_df,
                     current_time.year, current_time.month, current_time.day,
                     current_time.hour, current_time.minute, current_time.second,
@@ -581,6 +566,7 @@ class SatelliteProcessor:
                 )
 
                 if matching_satellites and distances:
+                    best_sat_obj = sat_obj
                     for second in range(15):
                         if second < len(distances):
                             results.append({
@@ -593,15 +579,15 @@ class SatelliteProcessor:
 
             if not results:
                 logger.warning("No data points processed")
-                return None
+                return None, None
 
-            return pd.DataFrame(results)
+            return pd.DataFrame(results), best_sat_obj
 
         except Exception as e:
             logger.error(f"Error processing intervals: {str(e)}", exc_info=True)
-            return None
+            return None, None
 
-    # ── scoring helpers — original, unchanged ─────────────────────────────────
+    # ── scoring helpers ────────────────────────────────────────────────────────
 
     def calculate_total_difference(self, observed_positions, satellite_positions):
         total_angular_separation = 0
@@ -720,24 +706,23 @@ def load_tle(tle_file: Optional[str] = None):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Processing thread  — mirrors process_obstruction_estimate_satellites_per_timeslot
-#                      from data_feature_extraction.py, minus file saving
+# Processing thread
 # ══════════════════════════════════════════════════════════════════════════════
 
 def process_timeslot_thread(
-    timeslot_df:    pd.DataFrame,
-    frame_type:     int,
-    df_status:      pd.DataFrame,
-    satellites:     List[Any],
-    df_location:    Optional[pd.DataFrame],
-    timeslot_start: datetime,
-    samples:        list,
+    timeslot_df:          pd.DataFrame,
+    frame_type:           int,
+    df_status:            pd.DataFrame,
+    satellites:           List[Any],
+    df_location:          Optional[pd.DataFrame],
+    timeslot_start:       datetime,
+    samples:              list,
     experiment_timestamp: str,
 ):
     try:
-        data_extracter   = DataFeatureExtraction()
-        sat_processor    = SatelliteProcessor()
-        obstruction_map  = ObstructionMap()
+        data_extracter  = DataFeatureExtraction()
+        sat_processor   = SatelliteProcessor()
+        obstruction_map = ObstructionMap()
 
         # Step 1: process_timeslot → write to in-memory CSV string
         csv_buffer = StringIO()
@@ -762,9 +747,9 @@ def process_timeslot_thread(
         # Step 3: pixel → elevation/azimuth
         merged_df = data_extracter.pre_process_observed_data_by_frame_type(merged_df, frame_type)
 
-        # Step 4: match satellites
-        end_time   = timeslot_start + timedelta(seconds=TimeslotManager.TIMESLOT_DURATION)
-        result_df  = sat_processor.process_intervals(
+        # Step 4: match satellites — returns (result_df, best_sat_obj)
+        end_time              = timeslot_start + timedelta(seconds=TimeslotManager.TIMESLOT_DURATION)
+        result_df, best_sat_obj = sat_processor.process_intervals(
             merged_df, timeslot_start, end_time, satellites, frame_type,
             df_location if config.MOBILE else None,
         )
@@ -773,13 +758,32 @@ def process_timeslot_thread(
             logger.warning("No satellite match found this timeslot")
             return
 
+        # Step 5: compute satellite geographic position per row
+        ts_skyfield = load.timescale()
+
         for _, row in result_df.iterrows():
+            sat_lat = sat_lon = sat_alt_km = None
+
+            if best_sat_obj is not None:
+                try:
+                    t          = ts_skyfield.from_datetime(row["Timestamp"].replace(tzinfo=timezone.utc))
+                    geocentric = best_sat_obj.at(t)
+                    subpoint   = wgs84.subpoint(geocentric)
+                    sat_lat    = round(float(subpoint.latitude.degrees), 4)
+                    sat_lon    = round(float(subpoint.longitude.degrees), 4)
+                    sat_alt_km = round(float(subpoint.elevation.km), 1)
+                except Exception as e:
+                    logger.warning(f"Could not compute satellite position: {e}")
+
             samples.append({
                 "timestamp":       row["Timestamp"].strftime(TIMESTAMP_FORMAT) + "Z",
                 "satellite_id":    row["Connected_Satellite"],
                 "distance_km":     round(row["Distance"], 1),
                 "elevation_deg":   round(row.get("Elevation", 0), 3),
                 "azimuth_deg":     round(row.get("Azimuth", 0), 3),
+                "sat_lat":         sat_lat,
+                "sat_lon":         sat_lon,
+                "sat_alt_km":      sat_alt_km,
                 "experiment_time": experiment_timestamp,
             })
 
@@ -788,19 +792,14 @@ def process_timeslot_thread(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Status collection thread  — mirrors grpc_status_job from jobs.py
+# Status collection thread
 # ══════════════════════════════════════════════════════════════════════════════
 
 class StatusCollector:
-    """
-    Continuously collects dish status in a background thread, exactly like
-    grpc_status_job. Keeps the latest window of status rows in memory so
-    each processing thread can grab a snapshot.
-    """
     def __init__(self, grpc: GrpcCommand):
         self._grpc  = grpc
         self._lock  = threading.Lock()
-        self._rows  = []   # list of status field lists
+        self._rows  = []
         self._cols  = DataFeatureExtraction().status_columns
         self._stop  = threading.Event()
 
@@ -833,7 +832,7 @@ class StatusCollector:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# Main loop  — duration-based, mirrors ping/iperf/starlink collectors
+# Main loop
 # ══════════════════════════════════════════════════════════════════════════════
 
 def run(tle_file: Optional[str] = None, duration: int = 120, parsed_output_file: str = None):
@@ -846,7 +845,7 @@ def run(tle_file: Optional[str] = None, duration: int = 120, parsed_output_file:
     frame_type_int, frame_type_str = grpc.get_obstruction_map_frame_type()
     logger.info(f"Obstruction map frame type: {frame_type_str}")
 
-    status_collector = StatusCollector(grpc)
+    status_collector     = StatusCollector(grpc)
     status_collector.start()
 
     samples              = []
@@ -857,7 +856,6 @@ def run(tle_file: Optional[str] = None, duration: int = 120, parsed_output_file:
 
     try:
         while time.time() < deadline:
-            # Sync to Starlink network timeslot boundary — original logic from jobs.py
             if last_timeslot_second is None:
                 now = datetime.now(timezone.utc)
                 if now.second >= 12 and now.second < 27:
@@ -913,7 +911,12 @@ def run(tle_file: Optional[str] = None, duration: int = 120, parsed_output_file:
 
         if samples:
             with open(parsed_output_file, "w", newline="") as f:
-                writer = csv.DictWriter(f, fieldnames=["timestamp", "satellite_id", "distance_km", "elevation_deg", "azimuth_deg", "experiment_time"])
+                writer = csv.DictWriter(f, fieldnames=[
+                    "timestamp", "satellite_id", "distance_km",
+                    "elevation_deg", "azimuth_deg",
+                    "sat_lat", "sat_lon", "sat_alt_km",
+                    "experiment_time",
+                ])
                 writer.writeheader()
                 writer.writerows(samples)
 
@@ -924,11 +927,12 @@ def run(tle_file: Optional[str] = None, duration: int = 120, parsed_output_file:
 # ══════════════════════════════════════════════════════════════════════════════
 # CLI
 # ══════════════════════════════════════════════════════════════════════════════
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Starlink connected-satellite tracker")
-    parser.add_argument("--tle-file",    type=str, default=None,             help="Path to local TLE file (optional)")
-    parser.add_argument("--duration",    type=int, default=120,              help="Collection duration in seconds")
-    parser.add_argument("--parsed-file", required=True,                      help="Output path for parsed CSV")
+    parser.add_argument("--tle-file",    type=str, default=None,                 help="Path to local TLE file (optional)")
+    parser.add_argument("--duration",    type=int, default=120,                  help="Collection duration in seconds")
+    parser.add_argument("--parsed-file", required=True,                          help="Output path for parsed CSV")
     parser.add_argument("--grpc",        type=str, default="192.168.100.1:9200", help="Starlink gRPC address:port")
     args = parser.parse_args()
 

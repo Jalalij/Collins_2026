@@ -62,6 +62,7 @@ def _run_ping(target_ip, session_dir):
         "python3", PING_COLLECTOR,
         "--duration",    str(PING_DURATION),
         "--server-ip",   target_ip,
+        "--source", "eth1",
         "--interval",    str(PING_INTERVAL),
         "--packet-size", str(PING_PACKET_SIZE),
         "--raw-file",    os.path.join(session_dir, f"ping_{safe}.json"),

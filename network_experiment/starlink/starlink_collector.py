@@ -67,7 +67,7 @@ def _parse_status(data: dict) -> dict:
         "time_obstructed":      obs.get("timeObstructed", 0),
         "avg_prolonged_obstruction_duration_s": obs.get("avgProlongedObstructionDurationS"),
         "avg_prolonged_obstruction_interval_s": obs.get("avgProlongedObstructionIntervalS"),
-        "valid_s":                              obs.get("validS"),
+        "valid_s":                              obs.get("validS", 0),
         "snr_above_noise_floor":   s.get("isSnrAboveNoiseFloor"),
         "gps_valid":               gps.get("gpsValid"),
         "gps_sats":                gps.get("gpsSats"),

@@ -7,18 +7,18 @@ import threading
 import subprocess
 from datetime import datetime
 from network_experiment.quectel.config import (
-    SLEEP_TIME, SERVER_IP, PING_INTERVAL, PING_PACKET_SIZE, IPERF3_INTERVAL, WEATHER_INTERVAL, IPERF_PORT
+    SLEEP_TIME, SERVER_IP, PING_INTERVAL, PING_PACKET_SIZE, IPERF3_INTERVAL, WEATHER_INTERVAL, IPERF_PORT, QUECTEL_IP
 )
 
 DURATION      = 600
 PROTOCOLS     = [
     {"name": "udp",   "protocol": "udp", "congestion": None},
-    {"name": "bbr",   "protocol": "tcp", "congestion": "bbr"},
-    {"name": "cubic", "protocol": "tcp", "congestion": "cubic"},
+    # {"name": "bbr",   "protocol": "tcp", "congestion": "bbr"},
+    # {"name": "cubic", "protocol": "tcp", "congestion": "cubic"},
 ]
 BANDWIDTH_CONFIGS = [
-    {"dl": 480, "ul": 100},
-    {"dl": 240,  "ul": 50},
+    {"dl": 100, "ul": 10},
+    # {"dl": 240,  "ul": 50},
 ]
 
 GRACE_PERIOD = 10
@@ -112,6 +112,7 @@ def _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion=
         "--bandwidth",   str(bandwidth),
         "--duration",    str(duration),
         "--server-ip",   SERVER_IP,
+        "--source-ip",   QUECTEL_IP,
         "--port",        str(IPERF_PORT),
         "--interval",    str(IPERF3_INTERVAL),
         "--protocol",    protocol,
@@ -198,6 +199,44 @@ def run_test_block(slot_dir, label, direction, bandwidth, duration, protocol, co
 
 
 # --------------------------------------------------------------------------- #
+# iPerf block
+# --------------------------------------------------------------------------- #
+
+def run_iperf_block(slot_dir, label, direction, bandwidth, duration, protocol, congestion=None):
+    """
+    Run iperf, ping, quectel, and weather simultaneously for duration seconds.
+    All output saved under slot_dir/label/.
+    """
+    run_dir = _make_run_dir(slot_dir, label)
+    print(f"  Starting block: {label} → {run_dir}")
+
+    cmds = {
+        "iperf":   _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion),
+        "quectel": _launch_quectel(run_dir, duration),
+        "weather": _launch_weather(run_dir, duration),
+    }
+
+    threads = {}
+    results = {}
+
+    def _run_collector(name, cmd):
+        results[name] = _run(cmd, timeout=duration + 30, label=name)
+
+    for name, cmd in cmds.items():
+        t = threading.Thread(target=_run_collector, args=(name, cmd))
+        t.start()
+        threads[name] = t
+
+    for name, t in threads.items():
+        t.join()
+
+    ok = all(results.values())
+    print(f"  Block complete: {label} — " +
+          ", ".join(f"{k}={'OK' if v else 'FAIL'}" for k, v in results.items()))
+    return ok
+
+
+# --------------------------------------------------------------------------- #
 # Full experiment slot
 # --------------------------------------------------------------------------- #
 
@@ -239,6 +278,12 @@ def run_experiment_slot(test_name="slot"):
             if not (proto == PROTOCOLS[-1] and cfg == BANDWIDTH_CONFIGS[-1]):
                 print(f"  Sleeping {SLEEP_TIME}s...")
                 time.sleep(SLEEP_TIME)
+                
+    run_iperf_block(slot_dir, "iperf_udp_dl_500", "DL", 500, DURATION, "udp", None)
+    print(f"  Sleeping {SLEEP_TIME}s...")
+    time.sleep(SLEEP_TIME)
+    run_iperf_block(slot_dir, "iperf_udp_ul_120", "UL", 120, DURATION, "udp", None)
+
 
     print(f"\nSlot complete: {test_name} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"  Data: {slot_dir}")

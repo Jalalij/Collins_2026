@@ -12,10 +12,19 @@ from network_experiment.starlink.config import MAX_LOG_SIZE, BACKUP_COUNT
 from network_experiment.starlink.main_controller import run_experiment_slot
 
 SLOT_SCHEDULE = [
+    ("00:00", "midnight"),
     ("03:00", "off_peak"),
+    ("05:00", "early_morn"),
+    ("07:00", "norm_morn"),
+    ("09:00", "late_morn"),
     ("12:00", "midday"),
+    ("14:00", "early_afternoon"),
+    ("16:00", "afternoon"),
+    ("18:00", "early_evening"),
     ("20:00", "evening"),
+    ("22:00", "night"),
 ]
+
 
 
 class ScheduleController:

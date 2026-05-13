@@ -32,7 +32,7 @@ def save_server_output(data, raw_output_file):
 
 
 def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, parsed_output_file,
-                    protocol='udp', congestion=None, port=5201, interval=0.2):
+                    protocol='udp', congestion=None, port=5201, interval=0.2, source_ip=None):
     """Run iperf3 test and collect results with timestamps."""
     cmd = [
         'iperf3', '-c', server_ip,
@@ -43,6 +43,9 @@ def run_iperf3_test(direction, bandwidth, duration, server_ip, raw_output_file, 
         '--json',
         '--get-server-output',
     ]
+
+    if source_ip:
+        cmd += ['--bind', source_ip]
 
     if protocol == 'udp':
         cmd.append('--udp')
@@ -197,6 +200,8 @@ def main():
     parser.add_argument("--congestion",  type=str,   choices=["cubic", "bbr"],
                         help="TCP congestion control (tcp only)")
     parser.add_argument("--port",        type=int,   default=5201,  help="iperf3 server port (default: 5201)")
+    parser.add_argument("--source-ip", type=str,
+                    help="Source IP/interface address to bind iperf3 to")
     parser.add_argument("--interval",    type=float, default=0.2,   help="Reporting interval in seconds (default: 0.2)")
     args = parser.parse_args()
 
@@ -215,6 +220,7 @@ def main():
         congestion=args.congestion,
         port=args.port,
         interval=args.interval,
+        source_ip=args.source_ip,
     )
 
     print(f"iperf3 complete: {count} intervals")

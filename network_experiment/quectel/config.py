@@ -7,7 +7,7 @@ BASE_DATA_DIR = "data"
 
 # Network configuration
 SERVER_IP = "10.188.0.9"
-TUNNEL_IP = "10.77.0.1"
+QUECTEL_IP = "10.189.55.113"
 IPERF_PORT = 5202
 
 # Collector intervals

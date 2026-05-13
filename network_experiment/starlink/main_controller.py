@@ -13,12 +13,12 @@ from network_experiment.starlink.config import (
 DURATION      = 600
 PROTOCOLS     = [
     {"name": "udp",   "protocol": "udp", "congestion": None},
-    {"name": "bbr",   "protocol": "tcp", "congestion": "bbr"},
-    {"name": "cubic", "protocol": "tcp", "congestion": "cubic"},
+    # {"name": "bbr",   "protocol": "tcp", "congestion": "bbr"},
+    # {"name": "cubic", "protocol": "tcp", "congestion": "cubic"},
 ]
 BANDWIDTH_CONFIGS = [
-    {"dl": 400, "ul": 40},
-    {"dl": 200,  "ul": 20},
+    {"dl": 100, "ul": 10},
+    # {"dl": 200,  "ul": 20},
 ]
 
 GRACE_PERIOD = 10
@@ -70,7 +70,7 @@ def _run(cmd, timeout=None, label=""):
 # Collector launchers
 # --------------------------------------------------------------------------- #
 
-def _launch_ping(run_dir, duration):
+def _launch_ping_server(run_dir, duration):
     return [
         "python3", _collector("ping_collector.py"),
         "--duration",    str(duration),
@@ -78,8 +78,21 @@ def _launch_ping(run_dir, duration):
         "--source",      "eth1",
         "--interval",    str(PING_INTERVAL),
         "--packet-size", str(PING_PACKET_SIZE),
-        "--raw-file",    os.path.join(run_dir, "ping.json"),
-        "--parsed-file", os.path.join(run_dir, "ping.csv"),
+        "--raw-file",    os.path.join(run_dir, "ping_server.json"),
+        "--parsed-file", os.path.join(run_dir, "ping_server.csv"),
+    ]
+    
+    
+def _launch_ping_tunnel(run_dir, duration):
+    return [
+        "python3", _collector("ping_collector.py"),
+        "--duration",    str(duration),
+        "--server-ip",   TUNNEL_IP,
+        "--source",      "wg1",
+        "--interval",    str(PING_INTERVAL),
+        "--packet-size", str(PING_PACKET_SIZE),
+        "--raw-file",    os.path.join(run_dir, "ping_tunnel.json"),
+        "--parsed-file", os.path.join(run_dir, "ping_tunnel.csv"),
     ]
 
 
@@ -91,8 +104,8 @@ def _launch_ping_cloudflare(run_dir, duration):
         "--source",      "eth1",
         "--interval",    str(PING_INTERVAL),
         "--packet-size", str(PING_PACKET_SIZE),
-        "--raw-file",    os.path.join(run_dir, "ping_1_1_1_1.json"),
-        "--parsed-file", os.path.join(run_dir, "ping_1_1_1_1.csv"),
+        "--raw-file",    os.path.join(run_dir, "ping_dns.json"),
+        "--parsed-file", os.path.join(run_dir, "ping_dns.csv"),
     ]
 
 
@@ -177,7 +190,8 @@ def run_baseline(slot_dir, duration):
 
     # 2. Start everything else in parallel
     other_cmds = {
-        "ping":            _launch_ping(run_dir, duration),
+        "ping_server":     _launch_ping_server(run_dir, duration),
+        "ping_tunnel":     _launch_ping_tunnel(run_dir, duration),
         "ping_cloudflare": _launch_ping_cloudflare(run_dir, duration),
         "starlink":        _launch_starlink(run_dir, duration),
         "weather":         _launch_weather(run_dir, duration),
@@ -227,8 +241,58 @@ def run_test_block(slot_dir, label, direction, bandwidth, duration, protocol, co
     # 2. Start everything else in parallel
     other_cmds = {
         "iperf":           _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion),
-        "ping":            _launch_ping(run_dir, duration),
+        "ping_server":     _launch_ping_server(run_dir, duration),
+        "ping_tunnel":     _launch_ping_tunnel(run_dir, duration),
         "ping_cloudflare": _launch_ping_cloudflare(run_dir, duration),
+        "starlink":        _launch_starlink(run_dir, duration),
+        "weather":         _launch_weather(run_dir, duration),
+    }
+
+    threads = {}
+    results = {}
+
+    def _run_collector(name, cmd):
+        results[name] = _run(cmd, timeout=duration + 30, label=name)
+
+    for name, cmd in other_cmds.items():
+        t = threading.Thread(target=_run_collector, args=(name, cmd))
+        t.start()
+        threads[name] = t
+
+    for name, t in threads.items():
+        t.join()
+
+    # 3. Wait for satellite to finish
+    results["satellite"] = _wait_for_process(sat_proc, "satellite", timeout=duration + SATELLITE_WARMUP + 30)
+
+    ok = all(results.values())
+    print(f"  Block complete: {label} — " +
+          ", ".join(f"{k}={'OK' if v else 'FAIL'}" for k, v in results.items()))
+    return ok
+
+
+
+# --------------------------------------------------------------------------- #
+# iPerf block
+# --------------------------------------------------------------------------- #
+
+def run_iperf_block(slot_dir, label, direction, bandwidth, duration, protocol, congestion=None):
+    """
+    Start satellite_tracker first, wait SATELLITE_WARMUP seconds, then launch
+    all other collectors (iperf, ping, starlink, weather) simultaneously.
+    """
+    run_dir = _make_run_dir(slot_dir, label)
+    print(f"  Starting block: {label} → {run_dir}")
+
+    # 1. Start satellite first and give it time to initialize
+    sat_cmd = _launch_satellite(run_dir, duration + SATELLITE_WARMUP)
+    print(f"  Launching satellite_tracker, waiting {SATELLITE_WARMUP}s for it to initialize...")
+    sat_proc = _start_collector_process(sat_cmd)
+    time.sleep(SATELLITE_WARMUP)
+
+    # 2. Start everything else in parallel
+    other_cmds = {
+        "iperf":           _launch_iperf(run_dir, direction, bandwidth, duration, protocol, congestion),
         "starlink":        _launch_starlink(run_dir, duration),
         "weather":         _launch_weather(run_dir, duration),
     }
@@ -298,6 +362,11 @@ def run_experiment_slot(test_name="slot"):
             if not (proto == PROTOCOLS[-1] and cfg == BANDWIDTH_CONFIGS[-1]):
                 print(f"  Sleeping {SLEEP_TIME}s...")
                 time.sleep(SLEEP_TIME)
+                
+    run_iperf_block(slot_dir, "iperf_udp_dl_500", "DL", 500, DURATION, "udp", None)
+    print(f"  Sleeping {SLEEP_TIME}s...")
+    time.sleep(SLEEP_TIME)
+    run_iperf_block(slot_dir, "iperf_udp_ul_80", "UL", 80, DURATION, "udp", None)
 
     print(f"\nSlot complete: {test_name} at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"  Data: {slot_dir}")

@@ -1,31 +1,29 @@
 """
-inference.py - Load a trained checkpoint and run predictions on a single CSV.
-
-The input CSV should be one of the session files, e.g.:
-    data/starlink/starlink_20260510_030024/starlink_20260510_030024__udp_dl_400.csv
+inference.py - Load a trained checkpoint and predict on a single session CSV.
 
 Usage
 -----
-# DL prediction:
-    python inference.py \
-        --checkpoint checkpoints/best_model.pt \
-        --csv  data/starlink/starlink_20260510_030024/starlink_20260510_030024__udp_dl_400.csv \
-        --mode dl \
+    python inference.py \\
+        --checkpoint results/seq2seq/metadata.json \\
+        --csv data/starlink/starlink_20260510_030024/starlink_20260510_030024__udp_dl_400.csv \\
+        --mode dl \\
         --output_csv predictions.csv
 
-# UL prediction with a custom feature subset:
-    python inference.py \
-        --checkpoint checkpoints/best_model.pt \
-        --csv  data/starlink/starlink_20260510_030024/starlink_20260510_030024__udp_ul_40.csv \
-        --mode ul \
-        --features iperf_jitter_ms iperf_loss_pct dish_snr \
-        --output_csv ul_predictions.csv
+    # Multi-target checkpoint (targets read from metadata.json automatically):
+    python inference.py \\
+        --checkpoint results/seq2seq/metadata.json \\
+        --csv data/starlink/.../...csv \\
+        --mode dl
+
+Output CSV: one row per sliding window, columns t+1s … t+Ns (single target)
+            or <target_short>_t+1s … (multi-target).
 """
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import json
 
 import numpy as np
 import pandas as pd
@@ -33,113 +31,103 @@ import torch
 from torch.utils.data import DataLoader
 
 from dataset import (
-    ALL_FEATURES,
-    DEFAULT_FEATURES,
-    MODE_SUFFIX,
-    TARGET_COL,
-    ThroughputFileDataset,
-    load_csv,
+    ALL_FEATURES, DEFAULT_FEATURES, ALL_TARGETS, TARGET_COL, MODE_SUFFIX,
+    ThroughputFileDataset, load_csv,
 )
 from model import ThroughputSeq2Seq
 
 
-# ---------------------------------------------------------------------------
-# Prediction helper
-# ---------------------------------------------------------------------------
+def _short(col: str) -> str:
+    return col.replace("dish_","").replace("_throughput_mbps","").replace("_ms_mean","_ms")
+
 
 @torch.no_grad()
-def predict(
-    model: ThroughputSeq2Seq,
-    dataset: ThroughputFileDataset,
-    device: torch.device,
-    target_stats: dict | None,
-    normalise: str = "zscore",
-    batch_size: int = 256,
-) -> np.ndarray:
-    """
-    Run inference over every window in dataset.
-
-    Returns
-    -------
-    preds : (N, output_len) ndarray in the ORIGINAL (denormalised) scale
-    """
+def predict(model, dataset, device, target_stats, targets, normalise, batch_size=256):
     model.eval()
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-    all_preds: list[np.ndarray] = []
-
+    all_preds = []
     for feat, hour, dow, _ in loader:
         preds, _ = model(feat.to(device), hour.to(device), dow.to(device))
-        all_preds.append(preds.cpu().numpy())
+        all_preds.append(preds.cpu())
 
-    preds_norm = np.concatenate(all_preds, axis=0)   # (N, output_len)
+    preds_t = torch.cat(all_preds, dim=0)   # (N, H) or (N, H, T)
 
-    # Denormalise back to Mbps
-    if target_stats is not None:
+    def denorm(arr, col):
+        stats = target_stats.get(col, {})
+        if not stats:
+            return arr.numpy()
         if normalise == "zscore":
-            preds_norm = preds_norm * target_stats["std"] + target_stats["mean"]
-        elif normalise == "minmax":
-            preds_norm = preds_norm * (target_stats["max"] - target_stats["min"]) + target_stats["min"]
+            return (arr.float() * stats["std"] + stats["mean"]).numpy()
+        return (arr.float() * (stats["max"] - stats["min"]) + stats["min"]).numpy()
 
-    return preds_norm
+    num_targets = len(targets)
+    if num_targets == 1:
+        return denorm(preds_t, targets[0])   # (N, H)
+    else:
+        parts = {}
+        for i, col in enumerate(targets):
+            parts[col] = denorm(preds_t[:, :, i], col)
+        return parts
 
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Run throughput predictions from a checkpoint")
-
-    p.add_argument(
-        "--checkpoint", required=True,
-        help="Path to saved model checkpoint, e.g. checkpoints/best_model.pt",
-    )
-    p.add_argument(
-        "--csv", required=True,
-        help="Path to the session CSV to run inference on",
-    )
-    p.add_argument(
-        "--mode", default="dl", choices=list(MODE_SUFFIX),
-        help="dl -> predicts dish_dl_throughput_mbps; ul -> dish_ul_throughput_mbps",
-    )
-    p.add_argument(
-        "--features", nargs="+", default=None, choices=ALL_FEATURES,
-        metavar="FEATURE",
-        help="Feature subset used when the model was trained. Default: 11-feature set.",
-    )
+    p = argparse.ArgumentParser(description="Run predictions from a checkpoint")
+    p.add_argument("--checkpoint", required=True,
+                   help="Path to metadata.json or best_model.pt")
+    p.add_argument("--csv",        required=True)
+    p.add_argument("--mode",       default="dl", choices=list(MODE_SUFFIX))
+    p.add_argument("--features",   nargs="+", default=None, choices=ALL_FEATURES)
+    p.add_argument("--targets",    nargs="+", default=None)
     p.add_argument("--input_len",   type=int,   default=30)
     p.add_argument("--output_len",  type=int,   default=15)
     p.add_argument("--hidden_size", type=int,   default=128)
     p.add_argument("--embed_dim",   type=int,   default=16)
-    p.add_argument("--normalise",   default="zscore", choices=["zscore", "minmax", "none"])
+    p.add_argument("--normalise",   default="zscore", choices=["zscore","minmax","none"])
     p.add_argument("--output_csv",  default="predictions.csv")
-
     return p.parse_args()
 
 
 def main():
-    args = parse_args()
+    args   = parse_args()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    feature_cols = args.features if args.features is not None else list(DEFAULT_FEATURES)
-    target_col   = TARGET_COL[args.mode]
+    # Load metadata if .json provided
+    meta = {}
+    ckpt_path = args.checkpoint
+    if args.checkpoint.endswith(".json"):
+        with open(args.checkpoint) as f:
+            meta = json.load(f)
+        ckpt_path = meta.get("checkpoint", "")
+        if not ckpt_path or not Path(ckpt_path).exists():
+            # try sibling best_model.pt
+            siblings = list(Path(args.checkpoint).parent.rglob("best_model.pt"))
+            if siblings:
+                ckpt_path = str(siblings[0])
+            else:
+                raise FileNotFoundError(f"Cannot find best_model.pt from metadata: {args.checkpoint}")
+
+    targets      = args.targets or meta.get("targets", [TARGET_COL[args.mode]])
+    targets      = [TARGET_COL.get(t, t) for t in targets]
+    feature_cols = args.features or meta.get("features", list(DEFAULT_FEATURES))
+    hidden_size  = meta.get("hidden_size", args.hidden_size)
+    embed_dim    = meta.get("embed_dim",   args.embed_dim)
+    num_targets  = len(targets)
     normalise    = args.normalise if args.normalise != "none" else None
 
-    # ---------------------------------------------------------------- model
     model = ThroughputSeq2Seq(
         num_features = len(feature_cols),
-        embed_dim    = args.embed_dim,
-        hidden_size  = args.hidden_size,
+        embed_dim    = embed_dim,
+        hidden_size  = hidden_size,
         input_len    = args.input_len,
         output_len   = args.output_len,
+        num_targets  = num_targets,
     )
-    model.load_state_dict(torch.load(args.checkpoint, map_location=device))
+    model.load_state_dict(torch.load(ckpt_path, map_location=device, weights_only=True))
     model = model.to(device)
-    print(f"Loaded checkpoint : {args.checkpoint}")
-    print(f"Mode              : {args.mode}  ->  {target_col}")
-    print(f"Features ({len(feature_cols)})    : {', '.join(feature_cols)}")
+    print(f"Loaded   : {ckpt_path}")
+    print(f"Targets  : {targets}")
+    print(f"Features : {len(feature_cols)}")
 
-    # ----------------------------------------------------------------- data
     csv_path = Path(args.csv)
     if not csv_path.exists():
         raise FileNotFoundError(f"CSV not found: {csv_path}")
@@ -148,26 +136,37 @@ def main():
     if df is None:
         raise ValueError(f"Could not load {csv_path}")
 
-    missing = (set(feature_cols) | {target_col}) - set(df.columns)
+    need = set(feature_cols + targets + ["timestamp_cst", "hour_cst", "dow_cst"])
+    missing = need - set(df.columns)
     if missing:
-        raise ValueError(f"CSV is missing required columns: {missing}")
+        raise ValueError(f"CSV missing columns: {missing}")
 
     dataset = ThroughputFileDataset(
-        df, feature_cols, target_col,
+        df, feature_cols, targets,
         args.input_len, args.output_len,
         normalise=normalise,
     )
-    print(f"Windows           : {len(dataset):,}")
+    print(f"Windows  : {len(dataset):,}")
 
-    # -------------------------------------------------------------- predict
-    preds = predict(model, dataset, device, dataset.target_stats, normalise or "none")
-    print(f"Predictions shape : {preds.shape}  (windows x horizon)")
+    result = predict(model, dataset, device, dataset.target_stats,
+                     targets, normalise or "none")
 
-    # Save: one row per window, columns t+1 … t+N
-    horizon_cols = [f"t+{i+1}s" for i in range(args.output_len)]
-    out_df = pd.DataFrame(preds, columns=horizon_cols)
+    if isinstance(result, dict):
+        # Multi-target: each key is a column name, value is (N, H)
+        frames = []
+        for col, arr in result.items():
+            short = _short(col)
+            H = arr.shape[1]
+            cols = [f"{short}_t+{h+1}s" for h in range(H)]
+            frames.append(pd.DataFrame(arr, columns=cols))
+        out_df = pd.concat(frames, axis=1)
+    else:
+        H    = result.shape[1]
+        cols = [f"t+{h+1}s" for h in range(H)]
+        out_df = pd.DataFrame(result, columns=cols)
+
     out_df.to_csv(args.output_csv, index=False)
-    print(f"Saved to          : {args.output_csv}")
+    print(f"Saved    : {args.output_csv}  (shape {out_df.shape})")
 
 
 if __name__ == "__main__":

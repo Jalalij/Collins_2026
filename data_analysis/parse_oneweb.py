@@ -9,8 +9,8 @@ import pandas as pd
 # -------------------------------------------------------------------
 
 INPUT_DIR = "."
-DL_OUTPUT_DIR = "DL"
-UL_OUTPUT_DIR = "UL"
+DL_OUTPUT_DIR = "dl"
+UL_OUTPUT_DIR = "ul"
 
 # Chicago timezone
 CHICAGO_TZ = "America/Chicago"
@@ -32,10 +32,10 @@ for file_path in files:
 
     # Ignore files without explicit _DL.csv or _UL.csv ending
     if filename.endswith("_DL.csv"):
-        direction = "DL"
+        direction = "dl"
         output_dir = DL_OUTPUT_DIR
     elif filename.endswith("_UL.csv"):
-        direction = "UL"
+        direction = "ul"
         output_dir = UL_OUTPUT_DIR
     else:
         continue

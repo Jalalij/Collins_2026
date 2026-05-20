@@ -1,22 +1,59 @@
-"""evaluation/ - Unified metric and evaluation package."""
+"""
+Throughput Prediction Framework
 
-from .metrics import (
-    compute_horizon_metrics,
-    compute_aggregate_diagnostics,
-    last_value_baseline,
-    mean_window_baseline,
-    mae, rmse, mape, smape, r2,
-    prediction_interval,
-    relative_rmse, relative_mae,
-    residual_pearson_lag1, ljung_box_pvalue,
+Providers : starlink | oneweb | quectel
+Entry point: run.py
+
+Quick import examples
+---------------------
+    from dataset import DataConfig, build_dataloaders
+    from model   import ThroughputSeq2Seq
+    from models  import ModelRegistry
+    from evaluation import evaluate_predictions
+"""
+
+from .dataset import (
+    DataConfig,
+    build_dataloaders,
+    build_experiment_datasets,
+    ThroughputFileDataset,
+    ExperimentDataset,
+    PROVIDERS,
+    PROVIDER_STARLINK,
+    PROVIDER_ONEWEB,
+    PROVIDER_QUECTEL,
+    ALL_FEATURES,
+    DEFAULT_FEATURES,
+    ALL_TARGETS,
+    TARGET_ALIASES,
+    DEFAULT_TARGET,
+    FEATURE_GROUPS,
+    ALL_FEATURE_NAMES,
 )
-from .evaluate import evaluate_predictions
+from .model  import ThroughputSeq2Seq
+from .models import ModelRegistry
 
 __all__ = [
-    "compute_horizon_metrics", "compute_aggregate_diagnostics",
-    "last_value_baseline", "mean_window_baseline",
-    "evaluate_predictions",
-    "mae", "rmse", "mape", "smape", "r2",
-    "prediction_interval", "relative_rmse", "relative_mae",
-    "residual_pearson_lag1", "ljung_box_pvalue",
+    # Dataset
+    "DataConfig",
+    "build_dataloaders",
+    "build_experiment_datasets",
+    "ThroughputFileDataset",
+    "ExperimentDataset",
+    # Provider constants
+    "PROVIDERS",
+    "PROVIDER_STARLINK",
+    "PROVIDER_ONEWEB",
+    "PROVIDER_QUECTEL",
+    # Feature / target registries
+    "ALL_FEATURES",
+    "DEFAULT_FEATURES",
+    "ALL_TARGETS",
+    "TARGET_ALIASES",
+    "DEFAULT_TARGET",
+    "FEATURE_GROUPS",
+    "ALL_FEATURE_NAMES",
+    # Model
+    "ThroughputSeq2Seq",
+    "ModelRegistry",
 ]

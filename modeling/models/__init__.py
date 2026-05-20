@@ -1,17 +1,17 @@
 """
 models/ - All model trainer implementations.
-
 Registry-based — use ModelRegistry to discover and run models.
 See models/base.py for the BaseTrainer contract.
 """
 
-from .base import BaseTrainer, ModelRegistry
+from .base import BaseTrainer, ModelRegistry, _register_builtins
+_register_builtins()
 
-from .models.seq2seq            import Seq2SeqTrainer
+from .seq2seq            import Seq2SeqTrainer
 from .lstm_model         import LSTMTrainer, SimpleLSTM
 from .transformer_model  import TransformerTrainer, SimpleTransformer
 from .gaussian_process_model import GaussianProcessTrainer
-from .models.autoencoder_models import (
+from .autoencoder_models import (
     PredictiveAutoencoderTrainer,
     PredictiveAutoencoder,
     SparseAutoencoder,

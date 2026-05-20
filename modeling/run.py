@@ -10,24 +10,31 @@ Modes
 
 Quick examples
 --------------
-  # Train Seq2Seq (default) with default 11 features predicting DL throughput:
-      python run.py train --mode dl --data_root data/starlink
+  # Train Seq2Seq on Starlink throughput data (DL default target):
+      python run.py train --provider starlink --experiment_type throughput
 
   # Train predicting two targets simultaneously:
-      python run.py train --mode dl --data_root data/starlink \\
-          --targets dish_dl_throughput_mbps ping_internet_rtt_ms_mean
+      python run.py train --provider starlink --experiment_type throughput \\
+          --targets dish_dl_throughput_mbps ping_tunnel_rtt_ms
 
-  # Train multiple models and compare:
-      python run.py train --mode dl --data_root data/starlink \\
+  # Train multiple models:
+      python run.py train --provider starlink --experiment_type throughput \\
           --models seq2seq lstm transformer
 
-  # Train with all models:
-      python run.py train --mode dl --data_root data/starlink --models all
+  # Train all models:
+      python run.py train --provider starlink --experiment_type throughput --models all
+
+  # OneWeb downlink, default target:
+      python run.py train --provider oneweb --experiment_type dl
+
+  # Quectel latency+loss+throughput, two targets:
+      python run.py train --provider quectel --experiment_type latency_loss_throughput \\
+          --targets iperf sinr
 
   # Evaluate a saved checkpoint:
       python run.py evaluate \\
           --checkpoint results/seq2seq/metadata.json \\
-          --data_root data/starlink --mode dl
+          --provider starlink --experiment_type throughput
 
   # Compare multiple existing result directories:
       python run.py compare \\
@@ -35,18 +42,25 @@ Quick examples
           --out_dir results/comparison
 
   # Feature ablation:
-      python run.py ablation --mode dl --data_root data/starlink \\
+      python run.py ablation \\
+          --provider starlink --experiment_type throughput \\
           --study feature --strategy leave_one_out
 
   # Architecture sweep:
-      python run.py ablation --mode dl --data_root data/starlink \\
+      python run.py ablation \\
+          --provider starlink --experiment_type throughput \\
           --study architecture --arch_param hidden_size
 
   # List all registered models:
       python run.py --list_models
 
-  # List all available features:
-      python run.py --list_features
+  # List all available features (per provider):
+      python run.py --list_features --provider starlink
+      python run.py --list_features --provider oneweb
+      python run.py --list_features --provider quectel
+
+  # List all available targets (per provider):
+      python run.py --list_targets --provider starlink
 
 Model keys
 ----------
@@ -54,29 +68,28 @@ Model keys
 
 Feature selection (--features flag)
 ------------------------------------
-  default                  11-feature default set
-  all                      all 24 available features
-  <name> <name> ...        explicit column names
-  --feature_group <group>  one semantic group
-  --feature_groups g1 g2   union of multiple groups
+  default                  Provider-specific default feature set
+  all                      All features for this provider
+  <name> <name> ...        Explicit column names
+  --feature_group <group>  One semantic group (Starlink only)
+  --feature_groups g1 g2   Union of multiple groups (Starlink only)
 
 Target selection (--targets)
 -----------------------------
-  Shorthand keys:  dl, ul, iperf, rtt, snr
-  Or full column:  dish_dl_throughput_mbps, ping_internet_rtt_ms_mean, ...
+  Shorthand keys vary by provider — run --list_targets --provider <p> to see.
   Multiple targets: --targets dl rtt
 
 Output layout
 -------------
   <out_dir>/
       <model_key>/
-          metadata.json          model config + checkpoint path
-          metrics_summary.csv    per-key + AGGREGATE metrics
-          diagnostics.csv        residual diagnostics
+          metadata.json
+          metrics_summary.csv
+          diagnostics.csv
           plots/
               scatter.png
               horizon_metrics.png
-      comparison.csv             cross-model aggregate table  (if >1 model)
+      comparison.csv
       comparison.png
       run_config.json
 """
@@ -93,11 +106,18 @@ matplotlib.use("Agg")
 import numpy as np
 import pandas as pd
 import torch
-from torch.utils.data import DataLoader
 
 from dataset import (
-    ALL_FEATURES, ALL_TARGETS, DEFAULT_FEATURES, TARGET_COL,
-    DataConfig, build_dataloaders, build_experiment_datasets, MODE_SUFFIX,
+    # Provider constants
+    PROVIDERS, PROVIDER_STARLINK, PROVIDER_ONEWEB, PROVIDER_QUECTEL,
+    VALID_EXPERIMENT_TYPES,
+    # Per-provider feature / target registries
+    ALL_FEATURES, DEFAULT_FEATURES, ALL_TARGETS, TARGET_ALIASES,
+    DEFAULT_TARGET,
+    # Feature groups + flat name list — single source of truth in dataset.py
+    FEATURE_GROUPS, ALL_FEATURE_NAMES,
+    # Config + builders
+    DataConfig, build_dataloaders, build_experiment_datasets,
 )
 from model  import ThroughputSeq2Seq
 from models import ModelRegistry
@@ -106,26 +126,12 @@ from evaluation.evaluate import evaluate_predictions, compare_saved_runs
 
 
 # ---------------------------------------------------------------------------
-# Semantic feature groups
-# ---------------------------------------------------------------------------
-
-FEATURE_GROUPS: dict[str, list[str]] = {
-    "network_perf":       ["iperf_jitter_ms", "iperf_loss_pct",
-                           "ping_tunnel_rtt_ms_mean", "ping_internet_rtt_ms_mean", "dish_pop_ping_ms"],
-    "satellite_geometry": ["distance_km", "sat_lat", "sat_lon", "sat_alt_km"],
-    "dish_state":         ["dish_snr", "dish_gps_sats", "dish_boresight_azimuth_deg",
-                           "dish_boresight_elevation_deg", "dish_tilt_angle_deg", "dish_obstruction_fraction"],
-    "weather":            ["weather_temp_f", "weather_humidity", "weather_pressure",
-                           "weather_wind_speed", "weather_wind_dir", "weather_rain_rate"],
-    "satellite_meta":     ["satellite_dtc", "satellite_handoff", "satellite_age_s"],
-}
-
-
-# ---------------------------------------------------------------------------
 # Argument resolution helpers
 # ---------------------------------------------------------------------------
 
 def resolve_features(args) -> list[str]:
+    provider = getattr(args, "provider", PROVIDER_STARLINK)
+
     if getattr(args, "feature_group", None) or getattr(args, "feature_groups", None):
         groups = list(getattr(args, "feature_groups", None) or [])
         if getattr(args, "feature_group", None):
@@ -133,33 +139,46 @@ def resolve_features(args) -> list[str]:
         combined: list[str] = []
         for g in groups:
             if g not in FEATURE_GROUPS:
-                raise ValueError(f"Unknown feature group '{g}'. Available: {list(FEATURE_GROUPS)}")
+                raise ValueError(
+                    f"Unknown feature group '{g}'. Available: {list(FEATURE_GROUPS)}"
+                )
             combined += [f for f in FEATURE_GROUPS[g] if f not in combined]
-        return [f for f in combined if f in ALL_FEATURES]
+        provider_all = ALL_FEATURES[provider]
+        return [f for f in combined if f in provider_all]
 
     raw = getattr(args, "features", None) or ["default"]
     if raw == ["all"]:
-        return list(ALL_FEATURES)
+        return list(ALL_FEATURES[provider])
     if raw == ["default"]:
-        return list(DEFAULT_FEATURES)
-    bad = [f for f in raw if f not in ALL_FEATURES]
+        return list(DEFAULT_FEATURES[provider])
+    # Explicit list — validate against provider's full feature set
+    provider_all = ALL_FEATURES[provider]
+    bad = [f for f in raw if f not in provider_all]
     if bad:
-        raise ValueError(f"Unknown features: {bad}. Run --list_features to see options.")
+        raise ValueError(
+            f"Unknown features for provider '{provider}': {bad}\n"
+            f"Run  python run.py --list_features --provider {provider}  to see options."
+        )
     return raw
 
 
 def resolve_targets(args) -> list[str]:
+    provider    = getattr(args, "provider",         PROVIDER_STARLINK)
+    exp_type    = getattr(args, "experiment_type",  "throughput")
+    aliases     = TARGET_ALIASES[provider]
+    all_targets = ALL_TARGETS[provider]
+
     raw = getattr(args, "targets", None)
     if not raw:
-        # Default: primary target for the chosen mode
-        return [TARGET_COL[args.mode]]
-    resolved = [TARGET_COL.get(t, t) for t in raw]
-    bad = [t for t in resolved if t not in ALL_TARGETS]
+        return [DEFAULT_TARGET[(provider, exp_type)]]
+
+    resolved = [aliases.get(t, t) for t in raw]
+    bad = [t for t in resolved if t not in all_targets]
     if bad:
         raise ValueError(
-            f"Unknown target column(s): {bad}\n"
-            f"Available: {ALL_TARGETS}\n"
-            f"Shorthand keys: {list(TARGET_COL)}"
+            f"Unknown target column(s) for provider '{provider}': {bad}\n"
+            f"Available: {all_targets}\n"
+            f"Shorthand keys: {list(aliases)}"
         )
     return resolved
 
@@ -170,7 +189,9 @@ def resolve_models(args) -> list[str]:
         return ModelRegistry.keys()
     bad = [m for m in raw if m not in ModelRegistry]
     if bad:
-        raise ValueError(f"Unknown model(s): {bad}. Available: {ModelRegistry.keys()}")
+        raise ValueError(
+            f"Unknown model(s): {bad}. Available: {ModelRegistry.keys()}"
+        )
     return raw
 
 
@@ -179,27 +200,42 @@ def resolve_models(args) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def _eval_from_checkpoint(
-    ckpt_path, data_root, mode, targets, features,
-    input_len, output_len, hidden_size, embed_dim,
+    ckpt_path,
+    data_root, provider, experiment_type,
+    targets, features,
+    input_len, output_len,
+    hidden_size, embed_dim,
     normalise, batch_size, seed,
 ) -> dict:
     """Load a saved checkpoint and collect predictions for evaluation."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     cfg = DataConfig(
-        data_root=data_root, mode=mode, targets=targets,
-        features=features, input_len=input_len, output_len=output_len,
-        normalise=normalise, batch_size=batch_size, seed=seed,
+        data_root       = data_root,
+        provider        = provider,
+        experiment_type = experiment_type,
+        targets         = targets,
+        features        = features,
+        input_len       = input_len,
+        output_len      = output_len,
+        normalise       = normalise,
+        batch_size      = batch_size,
+        seed            = seed,
     )
     _, _, test_loader, _, target_stats, feature_cols = build_dataloaders(cfg)
     if test_loader is None:
         raise ValueError("No test windows available.")
 
     model = ThroughputSeq2Seq(
-        num_features=len(feature_cols), embed_dim=embed_dim,
-        hidden_size=hidden_size, input_len=input_len,
-        output_len=output_len, num_targets=len(targets),
+        num_features = len(feature_cols),
+        embed_dim    = embed_dim,
+        hidden_size  = hidden_size,
+        input_len    = input_len,
+        output_len   = output_len,
+        num_targets  = len(targets),
     )
-    model.load_state_dict(torch.load(ckpt_path, map_location=device, weights_only=True))
+    model.load_state_dict(
+        torch.load(ckpt_path, map_location=device, weights_only=True)
+    )
     model = model.to(device).eval()
 
     all_preds, all_targets_list = [], []
@@ -209,9 +245,8 @@ def _eval_from_checkpoint(
             all_preds.append(preds.cpu())
             all_targets_list.append(tgt.cpu())
 
-    preds_t   = torch.cat(all_preds,          dim=0)
-    targets_t = torch.cat(all_targets_list,   dim=0)
-    num_targets = len(targets)
+    preds_t   = torch.cat(all_preds,        dim=0)
+    targets_t = torch.cat(all_targets_list, dim=0)
 
     def denorm(arr, col):
         stats = target_stats.get(col, {})
@@ -221,26 +256,30 @@ def _eval_from_checkpoint(
             return (arr.float() * stats["std"] + stats["mean"]).numpy()
         return (arr.float() * (stats["max"] - stats["min"]) + stats["min"]).numpy()
 
-    def _short(col):
-        return col.replace("dish_","").replace("_throughput_mbps","").replace("_ms_mean","_ms")
+    def _short(col: str) -> str:
+        return (col.replace("dish_", "")
+                   .replace("_throughput_mbps", "")
+                   .replace("_ms_mean", "_ms")
+                   .replace("_mbps", ""))
 
     y_true_dict, y_pred_dict = {}, {}
+    num_targets = len(targets)
+
     if num_targets == 1:
-        col = targets[0]
-        short = _short(col)
+        col  = targets[0]
         p_np = denorm(preds_t,   col)
         t_np = denorm(targets_t, col)
-        H = p_np.shape[1]
+        H    = p_np.shape[1]
         for h in range(H):
-            key = f"t+{h+1}s" if num_targets == 1 else f"{short}_t+{h+1}s"
+            key = f"t+{h+1}s"
             y_true_dict[key] = t_np[:, h]
             y_pred_dict[key] = p_np[:, h]
     else:
         H = preds_t.shape[1]
         for ti, col in enumerate(targets):
             short = _short(col)
-            p_np = denorm(preds_t[:, :, ti],   col)
-            t_np = denorm(targets_t[:, :, ti], col)
+            p_np  = denorm(preds_t[:, :, ti],   col)
+            t_np  = denorm(targets_t[:, :, ti], col)
             for h in range(H):
                 key = f"{short}_t+{h+1}s"
                 y_true_dict[key] = t_np[:, h]
@@ -250,7 +289,11 @@ def _eval_from_checkpoint(
         "model_name":  "Seq2Seq-GRU",
         "y_true_dict": y_true_dict,
         "y_pred_dict": y_pred_dict,
-        "metadata": {"checkpoint": ckpt_path, "targets": targets, "features": feature_cols},
+        "metadata": {
+            "checkpoint": ckpt_path,
+            "targets":    targets,
+            "features":   feature_cols,
+        },
     }
 
 
@@ -277,47 +320,51 @@ def run_one_model(model_key, feature_cols, targets, args, out_dir) -> dict | Non
     model_out.mkdir(parents=True, exist_ok=True)
 
     cfg = DataConfig(
-        data_root  = args.data_root,
-        mode       = args.mode,
-        targets    = targets,
-        features   = feature_cols,
-        input_len  = args.input_len,
-        output_len = args.output_len,
-        normalise  = normalise,
-        batch_size = def_config.get("batch_size", 512),
-        train_frac = args.train_frac,
-        val_frac   = args.val_frac,
-        seed       = args.seed,
+        data_root       = args.data_root,
+        provider        = args.provider,
+        experiment_type = args.experiment_type,
+        targets         = targets,
+        features        = feature_cols,
+        input_len       = args.input_len,
+        output_len      = args.output_len,
+        normalise       = normalise,
+        batch_size      = def_config.get("batch_size", 512),
+        train_frac      = args.train_frac,
+        val_frac        = args.val_frac,
+        seed            = args.seed,
     )
 
     try:
         if model_key == "seq2seq":
             train_loader, val_loader, test_loader, _, _, _ = build_dataloaders(cfg)
             train_set = train_loader.dataset
-            test_set  = test_loader.dataset if test_loader else train_loader.dataset
+            val_set   = val_loader.dataset   if val_loader   else None
+            test_set  = test_loader.dataset  if test_loader  else train_loader.dataset
         else:
             train_set, test_set, _, _, _ = build_experiment_datasets(cfg)
+            val_set = None
 
         result = trainer.train_and_evaluate(
-            train_set  = train_set,
-            test_set   = test_set,
-            results_dir= str(model_out),
-            config     = def_config,
+            train_set   = train_set,
+            val_set     = val_set,
+            test_set    = test_set,
+            results_dir = str(model_out),
+            config      = def_config,
         )
     except Exception as exc:
         print(f"\n  [ERROR] {model_key} failed: {exc}")
         import traceback; traceback.print_exc()
         return None
 
-    # Evaluate predictions
     metrics_df = evaluate_predictions(result, str(model_out))
 
-    # Save metadata
     meta = result.get("metadata", {})
-    meta["model_key"]   = model_key
-    meta["targets"]     = targets
-    meta["features"]    = feature_cols
-    meta["out_dir"]     = str(model_out)
+    meta["model_key"]       = model_key
+    meta["provider"]        = args.provider
+    meta["experiment_type"] = args.experiment_type
+    meta["targets"]         = targets
+    meta["features"]        = feature_cols
+    meta["out_dir"]         = str(model_out)
     with open(model_out / "metadata.json", "w") as f:
         json.dump(meta, f, indent=2, default=str)
 
@@ -348,19 +395,20 @@ def cmd_train(args):
     print("\n" + "=" * 65)
     print("THROUGHPUT PREDICTION FRAMEWORK — TRAIN")
     print("=" * 65)
-    print(f"  Data root : {args.data_root}")
-    print(f"  Mode      : {args.mode}")
-    print(f"  Targets   : {targets}")
-    print(f"  Features  : {len(feature_cols)}  {feature_cols}")
-    print(f"  Models    : {model_keys}")
-    print(f"  Out dir   : {out_dir}")
+    print(f"  Provider        : {args.provider}")
+    print(f"  Experiment type : {args.experiment_type}")
+    print(f"  Data root       : {args.data_root}")
+    print(f"  Targets         : {targets}")
+    print(f"  Features        : {len(feature_cols)}  {feature_cols}")
+    print(f"  Models          : {model_keys}")
+    print(f"  Out dir         : {out_dir}")
     print("=" * 65)
 
+    cfg_dict = vars(args).copy()
+    cfg_dict["resolved_features"] = feature_cols
+    cfg_dict["resolved_targets"]  = targets
+    cfg_dict["resolved_models"]   = model_keys
     with open(out_dir / "run_config.json", "w") as f:
-        cfg_dict = vars(args).copy()
-        cfg_dict["resolved_features"] = feature_cols
-        cfg_dict["resolved_targets"]  = targets
-        cfg_dict["resolved_models"]   = model_keys
         json.dump(cfg_dict, f, indent=2, default=str)
 
     summaries = []
@@ -373,54 +421,66 @@ def cmd_train(args):
     if len(summaries) > 1:
         print(f"\n{'='*65}\nCROSS-MODEL COMPARISON\n{'='*65}")
         comp_df = pd.DataFrame(summaries).set_index("model")
-        disp = [c for c in ["MAE","RMSE","R2","PICP_95"] if c in comp_df.columns]
+        disp = [c for c in ["MAE", "RMSE", "R2", "PICP_95"] if c in comp_df.columns]
         print(comp_df[disp].to_string(float_format="%.4f"))
-        compare_saved_runs([str(Path(args.out_dir) / m["model_key"]) for m in summaries],
-                           out_dir=args.out_dir)
+        compare_saved_runs(
+            [str(out_dir / m["model_key"]) for m in summaries],
+            out_dir=args.out_dir,
+        )
 
     print(f"\nAll results in: {out_dir}/")
 
 
 def cmd_evaluate(args):
-    """Re-evaluate an existing checkpoint."""
     meta_path = Path(args.checkpoint)
     if meta_path.suffix == ".json":
         with open(meta_path) as f:
             meta = json.load(f)
-        ckpt = meta.get("checkpoint", "")
-        targets      = meta.get("targets", [TARGET_COL[args.mode]])
-        features     = meta.get("features", list(DEFAULT_FEATURES))
-        hidden_size  = meta.get("hidden_size", 128)
-        embed_dim    = meta.get("embed_dim", 16)
+        ckpt            = meta.get("checkpoint", "")
+        provider        = meta.get("provider",        args.provider)
+        experiment_type = meta.get("experiment_type", args.experiment_type)
+        targets         = meta.get("targets",
+                                   [DEFAULT_TARGET[(provider, experiment_type)]])
+        features        = meta.get("features",
+                                   list(DEFAULT_FEATURES[provider]))
+        hidden_size     = meta.get("hidden_size", args.hidden_size)
+        embed_dim       = meta.get("embed_dim",   args.embed_dim)
     else:
-        ckpt         = str(meta_path)
-        targets      = resolve_targets(args)
-        features     = resolve_features(args)
-        hidden_size  = args.hidden_size
-        embed_dim    = args.embed_dim
+        ckpt            = str(meta_path)
+        provider        = args.provider
+        experiment_type = args.experiment_type
+        targets         = resolve_targets(args)
+        features        = resolve_features(args)
+        hidden_size     = args.hidden_size
+        embed_dim       = args.embed_dim
 
     normalise = args.normalise if args.normalise != "none" else None
     result = _eval_from_checkpoint(
-        ckpt_path=ckpt, data_root=args.data_root, mode=args.mode,
-        targets=targets, features=features,
-        input_len=args.input_len, output_len=args.output_len,
-        hidden_size=hidden_size, embed_dim=embed_dim,
-        normalise=normalise, batch_size=args.batch_size, seed=args.seed,
+        ckpt_path       = ckpt,
+        data_root       = args.data_root,
+        provider        = provider,
+        experiment_type = experiment_type,
+        targets         = targets,
+        features        = features,
+        input_len       = args.input_len,
+        output_len      = args.output_len,
+        hidden_size     = hidden_size,
+        embed_dim       = embed_dim,
+        normalise       = normalise,
+        batch_size      = args.batch_size,
+        seed            = args.seed,
     )
     evaluate_predictions(result, args.out_dir)
     print(f"\nEvaluation results -> {args.out_dir}/")
 
 
 def cmd_compare(args):
-    """Load and compare metrics from multiple saved run dirs."""
     df = compare_saved_runs(args.run_dirs, args.out_dir)
     if not df.empty:
         print(df.to_string(float_format="%.4f"))
 
 
 def cmd_ablation(args):
-    """Delegate to evaluation/ablation.py main() passing through args."""
-    # Rebuild argv and re-run ablation main
     abl_argv = ["ablation"]
     for k, v in vars(args).items():
         if k in ("subcommand",):
@@ -444,26 +504,60 @@ def cmd_ablation(args):
 # Argument parser
 # ---------------------------------------------------------------------------
 
+def _add_provider_args(p):
+    """Provider + experiment_type — the new equivalent of --mode."""
+    p.add_argument(
+        "--provider",
+        default = PROVIDER_STARLINK,
+        choices = list(PROVIDERS),
+        help    = "Data provider.  (default: starlink)",
+    )
+    p.add_argument(
+        "--experiment_type",
+        default = "throughput",
+        # Choices validated post-parse against provider; keep open here
+        # so the parser doesn't reject valid (provider, exp_type) pairs.
+        metavar = "EXP_TYPE",
+        help    = (
+            "Experiment type.  "
+            "starlink/quectel: latency | latency_loss_throughput | throughput  "
+            "oneweb: dl | ul"
+        ),
+    )
+
+
 def _add_data_args(p):
-    p.add_argument("--data_root",  default="data/starlink")
-    p.add_argument("--mode",       default="dl", choices=list(MODE_SUFFIX))
+    p.add_argument("--data_root",  default="data/lsn-data",
+                   help="Root directory containing provider sub-folders.")
     p.add_argument("--targets",    nargs="+", default=None, metavar="TARGET",
-                   help="Target column(s) to predict. Shorthand: dl, ul, rtt, snr. "
-                        "Full names also accepted. Default: primary target for --mode.")
-    p.add_argument("--input_len",  type=int, default=30)
-    p.add_argument("--output_len", type=int, default=15)
-    p.add_argument("--normalise",  default="zscore", choices=["zscore","minmax","none"])
+                   help="Target column(s) to predict. Use shorthand keys or full "
+                        "column names. Run --list_targets --provider <p> to see "
+                        "options. Default: provider/experiment_type-specific.")
+    p.add_argument("--input_len",  type=int,   default=30)
+    p.add_argument("--output_len", type=int,   default=15)
+    p.add_argument("--normalise",  default="zscore",
+                   choices=["zscore", "minmax", "none"])
     p.add_argument("--train_frac", type=float, default=0.70)
     p.add_argument("--val_frac",   type=float, default=0.15)
     p.add_argument("--batch_size", type=int,   default=None)
     p.add_argument("--seed",       type=int,   default=42)
 
+
 def _add_feature_args(p):
     fg = p.add_mutually_exclusive_group()
-    fg.add_argument("--features", nargs="+", default=["default"], metavar="FEATURE",
-                    help="'default', 'all', or explicit column names.")
-    fg.add_argument("--feature_group", default=None, choices=list(FEATURE_GROUPS))
-    fg.add_argument("--feature_groups", nargs="+", default=None, choices=list(FEATURE_GROUPS))
+    fg.add_argument(
+        "--features", nargs="+", default=["default"], metavar="FEATURE",
+        help="'default', 'all', or explicit column names.",
+    )
+    fg.add_argument(
+        "--feature_group", default=None, choices=list(FEATURE_GROUPS),
+        help="One semantic feature group.",
+    )
+    fg.add_argument(
+        "--feature_groups", nargs="+", default=None, choices=list(FEATURE_GROUPS),
+        help="Union of multiple semantic feature groups.",
+    )
+
 
 def _add_model_hparam_args(p):
     p.add_argument("--hidden_size", type=int,   default=128)
@@ -471,6 +565,18 @@ def _add_model_hparam_args(p):
     p.add_argument("--dropout",     type=float, default=None)
     p.add_argument("--epochs",      type=int,   default=100)
     p.add_argument("--lr",          type=float, default=1e-3)
+
+
+def _validate_experiment_type(args):
+    """Post-parse validation: check experiment_type is valid for provider."""
+    valid = VALID_EXPERIMENT_TYPES.get(args.provider, ())
+    if args.experiment_type not in valid:
+        print(
+            f"[ERROR] experiment_type '{args.experiment_type}' is not valid for "
+            f"provider '{args.provider}'.\n"
+            f"  Valid choices: {list(valid)}"
+        )
+        sys.exit(1)
 
 
 def build_parser():
@@ -481,17 +587,22 @@ def build_parser():
     parser.add_argument("--list_models",   action="store_true",
                         help="Print all registered models and exit.")
     parser.add_argument("--list_features", action="store_true",
-                        help="Print all available features and groups, then exit.")
+                        help="Print all features for --provider and exit.")
     parser.add_argument("--list_targets",  action="store_true",
-                        help="Print all available target columns, then exit.")
+                        help="Print all targets for --provider and exit.")
+    # Allow --provider at top level for --list_* flags
+    parser.add_argument("--provider", default=PROVIDER_STARLINK,
+                        choices=list(PROVIDERS))
 
     subs = parser.add_subparsers(dest="subcommand")
 
     # ---- train ----
     tr = subs.add_parser("train", help="Train one or more models.")
     tr.add_argument("--models", nargs="+", default=["seq2seq"], metavar="MODEL",
-                    help="Model keys (or 'all'). Available: seq2seq, lstm, transformer, "
+                    help="Model keys (or 'all'). "
+                         "Available: seq2seq, lstm, transformer, "
                          "gaussian_process, autoencoder")
+    _add_provider_args(tr)
     _add_data_args(tr)
     _add_feature_args(tr)
     _add_model_hparam_args(tr)
@@ -501,32 +612,38 @@ def build_parser():
     ev = subs.add_parser("evaluate", help="Evaluate a saved checkpoint.")
     ev.add_argument("--checkpoint", required=True,
                     help="Path to metadata.json or best_model.pt")
+    _add_provider_args(ev)
     _add_data_args(ev)
     _add_feature_args(ev)
-    ev.add_argument("--hidden_size", type=int,   default=128)
-    ev.add_argument("--embed_dim",   type=int,   default=16)
+    ev.add_argument("--hidden_size", type=int, default=128)
+    ev.add_argument("--embed_dim",   type=int, default=16)
     ev.add_argument("--out_dir",     default="eval_results")
 
     # ---- compare ----
     cp = subs.add_parser("compare",
                          help="Compare metrics across multiple saved run directories.")
     cp.add_argument("--run_dirs", nargs="+", required=True,
-                    help="Paths to run output directories (each must have metrics_summary.csv).")
+                    help="Paths to run output directories.")
     cp.add_argument("--out_dir", default="results/comparison")
 
     # ---- ablation ----
     ab = subs.add_parser("ablation", help="Feature or architecture ablation study.")
-    ab.add_argument("--data_root",      default="data/starlink")
-    ab.add_argument("--mode",           default="dl", choices=list(MODE_SUFFIX))
+    _add_provider_args(ab)
+    ab.add_argument("--data_root",      default="data/lsn-data")
     ab.add_argument("--targets",        nargs="+", default=None)
-    ab.add_argument("--normalise",      default="zscore", choices=["zscore","minmax","none"])
+    ab.add_argument("--normalise",      default="zscore",
+                    choices=["zscore", "minmax", "none"])
     ab.add_argument("--seed",           type=int, default=42)
-    ab.add_argument("--study",          default="feature", choices=["feature","architecture"])
+    ab.add_argument("--study",          default="feature",
+                    choices=["feature", "architecture"])
     ab.add_argument("--strategy",       default="leave_one_out",
-                    choices=["leave_one_out","add_one","groups","custom"])
-    ab.add_argument("--base_features",  nargs="+", default=None, choices=ALL_FEATURES)
+                    choices=["leave_one_out", "add_one", "groups", "custom"])
+    ab.add_argument("--base_features",  nargs="+", default=None,
+                    metavar="FEATURE",
+                    help="Feature names to use as ablation base.")
     ab.add_argument("--feature_sets",   nargs="+", default=None)
-    ab.add_argument("--arch_param",     default="hidden_size", choices=["hidden_size","input_len","output_len","embed_dim"])
+    ab.add_argument("--arch_param",     default="hidden_size",
+                    choices=["hidden_size", "input_len", "output_len", "embed_dim"])
     ab.add_argument("--epochs",         type=int, default=30)
     ab.add_argument("--batch_size",     type=int, default=512)
     ab.add_argument("--input_len",      type=int, default=30)
@@ -552,29 +669,46 @@ def print_models():
         print(f"  {entry['key']:<22} {entry['description']}")
     print("\nUsage: python run.py train --models seq2seq lstm ...")
 
-def print_features():
-    print("\nAll available features (24):")
-    for i, f in enumerate(ALL_FEATURES, 1):
-        print(f"  {i:2d}. {f}")
-    print("\nDefault 11-feature set:")
-    for f in DEFAULT_FEATURES:
-        print(f"  • {f}")
-    print("\nSemantic groups:")
-    for g, feats in FEATURE_GROUPS.items():
-        print(f"  {g}: {feats}")
 
-def print_targets():
-    print("\nAvailable prediction targets:")
-    print(f"  {'Shorthand':<10} Full column name")
+def print_features(provider: str):
+    all_f  = ALL_FEATURES[provider]
+    def_f  = DEFAULT_FEATURES[provider]
+    groups = {g: feats for g, feats in FEATURE_GROUPS.items()
+              if any(f in all_f for f in feats)}
+
+    print(f"\nAll features for provider '{provider}' ({len(all_f)}):")
+    for i, f in enumerate(all_f, 1):
+        marker = " *" if f in def_f else ""
+        print(f"  {i:2d}. {f}{marker}")
+    print(f"\n  (* = included in default set of {len(def_f)} features)")
+
+    if groups:
+        print("\nRelevant semantic groups:")
+        for g, feats in groups.items():
+            relevant = [f for f in feats if f in all_f]
+            if relevant:
+                print(f"  {g}: {relevant}")
+
+    print(f"\nUsage: python run.py train --provider {provider} "
+          f"--experiment_type throughput --features default")
+    print(f"       python run.py train --provider {provider} "
+          f"--experiment_type throughput --features all")
+
+
+def print_targets(provider: str):
+    all_t   = ALL_TARGETS[provider]
+    aliases = TARGET_ALIASES[provider]
+
+    print(f"\nAvailable prediction targets for provider '{provider}':")
+    print(f"  {'Shorthand':<12} Full column name")
     print("  " + "-" * 50)
-    for short, col in TARGET_COL.items():
-        print(f"  {short:<10} {col}")
-    print("\nAny column in ALL_TARGETS can also be used by full name:")
-    for col in ALL_TARGETS:
-        if col not in TARGET_COL.values():
-            print(f"  {col}")
-    print("\nUsage: python run.py train --targets dl rtt")
-    print("       python run.py train --targets dish_dl_throughput_mbps ping_internet_rtt_ms_mean")
+    alias_map = {v: k for k, v in aliases.items()}
+    for col in all_t:
+        short = alias_map.get(col, "—")
+        print(f"  {short:<12} {col}")
+
+    print(f"\nUsage: python run.py train --provider {provider} "
+          f"--experiment_type throughput --targets <shorthand or full name>")
 
 
 # ---------------------------------------------------------------------------
@@ -585,16 +719,24 @@ def main():
     parser = build_parser()
     args   = parser.parse_args()
 
+    # --list_* flags at the top level (no subcommand required)
     if args.list_models:
         print_models(); sys.exit(0)
+
+    provider = getattr(args, "provider", PROVIDER_STARLINK)
+
     if args.list_features:
-        print_features(); sys.exit(0)
+        print_features(provider); sys.exit(0)
     if getattr(args, "list_targets", False):
-        print_targets(); sys.exit(0)
+        print_targets(provider); sys.exit(0)
 
     if args.subcommand is None:
         parser.print_help()
         sys.exit(0)
+
+    # Validate (provider, experiment_type) for subcommands that use it
+    if args.subcommand in ("train", "evaluate", "ablation"):
+        _validate_experiment_type(args)
 
     dispatch = {
         "train":    cmd_train,

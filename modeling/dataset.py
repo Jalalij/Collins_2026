@@ -1,29 +1,37 @@
 """
 dataset.py - Unified dataset for the Throughput Prediction Framework.
 
-Data layout (authoritative)
----------------------------
-<data_root>/
-    starlink_20260506_030006/
-        starlink_20260506_030006__udp_dl_400.csv   <- DL sessions
-        starlink_20260506_030006__udp_ul_40.csv    <- UL sessions
-    starlink_20260507_030024/
-        ...
+Supported providers
+-------------------
+starlink   : data/lsn-data/starlink/{latency,latency_loss_throughput,throughput}/
+oneweb     : data/lsn-data/oneweb/{dl,ul}/
+quectel    : data/lsn-data/quectel/{latency,latency_loss_throughput,throughput}/
 
-Mode-to-filename:
-    mode="dl"  ->  *__udp_dl_400.csv
-    mode="ul"  ->  *__udp_ul_40.csv
+Provider / experiment-type to filename pattern
+-----------------------------------------------
+Starlink:
+  "latency"               -> starlink_*_latency.csv
+  "latency_loss_throughput" -> starlink_*_latency_loss_throughput.csv
+  "throughput"            -> starlink_*_throughput.csv
+
+OneWeb:
+  "dl"                    -> ex_*_DL.csv   (inside oneweb/dl/)
+  "ul"                    -> ex_*_UL.csv   (inside oneweb/ul/)
+
+Quectel:
+  "latency"               -> quectel_*_latency.csv
+  "latency_loss_throughput" -> quectel_*_latency_loss_throughput.csv
+  "throughput"            -> quectel_*_throughput.csv
 
 Multi-target:
-    targets is a list of column names. E.g.:
-        targets=["dish_dl_throughput_mbps", "ping_internet_rtt_ms_mean"]
-    Each target is normalised independently; target_stats is keyed by col name.
-    Single-target case returns (output_len,) tensors for backward compat.
+  targets is a list of column names or shorthand keys.
+  Each target is normalised independently; target_stats is keyed by col name.
+  Single-target returns (output_len,) tensors for backward compat.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
@@ -34,55 +42,255 @@ from torch.utils.data import ConcatDataset, DataLoader, Dataset
 
 
 # ---------------------------------------------------------------------------
-# Constants
+# Provider registry
 # ---------------------------------------------------------------------------
 
-MODE_SUFFIX: dict[str, str] = {
-    "dl": "__udp_dl_400.csv",
-    "ul": "__udp_ul_40.csv",
+PROVIDER_STARLINK = "starlink"
+PROVIDER_ONEWEB   = "oneweb"
+PROVIDER_QUECTEL  = "quectel"
+
+PROVIDERS = (PROVIDER_STARLINK, PROVIDER_ONEWEB, PROVIDER_QUECTEL)
+
+# ---------------------------------------------------------------------------
+# File-layout definitions per provider
+# ---------------------------------------------------------------------------
+
+# Maps (provider, experiment_type) -> (subdirectory, filename_suffix)
+# subdirectory is relative to data_root/<provider>/
+FILE_LAYOUT: dict[tuple[str, str], tuple[str, str]] = {
+    # Starlink
+    (PROVIDER_STARLINK, "latency"):                  ("latency",                 "_latency.csv"),
+    (PROVIDER_STARLINK, "latency_loss_throughput"):  ("latency_loss_throughput", "_latency_loss_throughput.csv"),
+    (PROVIDER_STARLINK, "throughput"):               ("throughput",              "_throughput.csv"),
+    # OneWeb
+    (PROVIDER_ONEWEB,   "dl"):                       ("dl",                      "_DL.csv"),
+    (PROVIDER_ONEWEB,   "ul"):                       ("ul",                      "_UL.csv"),
+    # Quectel
+    (PROVIDER_QUECTEL,  "latency"):                  ("latency",                 "_latency.csv"),
+    (PROVIDER_QUECTEL,  "latency_loss_throughput"):  ("latency_loss_throughput", "_latency_loss_throughput.csv"),
+    (PROVIDER_QUECTEL,  "throughput"):               ("throughput",              "_throughput.csv"),
 }
 
-ALL_FEATURES: list[str] = [
+VALID_EXPERIMENT_TYPES: dict[str, tuple[str, ...]] = {
+    PROVIDER_STARLINK: ("latency", "latency_loss_throughput", "throughput"),
+    PROVIDER_ONEWEB:   ("dl", "ul"),
+    PROVIDER_QUECTEL:  ("latency", "latency_loss_throughput", "throughput"),
+}
+
+# ---------------------------------------------------------------------------
+# Timestamp / time-index columns per provider
+# ---------------------------------------------------------------------------
+
+TIMESTAMP_COL: dict[str, str] = {
+    PROVIDER_STARLINK: "timestamp_cst",
+    PROVIDER_ONEWEB:   "timestamp",
+    PROVIDER_QUECTEL:  "timestamp_cst",
+}
+
+# Pre-computed hour/dow column names (None = must derive from timestamp)
+HOUR_COL: dict[str, Optional[str]] = {
+    PROVIDER_STARLINK: "hour_cst",
+    PROVIDER_ONEWEB:   "hour_of_day",
+    PROVIDER_QUECTEL:  "hour_cst",
+}
+
+DOW_COL: dict[str, Optional[str]] = {
+    PROVIDER_STARLINK: "dow_cst",
+    PROVIDER_ONEWEB:   "day_of_week",
+    PROVIDER_QUECTEL:  "dow_cst",
+}
+
+# ---------------------------------------------------------------------------
+# Feature definitions per provider
+# ---------------------------------------------------------------------------
+
+# Starlink features (shared across all three Starlink experiment types; the
+# loader will silently drop any column absent in a particular file type)
+_STARLINK_FEATURES_ALL: list[str] = [
     "iperf_jitter_ms", "iperf_loss_pct",
-    "ping_tunnel_rtt_ms_mean", "ping_internet_rtt_ms_mean", "dish_pop_ping_ms",
+    "ping_tunnel_rtt_ms", "ping_server_rtt_ms", "ping_dns_rtt_ms",
+    "dish_pop_ping_ms",
     "distance_km", "sat_lat", "sat_lon", "sat_alt_km",
     "dish_snr", "dish_gps_sats", "dish_boresight_azimuth_deg",
-    "dish_boresight_elevation_deg", "dish_tilt_angle_deg", "dish_obstruction_fraction",
+    "dish_boresight_elevation_deg", "dish_tilt_angle_deg",
+    "dish_obstruction_fraction",
     "satellite_dtc", "satellite_handoff", "satellite_age_s",
+    "elevation_deg", "azimuth_deg",
     "weather_temp_f", "weather_humidity", "weather_pressure",
     "weather_wind_speed", "weather_wind_dir", "weather_rain_rate",
 ]
 
-DEFAULT_FEATURES: list[str] = [
+_STARLINK_FEATURES_DEFAULT: list[str] = [
+    "dish_pop_ping_ms", "distance_km",
+    "dish_snr", "dish_boresight_elevation_deg",
+    "dish_obstruction_fraction", "satellite_age_s",
+    "weather_temp_f", "weather_wind_speed",
+]
+
+# OneWeb features
+_ONEWEB_FEATURES_ALL: list[str] = [
+    "packet_loss_percent", "jitter_ms", "rtt_mean",
+    "sinr_db", "elevation_deg", "azimuth_deg",
+    "inter_satellite_ho_rate", "inter_beam_ho_rate",
+    "beam_change", "satellite_change",
+    "time_since_handover",
+]
+
+_ONEWEB_FEATURES_DEFAULT: list[str] = [
+    "packet_loss_percent", "jitter_ms", "rtt_mean",
+    "sinr_db", "elevation_deg", "azimuth_deg",
+    "time_since_handover",
+]
+
+# Quectel features
+_QUECTEL_FEATURES_ALL: list[str] = [
     "iperf_jitter_ms", "iperf_loss_pct",
-    "ping_tunnel_rtt_ms_mean", "ping_internet_rtt_ms_mean", "dish_pop_ping_ms",
-    "distance_km", "dish_snr", "dish_boresight_elevation_deg",
-    "dish_obstruction_fraction", "weather_temp_f", "weather_wind_speed",
+    "ping_rtt_ms",
+    "cell_change", "handover",
+    "arfcn", "rsrp", "rsrq", "sinr",
+    "weather_temp_f", "weather_humidity", "weather_pressure",
+    "weather_wind_speed", "weather_wind_dir", "weather_rain_rate",
 ]
 
-MANDATORY_COLS: list[str] = ["timestamp_cst", "hour_cst", "dow_cst"]
-
-# All columns available as prediction targets
-ALL_TARGETS: list[str] = [
-    "dish_dl_throughput_mbps",
-    "dish_ul_throughput_mbps",
-    "iperf_throughput_mbps",
-    "ping_internet_rtt_ms_mean",
-    "ping_tunnel_rtt_ms_mean",
-    "iperf_jitter_ms",
-    "iperf_loss_pct",
-    "dish_pop_ping_ms",
-    "dish_snr",
+_QUECTEL_FEATURES_DEFAULT: list[str] = [
+    "iperf_jitter_ms", "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp", "rsrq", "sinr",
+    "weather_temp_f", "weather_wind_speed",
 ]
 
-# Shorthand aliases → column name
-TARGET_COL: dict[str, str] = {
-    "dl":    "dish_dl_throughput_mbps",
-    "ul":    "dish_ul_throughput_mbps",
-    "iperf": "iperf_throughput_mbps",
-    "rtt":   "ping_internet_rtt_ms_mean",
-    "snr":   "dish_snr",
+ALL_FEATURES: dict[str, list[str]] = {
+    PROVIDER_STARLINK: _STARLINK_FEATURES_ALL,
+    PROVIDER_ONEWEB:   _ONEWEB_FEATURES_ALL,
+    PROVIDER_QUECTEL:  _QUECTEL_FEATURES_ALL,
 }
+
+DEFAULT_FEATURES: dict[str, list[str]] = {
+    PROVIDER_STARLINK: _STARLINK_FEATURES_DEFAULT,
+    PROVIDER_ONEWEB:   _ONEWEB_FEATURES_DEFAULT,
+    PROVIDER_QUECTEL:  _QUECTEL_FEATURES_DEFAULT,
+}
+
+# ---------------------------------------------------------------------------
+# Target definitions per provider
+# ---------------------------------------------------------------------------
+
+ALL_TARGETS: dict[str, list[str]] = {
+    PROVIDER_STARLINK: [
+        "dish_dl_throughput_mbps",
+        "dish_ul_throughput_mbps",
+        "iperf_throughput_mbps",
+        "ping_tunnel_rtt_ms",
+        "dish_pop_ping_ms",
+        "dish_snr",
+        "iperf_jitter_ms",
+        "iperf_loss_pct",
+    ],
+    PROVIDER_ONEWEB: [
+        "throughput_mbps",
+        "packet_loss_percent",
+        "jitter_ms",
+        "rtt_mean",
+        "sinr_db",
+    ],
+    PROVIDER_QUECTEL: [
+        "iperf_throughput_mbps",
+        "ping_rtt_ms",
+        "iperf_jitter_ms",
+        "iperf_loss_pct",
+        "sinr",
+        "rsrp",
+    ],
+}
+
+# Shorthand aliases per provider: short key -> column name
+TARGET_ALIASES: dict[str, dict[str, str]] = {
+    PROVIDER_STARLINK: {
+        "dl":    "dish_dl_throughput_mbps",
+        "ul":    "dish_ul_throughput_mbps",
+        "iperf": "iperf_throughput_mbps",
+        "rtt":   "ping_tunnel_rtt_ms",
+        "snr":   "dish_snr",
+    },
+    PROVIDER_ONEWEB: {
+        "tput":  "throughput_mbps",
+        "loss":  "packet_loss_percent",
+        "jitter":"jitter_ms",
+        "rtt":   "rtt_mean",
+        "sinr":  "sinr_db",
+    },
+    PROVIDER_QUECTEL: {
+        "iperf": "iperf_throughput_mbps",
+        "rtt":   "ping_rtt_ms",
+        "loss":  "iperf_loss_pct",
+        "sinr":  "sinr",
+        "rsrp":  "rsrp",
+    },
+}
+
+# Default target when none is specified, keyed by (provider, experiment_type)
+DEFAULT_TARGET: dict[tuple[str, str], str] = {
+    (PROVIDER_STARLINK, "latency"):                 "ping_tunnel_rtt_ms",
+    (PROVIDER_STARLINK, "latency_loss_throughput"): "iperf_throughput_mbps",
+    (PROVIDER_STARLINK, "throughput"):              "dish_dl_throughput_mbps",
+    (PROVIDER_ONEWEB,   "dl"):                      "throughput_mbps",
+    (PROVIDER_ONEWEB,   "ul"):                      "throughput_mbps",
+    (PROVIDER_QUECTEL,  "latency"):                 "ping_rtt_ms",
+    (PROVIDER_QUECTEL,  "latency_loss_throughput"): "iperf_throughput_mbps",
+    (PROVIDER_QUECTEL,  "throughput"):              "iperf_throughput_mbps",
+}
+
+
+# ---------------------------------------------------------------------------
+# Feature groups  (single source of truth — imported by run.py, ablation.py)
+# ---------------------------------------------------------------------------
+
+FEATURE_GROUPS: dict[str, list[str]] = {
+    # Starlink
+    "network_perf":       [
+        "iperf_jitter_ms", "iperf_loss_pct",
+        "ping_tunnel_rtt_ms", "dish_pop_ping_ms",
+    ],
+    "satellite_geometry": [
+        "distance_km", "sat_lat", "sat_lon", "sat_alt_km",
+    ],
+    "dish_state":         [
+        "dish_snr", "dish_gps_sats",
+        "dish_boresight_azimuth_deg", "dish_boresight_elevation_deg",
+        "dish_tilt_angle_deg", "dish_obstruction_fraction",
+    ],
+    "weather":            [
+        "weather_temp_f", "weather_humidity", "weather_pressure",
+        "weather_wind_speed", "weather_wind_dir", "weather_rain_rate",
+    ],
+    "satellite_meta":     [
+        "satellite_dtc", "satellite_handoff", "satellite_age_s",
+    ],
+    # OneWeb
+    "oneweb_signal":      [
+        "sinr_db", "elevation_deg", "azimuth_deg",
+    ],
+    "oneweb_handover":    [
+        "inter_satellite_ho_rate", "inter_beam_ho_rate",
+        "beam_change", "satellite_change", "time_since_handover",
+    ],
+    # Quectel
+    "cellular_signal":    [
+        "rsrp", "rsrq", "sinr",
+    ],
+    "cellular_perf":      [
+        "iperf_jitter_ms", "iperf_loss_pct", "ping_rtt_ms",
+    ],
+    "cellular_meta":      [
+        "cell_change", "handover", "arfcn",
+    ],
+}
+
+# Flat sorted list of every feature name across all providers — useful for
+# argparse metavar help text and cross-provider validation.
+ALL_FEATURE_NAMES: list[str] = sorted({
+    f for feats in ALL_FEATURES.values() for f in feats
+})
 
 
 # ---------------------------------------------------------------------------
@@ -91,37 +299,57 @@ TARGET_COL: dict[str, str] = {
 
 @dataclass
 class DataConfig:
-    data_root:   str                   = "data/starlink"
-    mode:        str                   = "dl"
-    # List of target columns (or shorthand keys). If None, uses mode default.
-    targets:     Optional[list[str]]   = None
-    features:    Optional[list[str]]   = None
-    input_len:   int                   = 30
-    output_len:  int                   = 15
-    train_frac:  float                 = 0.70
-    val_frac:    float                 = 0.15
-    normalise:   str                   = "zscore"
-    batch_size:  int                   = 512
-    num_workers: int                   = 0
-    seed:        int                   = 42
-    # Legacy compat
-    target:      Optional[str]         = None
+    # Required
+    provider:         str                  = PROVIDER_STARLINK
+    experiment_type:  str                  = "throughput"
+
+    # Paths
+    data_root:        str                  = "data/lsn-data"
+
+    # Targets / features — if None, sensible defaults are chosen
+    targets:          Optional[list[str]]  = None
+    features:         Optional[list[str]]  = None
+
+    # Window / split
+    input_len:        int                  = 30
+    output_len:       int                  = 15
+    train_frac:       float                = 0.70
+    val_frac:         float                = 0.15
+
+    # Normalisation
+    normalise:        str                  = "zscore"
+
+    # DataLoader
+    batch_size:       int                  = 512
+    num_workers:      int                  = 0
+    seed:             int                  = 42
+
+    # Legacy single-target compat
+    target:           Optional[str]        = None
 
     def __post_init__(self) -> None:
-        assert self.mode in MODE_SUFFIX, \
-            f"mode must be one of {list(MODE_SUFFIX)}, got '{self.mode}'"
+        if self.provider not in PROVIDERS:
+            raise ValueError(f"provider must be one of {PROVIDERS}, got '{self.provider}'")
+        valid_exp = VALID_EXPERIMENT_TYPES[self.provider]
+        if self.experiment_type not in valid_exp:
+            raise ValueError(
+                f"experiment_type '{self.experiment_type}' invalid for provider "
+                f"'{self.provider}'. Choose from {valid_exp}"
+            )
         assert self.train_frac + self.val_frac < 1.0, "train_frac + val_frac must be < 1.0"
+
+        aliases = TARGET_ALIASES[self.provider]
 
         # Resolve targets list (support shorthand keys)
         if self.targets is not None:
-            self.targets = [TARGET_COL.get(t, t) for t in self.targets]
+            self.targets = [aliases.get(t, t) for t in self.targets]
         elif self.target is not None:
-            self.targets = [TARGET_COL.get(self.target, self.target)]
+            self.targets = [aliases.get(self.target, self.target)]
         else:
-            self.targets = [TARGET_COL[self.mode]]
+            self.targets = [DEFAULT_TARGET[(self.provider, self.experiment_type)]]
 
         if self.features is None:
-            self.features = list(DEFAULT_FEATURES)
+            self.features = list(DEFAULT_FEATURES[self.provider])
 
     @property
     def num_targets(self) -> int:
@@ -131,43 +359,137 @@ class DataConfig:
     def primary_target(self) -> str:
         return self.targets[0]
 
+    @property
+    def provider_root(self) -> Path:
+        """Root directory for the chosen provider."""
+        return Path(self.data_root) / self.provider
+
+    @property
+    def timestamp_col(self) -> str:
+        return TIMESTAMP_COL[self.provider]
+
+    @property
+    def hour_col(self) -> Optional[str]:
+        return HOUR_COL[self.provider]
+
+    @property
+    def dow_col(self) -> Optional[str]:
+        return DOW_COL[self.provider]
+
 
 # ---------------------------------------------------------------------------
-# File discovery & CSV loading
+# File discovery
 # ---------------------------------------------------------------------------
 
-def find_session_files(data_root: str, mode: str) -> list[Path]:
-    suffix = MODE_SUFFIX[mode]
-    root = Path(data_root)
-    if not root.exists():
-        raise FileNotFoundError(f"data_root '{data_root}' does not exist.")
-    found: list[Path] = []
-    for session_dir in sorted(root.iterdir()):
-        if not session_dir.is_dir():
-            continue
-        matches = [f for f in session_dir.iterdir() if f.name.endswith(suffix)]
-        if len(matches) == 1:
-            found.append(matches[0])
-        elif len(matches) > 1:
-            print(f"  [warn] multiple matches in {session_dir.name}, using {matches[0].name}")
-            found.append(matches[0])
-        else:
-            print(f"  [warn] no '*{suffix}' in {session_dir.name}, skipping")
+def find_session_files(cfg: DataConfig) -> list[Path]:
+    """
+    Locate all CSV files for the given provider/experiment_type.
+
+    Layout:
+        Starlink / Quectel: <data_root>/<provider>/<subdir>/<files>
+        OneWeb:             <data_root>/oneweb/<subdir>/<files>
+                            (flat directory — no per-session sub-folders)
+    """
+    subdir, suffix = FILE_LAYOUT[(cfg.provider, cfg.experiment_type)]
+    search_dir = cfg.provider_root / subdir
+
+    if not search_dir.exists():
+        raise FileNotFoundError(
+            f"Expected directory '{search_dir}' does not exist. "
+            f"Check data_root='{cfg.data_root}' and provider='{cfg.provider}'."
+        )
+
+    found = sorted(p for p in search_dir.iterdir()
+                   if p.is_file() and p.name.endswith(suffix))
+
+    if not found:
+        print(f"  [warn] No '*{suffix}' files found in '{search_dir}'")
+
     return found
 
 
-def load_csv(path: Path) -> Optional[pd.DataFrame]:
+# ---------------------------------------------------------------------------
+# CSV loading (provider-aware)
+# ---------------------------------------------------------------------------
+
+def _parse_timestamp(series: pd.Series) -> pd.Series:
+    """Parse a timestamp column, stripping timezone info to naive UTC-equivalent."""
+    parsed = pd.to_datetime(series, utc=False, errors="coerce")
+    if parsed.dt.tz is not None:
+        parsed = parsed.dt.tz_localize(None)
+    return parsed
+
+
+def load_csv(path: Path, cfg: DataConfig) -> Optional[pd.DataFrame]:
+    """
+    Load and minimally clean a session CSV.
+
+    Returns a DataFrame with at minimum:
+        - <timestamp_col>  : datetime64[ns]
+        - hour             : float32  (0-23)
+        - dow              : float32  (0-6)
+        - all feature/target columns as float32 where applicable
+    Non-numeric columns that are not the timestamp are left as-is so the
+    caller can decide what to do with them.
+    """
     try:
         df = pd.read_csv(path, low_memory=False)
-        df = df[df["timestamp_cst"] != "timestamp_cst"].copy()
-        df["timestamp_cst"] = pd.to_datetime(df["timestamp_cst"])
-        for col in df.columns:
-            if col != "timestamp_cst":
-                df[col] = pd.to_numeric(df[col], errors="coerce")
-        return df
     except Exception as exc:
-        print(f"  [warn] could not load {path}: {exc}")
+        print(f"  [warn] could not read {path}: {exc}")
         return None
+
+    ts_col = cfg.timestamp_col
+
+    # Drop duplicate header rows (common in streaming-appended files)
+    if ts_col in df.columns:
+        df = df[df[ts_col] != ts_col].copy()
+        df[ts_col] = _parse_timestamp(df[ts_col])
+    else:
+        print(f"  [warn] {path.name}: missing timestamp column '{ts_col}', skipping")
+        return None
+
+    # Derive hour/dow if not already present
+    _ensure_time_cols(df, cfg)
+
+    # Coerce numeric columns
+    skip = {ts_col, "hour", "dow"}
+    if cfg.provider == PROVIDER_QUECTEL:
+        # cellid, inner_cell, base_station, band are categorical — keep as str
+        skip |= {"cellid", "inner_cell", "base_station", "band", "weather_code_nws"}
+    if cfg.provider == PROVIDER_ONEWEB:
+        skip |= {"track_id"}  # large int ID — keep but won't be a feature
+
+    for col in df.columns:
+        if col in skip:
+            continue
+        if df[col].dtype == object:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # Starlink throughput: dish_snr can be "True"/"False" (boolean bug in data)
+    if cfg.provider == PROVIDER_STARLINK and "dish_snr" in df.columns:
+        df["dish_snr"] = pd.to_numeric(df["dish_snr"], errors="coerce")
+
+    return df
+
+
+def _ensure_time_cols(df: pd.DataFrame, cfg: DataConfig) -> None:
+    """
+    Ensure 'hour' and 'dow' columns exist, deriving from timestamp if needed.
+    Works in-place.
+    """
+    ts_col  = cfg.timestamp_col
+    h_col   = cfg.hour_col
+    d_col   = cfg.dow_col
+
+    if h_col and h_col in df.columns:
+        df["hour"] = pd.to_numeric(df[h_col], errors="coerce").astype("float32")
+    else:
+        df["hour"] = df[ts_col].dt.hour.astype("float32")
+
+    if d_col and d_col in df.columns:
+        df["dow"] = pd.to_numeric(df[d_col], errors="coerce").astype("float32")
+    else:
+        df["dow"] = df[ts_col].dt.dayofweek.astype("float32")
 
 
 # ---------------------------------------------------------------------------
@@ -179,11 +501,15 @@ class ThroughputFileDataset(Dataset):
     Sliding-window dataset supporting one or more prediction targets.
 
     Item:
-        features : (input_len, num_features)   float32  normalised
-        hour     : (input_len,)                float32  raw 0-23
-        dow      : (input_len,)                float32  raw 0-6
-        target   : (output_len,)               float32  single target (num_targets==1)
-                   (output_len, num_targets)   float32  multi-target
+        features : (input_len, num_features)    float32  normalised
+        hour     : (input_len,)                 float32  raw 0-23
+        dow      : (input_len,)                 float32  raw 0-6
+        target   : (output_len,)                float32  single target (num_targets==1)
+                   (output_len, num_targets)    float32  multi-target
+
+    feature_cols is the *intersection* of requested features and columns
+    present in df, so partial column sets (e.g. Starlink latency missing
+    iperf columns) are handled gracefully.
     """
 
     def __init__(
@@ -194,35 +520,59 @@ class ThroughputFileDataset(Dataset):
         input_len: int = 30,
         output_len: int = 15,
         feature_stats: Optional[dict] = None,
-        target_stats: Optional[dict] = None,   # {col_name: {mean,std} or {min,max}}
+        target_stats: Optional[dict] = None,
         normalise: str = "zscore",
     ) -> None:
         self.input_len    = input_len
         self.output_len   = output_len
         self.normalise    = normalise
-        self.feature_cols = feature_cols
-        self.target_cols  = target_cols
         self.num_targets  = len(target_cols)
 
-        df = df.sort_values("timestamp_cst").reset_index(drop=True)
-        df[feature_cols] = df[feature_cols].ffill().bfill().fillna(0)
-        for tc in target_cols:
-            df[tc] = df[tc].ffill().bfill().fillna(0)
+        # Use only features that are actually present in this file
+        self.feature_cols = [c for c in feature_cols if c in df.columns]
+        self.target_cols  = target_cols
 
-        features = df[feature_cols].values.astype(np.float32)
-        targets  = df[target_cols].values.astype(np.float32)   # (N, T)
-        hours    = df["hour_cst"].values.astype(np.float32)
-        dows     = df["dow_cst"].values.astype(np.float32)
+        df = df.sort_values("timestamp" if "timestamp" in df.columns else df.columns[0])
+        df = df.reset_index(drop=True)
+
+        # Sort by whichever timestamp column exists
+        ts_candidates = [c for c in df.columns if "timestamp" in c.lower()]
+        if ts_candidates:
+            df = df.sort_values(ts_candidates[0]).reset_index(drop=True)
+
+        df[self.feature_cols] = (df[self.feature_cols]
+                                 .apply(pd.to_numeric, errors="coerce")
+                                 .ffill().bfill().fillna(0))
+        for tc in target_cols:
+            if tc in df.columns:
+                df[tc] = (pd.to_numeric(df[tc], errors="coerce")
+                          .ffill().bfill().fillna(0))
+
+        features = df[self.feature_cols].values.astype(np.float32)
+        targets  = df[target_cols].values.astype(np.float32)
+        hours    = df["hour"].values.astype(np.float32)
+        dows     = df["dow"].values.astype(np.float32)
 
         # Normalise features
         if normalise == "zscore":
             if feature_stats is None:
-                feature_stats = {"mean": features.mean(0), "std": features.std(0) + 1e-8}
-            features = (features - feature_stats["mean"]) / feature_stats["std"]
+                feature_stats = {
+                    "mean": features.mean(0),
+                    "std":  features.std(0) + 1e-8,
+                }
+            # Align stats to present features (stats may cover superset)
+            mean = _align_stats_array(feature_stats.get("mean"), features.shape[1])
+            std  = _align_stats_array(feature_stats.get("std"),  features.shape[1], fill=1.0)
+            features = (features - mean) / std
         elif normalise == "minmax":
             if feature_stats is None:
-                feature_stats = {"min": features.min(0), "max": features.max(0) + 1e-8}
-            features = (features - feature_stats["min"]) / (feature_stats["max"] - feature_stats["min"] + 1e-8)
+                feature_stats = {
+                    "min": features.min(0),
+                    "max": features.max(0) + 1e-8,
+                }
+            fmin = _align_stats_array(feature_stats.get("min"), features.shape[1])
+            fmax = _align_stats_array(feature_stats.get("max"), features.shape[1], fill=1.0)
+            features = (features - fmin) / (fmax - fmin + 1e-8)
 
         self.feature_stats = feature_stats
 
@@ -235,9 +585,15 @@ class ThroughputFileDataset(Dataset):
             col_vals = targets[:, i]
             if tc not in target_stats:
                 if normalise == "zscore":
-                    target_stats[tc] = {"mean": float(col_vals.mean()), "std": float(col_vals.std()) + 1e-8}
+                    target_stats[tc] = {
+                        "mean": float(col_vals.mean()),
+                        "std":  float(col_vals.std()) + 1e-8,
+                    }
                 elif normalise == "minmax":
-                    target_stats[tc] = {"min": float(col_vals.min()), "max": float(col_vals.max()) + 1e-8}
+                    target_stats[tc] = {
+                        "min": float(col_vals.min()),
+                        "max": float(col_vals.max()) + 1e-8,
+                    }
             stats = target_stats.get(tc, {})
             if normalise == "zscore" and stats:
                 normed[:, i] = (col_vals - stats["mean"]) / stats["std"]
@@ -247,16 +603,16 @@ class ThroughputFileDataset(Dataset):
 
         self.target_stats = target_stats
 
-        # Sliding windows
+        # Build sliding windows
         total = input_len + output_len
         N = len(df)
-        self.windows = []
+        self.windows: list[tuple] = []
         for start in range(N - total + 1):
             self.windows.append((
                 features[start          : start + input_len],
                 hours   [start          : start + input_len],
                 dows    [start          : start + input_len],
-                normed  [start + input_len : start + total],   # (output_len, num_targets)
+                normed  [start + input_len : start + total],
             ))
 
     def __len__(self) -> int:
@@ -266,7 +622,7 @@ class ThroughputFileDataset(Dataset):
         feat, hour, dow, tgt = self.windows[idx]
         tgt_t = torch.from_numpy(tgt.copy())
         if self.num_targets == 1:
-            tgt_t = tgt_t.squeeze(-1)      # (output_len,) for backward compat
+            tgt_t = tgt_t.squeeze(-1)
         return (
             torch.from_numpy(feat.copy()),
             torch.from_numpy(hour.copy()),
@@ -287,9 +643,7 @@ class ThroughputFileDataset(Dataset):
         return x.float() * (stats["max"] - stats["min"]) + stats["min"]
 
     def inverse_transform_all(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Denormalise a (..., num_targets) tensor for all targets.
-        """
+        """Denormalise a (..., num_targets) tensor for all targets."""
         if not self.target_stats or self.normalise not in ("zscore", "minmax"):
             return x
         result = x.clone().float()
@@ -336,14 +690,14 @@ class ExperimentDataset(Dataset):
         feat, hour, dow, tgt = self.base[idx]
         h_sin = torch.sin(2 * torch.pi * hour / 24).unsqueeze(-1)
         h_cos = torch.cos(2 * torch.pi * hour / 24).unsqueeze(-1)
-        d_sin = torch.sin(2 * torch.pi * dow / 7).unsqueeze(-1)
-        d_cos = torch.cos(2 * torch.pi * dow / 7).unsqueeze(-1)
+        d_sin = torch.sin(2 * torch.pi * dow  /  7).unsqueeze(-1)
+        d_cos = torch.cos(2 * torch.pi * dow  /  7).unsqueeze(-1)
         x = torch.cat([feat, h_sin, h_cos, d_sin, d_cos], dim=-1)  # (T, F+4)
         # First prediction step
         if tgt.dim() == 2:
-            y_tgt = tgt[0, :]      # (num_targets,)
+            y_tgt = tgt[0, :]
         else:
-            y_tgt = tgt[0:1]       # (1,)
+            y_tgt = tgt[0:1]
         y = torch.cat([x[-1, :], y_tgt.float()], dim=0)
         return x, y
 
@@ -365,47 +719,108 @@ class ExperimentDataset(Dataset):
 
 
 # ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+def _align_stats_array(
+    arr: Optional[np.ndarray],
+    n: int,
+    fill: float = 0.0,
+) -> np.ndarray:
+    """
+    Return a 1-D array of length n from arr.
+    If arr is None or wrong length, pad/truncate with `fill`.
+    """
+    if arr is None:
+        out = np.full(n, fill, dtype=np.float32)
+    elif len(arr) == n:
+        out = arr.astype(np.float32)
+    elif len(arr) > n:
+        out = arr[:n].astype(np.float32)
+    else:
+        out = np.full(n, fill, dtype=np.float32)
+        out[:len(arr)] = arr
+    return out
+
+
+def _validate_and_filter_df(
+    df: pd.DataFrame,
+    feature_cols: list[str],
+    target_cols: list[str],
+    cfg: DataConfig,
+    path: Path,
+) -> Optional[pd.DataFrame]:
+    """
+    Check that the required target columns are present and the file has
+    enough rows.  Returns the filtered df or None.
+    """
+    missing_targets = [tc for tc in target_cols if tc not in df.columns]
+    if missing_targets:
+        print(f"  [warn] {path.name}: missing target(s) {missing_targets}, skipping")
+        return None
+
+    min_rows = cfg.input_len + cfg.output_len + 1
+    if len(df) < min_rows:
+        print(f"  [warn] {path.name}: only {len(df)} rows (need {min_rows}), skipping")
+        return None
+
+    # Warn about missing features (soft — dataset handles intersection)
+    missing_feat = [fc for fc in feature_cols if fc not in df.columns]
+    if missing_feat:
+        print(f"  [info] {path.name}: features absent (will be skipped): {missing_feat}")
+
+    return df
+
+
+# ---------------------------------------------------------------------------
 # Public build functions
 # ---------------------------------------------------------------------------
 
 def build_dataloaders(cfg: DataConfig):
     """
-    Returns: train_loader, val_loader, test_loader, feature_stats, target_stats, feature_cols
-    target_stats is {col_name: {mean,std}} for all targets.
-    test_loader may be None.
+    Build train / val / test DataLoaders for the given DataConfig.
+
+    Returns
+    -------
+    train_loader   : DataLoader  (shuffled)
+    val_loader     : DataLoader
+    test_loader    : DataLoader | None
+    feature_stats  : dict  (normalisation stats for features)
+    target_stats   : dict  {col_name: {mean,std} | {min,max}}
+    feature_cols   : list[str]  (features actually used)
     """
     target_cols  = cfg.targets
     feature_cols = cfg.features
 
-    print(f"\n  Mode    : {cfg.mode}  (suffix: *{MODE_SUFFIX[cfg.mode]})")
-    print(f"  Targets : {target_cols}")
-    print(f"  Root    : {cfg.data_root}")
+    subdir, suffix = FILE_LAYOUT[(cfg.provider, cfg.experiment_type)]
+    print(f"\n  Provider    : {cfg.provider}")
+    print(f"  Exp type    : {cfg.experiment_type}  (suffix: *{suffix})")
+    print(f"  Targets     : {target_cols}")
+    print(f"  Root        : {cfg.data_root}")
 
-    all_paths = find_session_files(cfg.data_root, cfg.mode)
-    print(f"  Found   : {len(all_paths)} session file(s)")
+    all_paths = find_session_files(cfg)
+    print(f"  Found       : {len(all_paths)} file(s)")
     if not all_paths:
-        raise FileNotFoundError(f"No '*{MODE_SUFFIX[cfg.mode]}' files under '{cfg.data_root}'.")
+        raise FileNotFoundError(
+            f"No '*{suffix}' files found for provider='{cfg.provider}', "
+            f"experiment_type='{cfg.experiment_type}'."
+        )
 
-    need_cols = set(MANDATORY_COLS + feature_cols + target_cols)
     dfs: list[pd.DataFrame] = []
     for p in all_paths:
-        df = load_csv(p)
+        df = load_csv(p, cfg)
         if df is None:
             continue
-        missing = need_cols - set(df.columns)
-        if missing:
-            print(f"  [warn] {p.parent.name}/{p.name}: missing {missing}, skipping")
-            continue
-        min_rows = cfg.input_len + cfg.output_len + 1
-        if len(df) < min_rows:
-            print(f"  [warn] {p.name}: only {len(df)} rows (need {min_rows}), skipping")
-            continue
-        keep = sorted(need_cols)
-        dfs.append(df[[c for c in df.columns if c in keep or c == "timestamp_cst"]])
+        df = _validate_and_filter_df(df, feature_cols, target_cols, cfg, p)
+        if df is not None:
+            dfs.append(df)
 
     if not dfs:
-        raise ValueError("No usable session files — check column names and data_root.")
-    print(f"  Usable  : {len(dfs)} session(s)")
+        raise ValueError(
+            "No usable session files — check column names, data_root, "
+            "provider, and experiment_type."
+        )
+    print(f"  Usable      : {len(dfs)} file(s)")
 
     rng     = np.random.default_rng(cfg.seed)
     idx     = rng.permutation(len(dfs))
@@ -415,27 +830,41 @@ def build_dataloaders(cfg: DataConfig):
     train_dfs = [dfs[i] for i in idx[:n_train]]
     val_dfs   = [dfs[i] for i in idx[n_train : n_train + n_val]]
     test_dfs  = [dfs[i] for i in idx[n_train + n_val :]]
-    print(f"  Split   : train={len(train_dfs)}  val={len(val_dfs)}  test={len(test_dfs)}")
+    print(f"  Split       : train={len(train_dfs)}  val={len(val_dfs)}  test={len(test_dfs)}")
 
     feature_stats: Optional[dict] = None
     target_stats:  dict           = {}
 
     if cfg.normalise in ("zscore", "minmax"):
         tr      = pd.concat(train_dfs, ignore_index=True)
-        tr_feat = tr[feature_cols].ffill().bfill().fillna(0).values.astype(np.float32)
+        # Use only the intersection of requested features with available cols
+        avail_feat = [f for f in feature_cols if f in tr.columns]
+        tr_feat = (tr[avail_feat]
+                   .apply(pd.to_numeric, errors="coerce")
+                   .ffill().bfill().fillna(0)
+                   .values.astype(np.float32))
+
         if cfg.normalise == "zscore":
             feature_stats = {"mean": tr_feat.mean(0), "std": tr_feat.std(0) + 1e-8}
         else:
             feature_stats = {"min": tr_feat.min(0), "max": tr_feat.max(0) + 1e-8}
 
         for tc in target_cols:
-            tr_tgt = tr[tc].ffill().bfill().fillna(0).values.astype(np.float32)
+            tr_tgt = (pd.to_numeric(tr[tc], errors="coerce")
+                      .ffill().bfill().fillna(0)
+                      .values.astype(np.float32))
             if cfg.normalise == "zscore":
-                target_stats[tc] = {"mean": float(tr_tgt.mean()), "std": float(tr_tgt.std()) + 1e-8}
+                target_stats[tc] = {
+                    "mean": float(tr_tgt.mean()),
+                    "std":  float(tr_tgt.std()) + 1e-8,
+                }
             else:
-                target_stats[tc] = {"min": float(tr_tgt.min()), "max": float(tr_tgt.max()) + 1e-8}
+                target_stats[tc] = {
+                    "min": float(tr_tgt.min()),
+                    "max": float(tr_tgt.max()) + 1e-8,
+                }
 
-    def make_ds(df_list):
+    def make_ds(df_list: list[pd.DataFrame]):
         datasets = []
         for df in df_list:
             ds = ThroughputFileDataset(
@@ -453,29 +882,47 @@ def build_dataloaders(cfg: DataConfig):
     val_ds   = make_ds(val_dfs)
     test_ds  = make_ds(test_dfs)
 
-    def to_loader(ds, shuffle):
+    def to_loader(ds, shuffle: bool):
         if ds is None or len(ds) == 0:
             return None
-        return DataLoader(ds, batch_size=cfg.batch_size, shuffle=shuffle,
-                          num_workers=cfg.num_workers, pin_memory=torch.cuda.is_available())
+        return DataLoader(
+            ds,
+            batch_size=cfg.batch_size,
+            shuffle=shuffle,
+            num_workers=cfg.num_workers,
+            pin_memory=torch.cuda.is_available(),
+        )
 
-    print(f"  Windows : train={len(train_ds) if train_ds else 0:,}  "
+    print(f"  Windows     : train={len(train_ds) if train_ds else 0:,}  "
           f"val={len(val_ds) if val_ds else 0:,}  "
           f"test={len(test_ds) if test_ds else 0:,}")
 
-    return (to_loader(train_ds, True), to_loader(val_ds, False), to_loader(test_ds, False),
-            feature_stats, target_stats, feature_cols)
+    return (
+        to_loader(train_ds, True),
+        to_loader(val_ds,   False),
+        to_loader(test_ds,  False),
+        feature_stats,
+        target_stats,
+        feature_cols,
+    )
 
 
 def build_experiment_datasets(cfg: DataConfig):
     """
-    Returns ExperimentDataset for legacy trainers.
-    Returns: train_set, test_set, feature_stats, target_stats, feature_cols
+    Build ExperimentDataset wrappers for legacy trainers.
+
+    Returns
+    -------
+    train_set      : ExperimentDataset
+    test_set       : ExperimentDataset
+    feature_stats  : dict
+    target_stats   : dict
+    feature_cols   : list[str]
     """
     (train_loader, _, test_loader,
      feature_stats, target_stats, feature_cols) = build_dataloaders(cfg)
 
-    n_feat = len(feature_cols) + 4
+    n_feat = len(feature_cols) + 4  # +4 for sin/cos hour/dow encodings
 
     train_set = ExperimentDataset(
         train_loader.dataset, target_stats, cfg.normalise, n_feat, cfg.targets

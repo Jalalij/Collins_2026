@@ -101,143 +101,223 @@ DOW_COL: dict[str, Optional[str]] = {
 }
 
 # ---------------------------------------------------------------------------
-# Feature definitions per provider
+# Feature definitions — per (provider, experiment_type)
 # ---------------------------------------------------------------------------
+# ALL_FEATURES  : every column that could appear as a feature for that combo
+# DEFAULT_FEATURES : the default input set used when --features is not specified
+# Both are keyed by (provider, experiment_type).
+# ALL_FEATURES is also exposed per-provider (union) for argparse/listing.
 
-# Starlink features (shared across all three Starlink experiment types; the
-# loader will silently drop any column absent in a particular file type)
-_STARLINK_FEATURES_ALL: list[str] = [
-    "iperf_jitter_ms", "iperf_loss_pct",
-    "ping_tunnel_rtt_ms", "ping_server_rtt_ms", "ping_dns_rtt_ms",
-    "dish_pop_ping_ms",
-    "distance_km", "sat_lat", "sat_lon", "sat_alt_km",
-    "dish_snr", "dish_gps_sats", "dish_boresight_azimuth_deg",
-    "dish_boresight_elevation_deg", "dish_tilt_angle_deg",
-    "dish_obstruction_fraction",
-    "satellite_dtc", "satellite_handoff", "satellite_age_s",
-    "elevation_deg", "azimuth_deg",
-    "weather_temp_f", "weather_humidity", "weather_pressure",
-    "weather_wind_speed", "weather_wind_dir", "weather_rain_rate",
+# -- Starlink -----------------------------------------------------------------
+_SL_COMMON = [
+    "dish_pop_ping_ms", "satellite_dtc", "satellite_handoff", "satellite_age_s",
+    "distance_km", "elevation_deg", "azimuth_deg",
+    "dish_obstruction_fraction", "dish_snr",
+    "dish_boresight_azimuth_deg", "dish_boresight_elevation_deg",
+    "weather_humidity", "weather_pressure", "weather_rain_rate",
 ]
 
-_STARLINK_FEATURES_DEFAULT: list[str] = [
-    "dish_pop_ping_ms", "distance_km",
-    "dish_snr", "dish_boresight_elevation_deg",
-    "dish_obstruction_fraction", "satellite_age_s",
-    "weather_temp_f", "weather_wind_speed",
-]
+ALL_FEATURES_BY_EXP: dict[tuple[str, str], list[str]] = {
+    # Starlink latency
+    (PROVIDER_STARLINK, "latency"): _SL_COMMON + [
+        "ping_server_rtt_ms", "ping_dns_rtt_ms",
+    ],
+    # Starlink latency_loss_throughput
+    (PROVIDER_STARLINK, "latency_loss_throughput"): _SL_COMMON + [
+        "ping_server_rtt_ms", "ping_dns_rtt_ms",
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+    ],
+    # Starlink throughput
+    (PROVIDER_STARLINK, "throughput"): _SL_COMMON + [
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+    ],
+    # OneWeb dl / ul (identical column sets)
+    (PROVIDER_ONEWEB, "dl"): [
+        "throughput_mbps", "packet_loss_percent", "jitter_ms", "rtt_mean",
+        "sinr_db", "elevation_deg", "azimuth_deg",
+        "satellite_change", "time_since_handover",
+    ],
+    (PROVIDER_ONEWEB, "ul"): [
+        "throughput_mbps", "packet_loss_percent", "jitter_ms", "rtt_mean",
+        "sinr_db", "elevation_deg", "azimuth_deg",
+        "satellite_change", "time_since_handover",
+    ],
+    # Quectel latency
+    (PROVIDER_QUECTEL, "latency"): [
+        "ping_rtt_ms",
+        "rsrp", "rsrq", "sinr",
+        "weather_humidity", "weather_pressure", "weather_rain_rate",
+    ],
+    # Quectel latency_loss_throughput
+    (PROVIDER_QUECTEL, "latency_loss_throughput"): [
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+        "ping_rtt_ms",
+        "rsrp", "rsrq", "sinr",
+        "weather_humidity", "weather_pressure", "weather_rain_rate",
+    ],
+    # Quectel throughput
+    (PROVIDER_QUECTEL, "throughput"): [
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+        "rsrp", "rsrq", "sinr",
+        "weather_humidity", "weather_pressure", "weather_rain_rate",
+    ],
+}
 
-# OneWeb features
-_ONEWEB_FEATURES_ALL: list[str] = [
-    "packet_loss_percent", "jitter_ms", "rtt_mean",
-    "sinr_db", "elevation_deg", "azimuth_deg",
-    "inter_satellite_ho_rate", "inter_beam_ho_rate",
-    "beam_change", "satellite_change",
-    "time_since_handover",
-]
+DEFAULT_FEATURES_BY_EXP: dict[tuple[str, str], list[str]] = {
+    # Starlink latency
+    (PROVIDER_STARLINK, "latency"): [
+        "ping_server_rtt_ms", "ping_dns_rtt_ms",
+        "dish_pop_ping_ms", "satellite_dtc", "satellite_handoff", "satellite_age_s",
+        "distance_km", "elevation_deg", "azimuth_deg",
+        "dish_obstruction_fraction", "dish_snr",
+        "dish_boresight_azimuth_deg", "dish_boresight_elevation_deg",
+        "weather_humidity", "weather_pressure", "weather_rain_rate",
+    ],
+    # Starlink latency_loss_throughput
+    (PROVIDER_STARLINK, "latency_loss_throughput"): [
+        "ping_server_rtt_ms", "ping_dns_rtt_ms",
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+        "dish_pop_ping_ms", "satellite_dtc", "satellite_handoff", "satellite_age_s",
+        "distance_km", "elevation_deg", "azimuth_deg",
+        "dish_obstruction_fraction", "dish_snr",
+        "dish_boresight_azimuth_deg", "dish_boresight_elevation_deg",
+        "weather_humidity", "weather_pressure", "weather_rain_rate",
+    ],
+    # Starlink throughput
+    (PROVIDER_STARLINK, "throughput"): [
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+        "dish_pop_ping_ms", "satellite_dtc", "satellite_handoff", "satellite_age_s",
+        "distance_km", "elevation_deg", "azimuth_deg",
+        "dish_obstruction_fraction", "dish_snr",
+        "dish_boresight_azimuth_deg", "dish_boresight_elevation_deg",
+        "weather_humidity", "weather_pressure", "weather_rain_rate",
+    ],
+    # OneWeb dl / ul
+    (PROVIDER_ONEWEB, "dl"): [
+        "throughput_mbps", "packet_loss_percent", "jitter_ms", "rtt_mean",
+        "sinr_db", "elevation_deg", "azimuth_deg",
+        "satellite_change", "time_since_handover",
+    ],
+    (PROVIDER_ONEWEB, "ul"): [
+        "throughput_mbps", "packet_loss_percent", "jitter_ms", "rtt_mean",
+        "sinr_db", "elevation_deg", "azimuth_deg",
+        "satellite_change", "time_since_handover",
+    ],
+    # Quectel latency
+    (PROVIDER_QUECTEL, "latency"): [
+        "ping_rtt_ms",
+        "rsrp", "rsrq", "sinr",
+        "weather_humidity", "weather_pressure", "weather_rain_rate",
+    ],
+    # Quectel latency_loss_throughput
+    (PROVIDER_QUECTEL, "latency_loss_throughput"): [
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+        "ping_rtt_ms",
+        "rsrp", "rsrq", "sinr",
+        "weather_humidity", "weather_pressure", "weather_rain_rate",
+    ],
+    # Quectel throughput
+    (PROVIDER_QUECTEL, "throughput"): [
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+        "rsrp", "rsrq", "sinr",
+        "weather_humidity", "weather_pressure", "weather_rain_rate",
+    ],
+}
 
-_ONEWEB_FEATURES_DEFAULT: list[str] = [
-    "packet_loss_percent", "jitter_ms", "rtt_mean",
-    "sinr_db", "elevation_deg", "azimuth_deg",
-    "time_since_handover",
-]
-
-# Quectel features
-_QUECTEL_FEATURES_ALL: list[str] = [
-    "iperf_jitter_ms", "iperf_loss_pct",
-    "ping_rtt_ms",
-    "cell_change", "handover",
-    "arfcn", "rsrp", "rsrq", "sinr",
-    "weather_temp_f", "weather_humidity", "weather_pressure",
-    "weather_wind_speed", "weather_wind_dir", "weather_rain_rate",
-]
-
-_QUECTEL_FEATURES_DEFAULT: list[str] = [
-    "iperf_jitter_ms", "iperf_loss_pct",
-    "ping_rtt_ms",
-    "rsrp", "rsrq", "sinr",
-    "weather_temp_f", "weather_wind_speed",
-]
-
+# Per-provider union of all features (for listing / argparse help)
 ALL_FEATURES: dict[str, list[str]] = {
-    PROVIDER_STARLINK: _STARLINK_FEATURES_ALL,
-    PROVIDER_ONEWEB:   _ONEWEB_FEATURES_ALL,
-    PROVIDER_QUECTEL:  _QUECTEL_FEATURES_ALL,
+    p: sorted({
+        f
+        for (prov, _), feats in ALL_FEATURES_BY_EXP.items()
+        if prov == p
+        for f in feats
+    })
+    for p in PROVIDERS
 }
 
+# Per-provider default features (union, for backward-compat imports)
 DEFAULT_FEATURES: dict[str, list[str]] = {
-    PROVIDER_STARLINK: _STARLINK_FEATURES_DEFAULT,
-    PROVIDER_ONEWEB:   _ONEWEB_FEATURES_DEFAULT,
-    PROVIDER_QUECTEL:  _QUECTEL_FEATURES_DEFAULT,
+    p: sorted({
+        f
+        for (prov, _), feats in DEFAULT_FEATURES_BY_EXP.items()
+        if prov == p
+        for f in feats
+    })
+    for p in PROVIDERS
 }
 
 # ---------------------------------------------------------------------------
-# Target definitions per provider
+# Target definitions — per (provider, experiment_type)
 # ---------------------------------------------------------------------------
+
+DEFAULT_TARGETS_BY_EXP: dict[tuple[str, str], list[str]] = {
+    (PROVIDER_STARLINK, "latency"):                 ["ping_server_rtt_ms", "ping_dns_rtt_ms"],
+    (PROVIDER_STARLINK, "latency_loss_throughput"): ["iperf_throughput_mbps", "iperf_jitter_ms",
+                                                     "iperf_loss_pct",
+                                                     "ping_server_rtt_ms", "ping_dns_rtt_ms"],
+    (PROVIDER_STARLINK, "throughput"):              ["iperf_throughput_mbps", "iperf_jitter_ms",
+                                                     "iperf_loss_pct"],
+    (PROVIDER_ONEWEB,   "dl"):                      ["throughput_mbps", "packet_loss_percent",
+                                                     "jitter_ms", "rtt_mean"],
+    (PROVIDER_ONEWEB,   "ul"):                      ["throughput_mbps", "packet_loss_percent",
+                                                     "jitter_ms", "rtt_mean"],
+    (PROVIDER_QUECTEL,  "latency"):                 ["ping_rtt_ms"],
+    (PROVIDER_QUECTEL,  "latency_loss_throughput"): ["iperf_throughput_mbps", "iperf_jitter_ms",
+                                                     "iperf_loss_pct", "ping_rtt_ms"],
+    (PROVIDER_QUECTEL,  "throughput"):              ["iperf_throughput_mbps", "iperf_jitter_ms",
+                                                     "iperf_loss_pct"],
+}
 
 ALL_TARGETS: dict[str, list[str]] = {
     PROVIDER_STARLINK: [
-        "dish_dl_throughput_mbps",
-        "dish_ul_throughput_mbps",
-        "iperf_throughput_mbps",
-        "ping_tunnel_rtt_ms",
-        "dish_pop_ping_ms",
-        "dish_snr",
-        "iperf_jitter_ms",
-        "iperf_loss_pct",
+        "ping_server_rtt_ms", "ping_dns_rtt_ms",
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+        "dish_dl_throughput_mbps", "dish_ul_throughput_mbps",
+        "dish_pop_ping_ms", "dish_snr",
     ],
     PROVIDER_ONEWEB: [
-        "throughput_mbps",
-        "packet_loss_percent",
-        "jitter_ms",
-        "rtt_mean",
-        "sinr_db",
+        "throughput_mbps", "packet_loss_percent",
+        "jitter_ms", "rtt_mean", "sinr_db",
     ],
     PROVIDER_QUECTEL: [
-        "iperf_throughput_mbps",
-        "ping_rtt_ms",
-        "iperf_jitter_ms",
-        "iperf_loss_pct",
-        "sinr",
-        "rsrp",
+        "iperf_throughput_mbps", "iperf_jitter_ms", "iperf_loss_pct",
+        "ping_rtt_ms", "sinr", "rsrp",
     ],
 }
 
 # Shorthand aliases per provider: short key -> column name
 TARGET_ALIASES: dict[str, dict[str, str]] = {
     PROVIDER_STARLINK: {
-        "dl":    "dish_dl_throughput_mbps",
-        "ul":    "dish_ul_throughput_mbps",
-        "iperf": "iperf_throughput_mbps",
-        "rtt":   "ping_tunnel_rtt_ms",
-        "snr":   "dish_snr",
+        "iperf":    "iperf_throughput_mbps",
+        "jitter":   "iperf_jitter_ms",
+        "loss":     "iperf_loss_pct",
+        "rtt":      "ping_server_rtt_ms",
+        "dns":      "ping_dns_rtt_ms",
+        "dl":       "dish_dl_throughput_mbps",
+        "ul":       "dish_ul_throughput_mbps",
+        "pop":      "dish_pop_ping_ms",
+        "snr":      "dish_snr",
     },
     PROVIDER_ONEWEB: {
-        "tput":  "throughput_mbps",
-        "loss":  "packet_loss_percent",
-        "jitter":"jitter_ms",
-        "rtt":   "rtt_mean",
-        "sinr":  "sinr_db",
+        "tput":     "throughput_mbps",
+        "loss":     "packet_loss_percent",
+        "jitter":   "jitter_ms",
+        "rtt":      "rtt_mean",
+        "sinr":     "sinr_db",
     },
     PROVIDER_QUECTEL: {
-        "iperf": "iperf_throughput_mbps",
-        "rtt":   "ping_rtt_ms",
-        "loss":  "iperf_loss_pct",
-        "sinr":  "sinr",
-        "rsrp":  "rsrp",
+        "iperf":    "iperf_throughput_mbps",
+        "jitter":   "iperf_jitter_ms",
+        "loss":     "iperf_loss_pct",
+        "rtt":      "ping_rtt_ms",
+        "sinr":     "sinr",
+        "rsrp":     "rsrp",
     },
 }
 
-# Default target when none is specified, keyed by (provider, experiment_type)
+# First target of the default set — used as fallback in legacy single-target paths
 DEFAULT_TARGET: dict[tuple[str, str], str] = {
-    (PROVIDER_STARLINK, "latency"):                 "ping_tunnel_rtt_ms",
-    (PROVIDER_STARLINK, "latency_loss_throughput"): "iperf_throughput_mbps",
-    (PROVIDER_STARLINK, "throughput"):              "dish_dl_throughput_mbps",
-    (PROVIDER_ONEWEB,   "dl"):                      "throughput_mbps",
-    (PROVIDER_ONEWEB,   "ul"):                      "throughput_mbps",
-    (PROVIDER_QUECTEL,  "latency"):                 "ping_rtt_ms",
-    (PROVIDER_QUECTEL,  "latency_loss_throughput"): "iperf_throughput_mbps",
-    (PROVIDER_QUECTEL,  "throughput"):              "iperf_throughput_mbps",
+    k: v[0] for k, v in DEFAULT_TARGETS_BY_EXP.items()
 }
 
 
@@ -339,6 +419,7 @@ class DataConfig:
         assert self.train_frac + self.val_frac < 1.0, "train_frac + val_frac must be < 1.0"
 
         aliases = TARGET_ALIASES[self.provider]
+        exp_key = (self.provider, self.experiment_type)
 
         # Resolve targets list (support shorthand keys)
         if self.targets is not None:
@@ -346,10 +427,11 @@ class DataConfig:
         elif self.target is not None:
             self.targets = [aliases.get(self.target, self.target)]
         else:
-            self.targets = [DEFAULT_TARGET[(self.provider, self.experiment_type)]]
+            # Default: all recommended targets for this (provider, experiment_type)
+            self.targets = list(DEFAULT_TARGETS_BY_EXP[exp_key])
 
         if self.features is None:
-            self.features = list(DEFAULT_FEATURES[self.provider])
+            self.features = list(DEFAULT_FEATURES_BY_EXP[exp_key])
 
     @property
     def num_targets(self) -> int:

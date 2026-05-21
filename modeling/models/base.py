@@ -102,6 +102,9 @@ def _register_builtins() -> None:
     from .transformer_model      import TransformerTrainer
     from .gaussian_process_model import GaussianProcessTrainer
     from .autoencoder_models     import PredictiveAutoencoderTrainer
+    from .starnet_models       import (
+        SatelliteGRUTrainer, SatelliteAttentionTrainer, SatelliteFNNTrainer,
+    )
 
     ModelRegistry.register(
         "seq2seq", Seq2SeqTrainer,
@@ -138,5 +141,29 @@ def _register_builtins() -> None:
         description="Predictive autoencoder (standard | sparse | variational)",
         default_config={
             "variant": "standard", "epochs": 100, "lr": 1e-3, "batch_size": 64,
+        },
+    )
+    ModelRegistry.register(
+        "satellite_gru", SatelliteGRUTrainer,
+        description="Satellite GRU Seq2Seq encoder-decoder",
+        default_config={
+            "hidden_size": 128, "num_layers": 2,
+            "epochs": 100, "lr": 1e-3, "batch_size": 256, "patience": 15,
+        },
+    )
+    ModelRegistry.register(
+        "satellite_attention", SatelliteAttentionTrainer,
+        description="Satellite GRU with Bahdanau attention",
+        default_config={
+            "hidden_size": 128, "num_layers": 2,
+            "epochs": 100, "lr": 1e-3, "batch_size": 256, "patience": 15,
+        },
+    )
+    ModelRegistry.register(
+        "satellite_fnn", SatelliteFNNTrainer,
+        description="Satellite feature-compress FNN (fastest)",
+        default_config={
+            "hidden_size": 128, "num_layers": 2,
+            "epochs": 100, "lr": 1e-3, "batch_size": 256, "patience": 15,
         },
     )

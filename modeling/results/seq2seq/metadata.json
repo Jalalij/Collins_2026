@@ -1,0 +1,30 @@
+{
+  "model_type": "Seq2Seq-GRU",
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "num_features": 8,
+  "num_targets": 1,
+  "target_cols": [
+    "dish_dl_throughput_mbps"
+  ],
+  "output_len": 15,
+  "epochs_trained": 22,
+  "checkpoint": "results\\seq2seq\\20260520_170559\\best_model.pt",
+  "model_key": "seq2seq",
+  "provider": "starlink",
+  "experiment_type": "throughput",
+  "targets": [
+    "dish_dl_throughput_mbps"
+  ],
+  "features": [
+    "dish_pop_ping_ms",
+    "distance_km",
+    "dish_snr",
+    "dish_boresight_elevation_deg",
+    "dish_obstruction_fraction",
+    "satellite_age_s",
+    "weather_temp_f",
+    "weather_wind_speed"
+  ],
+  "out_dir": "results\\seq2seq"
+}

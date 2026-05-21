@@ -1,0 +1,47 @@
+{
+  "list_models": false,
+  "list_features": false,
+  "list_targets": false,
+  "provider": "starlink",
+  "subcommand": "train",
+  "models": [
+    "seq2seq"
+  ],
+  "experiment_type": "throughput",
+  "data_root": "data/lsn-data",
+  "targets": null,
+  "input_len": 30,
+  "output_len": 15,
+  "normalise": "zscore",
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "batch_size": null,
+  "seed": 42,
+  "features": [
+    "default"
+  ],
+  "feature_group": null,
+  "feature_groups": null,
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "dropout": null,
+  "epochs": 100,
+  "lr": 0.001,
+  "out_dir": "results",
+  "resolved_features": [
+    "dish_pop_ping_ms",
+    "distance_km",
+    "dish_snr",
+    "dish_boresight_elevation_deg",
+    "dish_obstruction_fraction",
+    "satellite_age_s",
+    "weather_temp_f",
+    "weather_wind_speed"
+  ],
+  "resolved_targets": [
+    "dish_dl_throughput_mbps"
+  ],
+  "resolved_models": [
+    "seq2seq"
+  ]
+}

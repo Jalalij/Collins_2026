@@ -11,6 +11,10 @@ from .seq2seq            import Seq2SeqTrainer
 from .lstm_model         import LSTMTrainer, SimpleLSTM
 from .transformer_model  import TransformerTrainer, SimpleTransformer
 from .gaussian_process_model import GaussianProcessTrainer
+from .starnet_models import (
+    SatelliteGRUTrainer, SatelliteAttentionTrainer, SatelliteFNNTrainer,
+    SatelliteGRU_seq2seq, SatelliteGRU_attention, Satellite_FNN,
+)
 from .autoencoder_models import (
     PredictiveAutoencoderTrainer,
     PredictiveAutoencoder,
@@ -26,4 +30,6 @@ __all__ = [
     "GaussianProcessTrainer",
     "PredictiveAutoencoderTrainer",
     "PredictiveAutoencoder", "SparseAutoencoder", "VariationalAutoencoder",
+    "SatelliteGRUTrainer", "SatelliteAttentionTrainer", "SatelliteFNNTrainer",
+    "SatelliteGRU_seq2seq", "SatelliteGRU_attention", "Satellite_FNN",
 ]

@@ -1,4 +1,4 @@
 model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
-Seq2Seq-GRU,5.2903,9.5537,11.8658,11.3650,0.3061,0.9500,57.6034,results\starlink_latency\seq2seq
-GaussianProcess,6.1892,8.9944,13.2135,12.7719,0.1383,0.9500,51.4956,results\starlink_latency\gaussian_process
-Autoencoder-standard,5.3108,8.9725,11.9732,11.5861,0.3888,0.9500,53.3885,results\starlink_latency\autoencoder
+Satellite-GRU,5.0446,9.0636,11.3252,11.0333,0.3759,0.9500,53.0485,results\starlink_latency\satellite_gru
+Satellite-ATTENTION,4.8995,9.0359,10.7463,10.6551,0.3797,0.9500,52.8611,results\starlink_latency\satellite_attention
+Satellite-FNN,5.0128,9.2130,11.0214,10.9193,0.3549,0.9500,53.8884,results\starlink_latency\satellite_fnn

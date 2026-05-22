@@ -1,0 +1,26 @@
+{
+  "model_type": "Autoencoder-standard",
+  "variant": "standard",
+  "latent_dim": 32,
+  "epochs_trained": 28,
+  "training_time_sec": 567.0451011657715,
+  "parameters": 17722,
+  "model_key": "autoencoder",
+  "provider": "oneweb",
+  "experiment_type": "ul",
+  "targets": [
+    "throughput_mbps"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results\\oneweb_ul\\autoencoder"
+}

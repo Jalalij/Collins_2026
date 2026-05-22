@@ -1,0 +1,3 @@
+key,model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS
+iperf_throughput_mbps,Transformer,1.7677,4.4480,2.7466,2.4040,0.8847,0.9499,30.7822
+AGGREGATE,Transformer,1.7677,4.4480,2.7466,2.4040,0.8847,0.9499,30.7822

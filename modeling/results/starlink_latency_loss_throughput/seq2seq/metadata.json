@@ -8,8 +8,8 @@
     "iperf_throughput_mbps"
   ],
   "output_len": 15,
-  "epochs_trained": 27,
-  "checkpoint": "results\\starlink_latency_loss_throughput\\seq2seq\\20260521_220414\\best_model.pt",
+  "epochs_trained": 28,
+  "checkpoint": "results\\starlink_latency_loss_throughput\\seq2seq\\20260521_230344\\best_model.pt",
   "model_key": "seq2seq",
   "provider": "starlink",
   "experiment_type": "latency_loss_throughput_dl",

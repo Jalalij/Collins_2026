@@ -1,0 +1,48 @@
+
+=================================================================
+THROUGHPUT PREDICTION FRAMEWORK — TRAIN
+=================================================================
+  Provider        : starlink
+  Experiment type : latency
+  Data root       : data/lsn-data
+  Targets         : ['ping_server_rtt_ms']
+  Features        : 16  ['ping_server_rtt_ms', 'ping_dns_rtt_ms', 'dish_pop_ping_ms', 'satellite_dtc', 'satellite_handoff', 'satellite_age_s', 'distance_km', 'elevation_deg', 'azimuth_deg', 'dish_obstruction_fraction', 'dish_snr', 'dish_boresight_azimuth_deg', 'dish_boresight_elevation_deg', 'weather_humidity', 'weather_pressure', 'weather_rain_rate']
+  Models          : ['seq2seq', 'lstm', 'transformer', 'gaussian_process', 'autoencoder', 'satellite_gru', 'satellite_attention', 'satellite_fnn']
+  Out dir         : results\starlink_latency
+=================================================================
+
+#################################################################
+  MODEL: SEQ2SEQ
+#################################################################
+
+  Provider    : starlink
+  Exp type    : latency  (suffix: *_latency.csv)
+  Direction   : n/a
+  Targets     : ['ping_server_rtt_ms']
+  Root        : data/lsn-data
+  Found       : 80 file(s)
+  [warn] starlink_20260519_120020_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260519_140002_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260519_160017_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260519_180002_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260519_200017_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260519_220002_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260520_090017_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260520_120004_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260520_140017_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260520_160002_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260520_180017_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260520_200002_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260520_220017_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260521_000002_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260521_050002_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260521_070017_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260521_090002_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260521_120019_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  [warn] starlink_20260521_140002_latency.csv: missing target(s) ['ping_server_rtt_ms'], skipping
+  Usable      : 61 file(s)
+  Split       : train=42  val=9  test=10
+  Windows     : train=119,922  val=25,941  test=28,590
+
+Training on: cuda
+Checkpoint dir: results\starlink_latency\seq2seq\20260522_114330

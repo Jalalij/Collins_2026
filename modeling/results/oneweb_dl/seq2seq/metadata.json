@@ -1,0 +1,31 @@
+{
+  "model_type": "Seq2Seq-GRU",
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "num_features": 9,
+  "num_targets": 1,
+  "target_cols": [
+    "throughput_mbps"
+  ],
+  "output_len": 15,
+  "epochs_trained": 30,
+  "checkpoint": "results\\oneweb_dl\\seq2seq\\20260522_045044\\best_model.pt",
+  "model_key": "seq2seq",
+  "provider": "oneweb",
+  "experiment_type": "dl",
+  "targets": [
+    "throughput_mbps"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results\\oneweb_dl\\seq2seq"
+}

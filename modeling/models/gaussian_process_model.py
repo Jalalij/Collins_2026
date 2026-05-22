@@ -38,8 +38,8 @@ class GaussianProcessTrainer(BaseTrainer):
 
         print("\n" + "=" * 20 + " GAUSSIAN PROCESS MODEL " + "=" * 20)
 
-        train_samples = config.get("train_samples", 5000)
-        test_samples  = config.get("test_samples",  1000)
+        train_samples = config.get("train_samples", 1000)
+        test_samples  = config.get("test_samples",  500)
 
         base_train = _unwrap(train_set)
 
@@ -51,7 +51,7 @@ class GaussianProcessTrainer(BaseTrainer):
             """
             xs, ys = [], []
             loader = DataLoader(ds, batch_size=256, shuffle=False)
-            for xb, yb in loader:
+            for xb, yb, _, _ in loader:
                 # xb is always (B, T, F) from ExperimentDataset
                 xs.append(xb[:, -1, :].numpy())
                 ys.append(yb.numpy())

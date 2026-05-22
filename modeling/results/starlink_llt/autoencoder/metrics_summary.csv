@@ -1,0 +1,3 @@
+key,model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS
+var_0,Autoencoder-standard,1.7841,4.5117,2.7213,2.4209,0.8790,0.9500,30.9887
+AGGREGATE,Autoencoder-standard,1.7841,4.5117,2.7213,2.4209,0.8790,0.9500,30.9887

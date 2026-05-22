@@ -1,0 +1,22 @@
+{
+  "provider": "oneweb",
+  "experiment_type": "dl",
+  "data_root": "data/lsn-data",
+  "targets": null,
+  "normalise": "zscore",
+  "seed": 42,
+  "study": "architecture",
+  "strategy": "leave_one_out",
+  "base_features": null,
+  "feature_sets": null,
+  "arch_param": "hidden_size",
+  "epochs": 30,
+  "batch_size": 512,
+  "input_len": 30,
+  "output_len": 15,
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "checkpoint_dir": "checkpoints/ablation",
+  "out_dir": "ablation_results/oneweb_dl_arch",
+  "skip_existing": false
+}

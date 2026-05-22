@@ -1,0 +1,6 @@
+model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
+Seq2Seq-GRU,2.8689,9.6927,8.1470,4.7793,0.8793,0.9499,68.4559,results\oneweb_dl\seq2seq
+LSTM,2.9935,8.9862,8.9206,5.3982,0.8963,0.9499,60.7679,results\oneweb_dl\lstm
+Transformer,3.2349,9.4199,10.3460,6.4340,0.8860,0.9499,65.5061,results\oneweb_dl\transformer
+GaussianProcess,36.0347,36.5509,44.8751,58.0201,-33.2538,0.9500,44.5031,results\oneweb_dl\gaussian_process
+Autoencoder-standard,17.6347,23.1580,46.1397,34.1530,0.3118,0.9499,105.4033,results\oneweb_dl\autoencoder

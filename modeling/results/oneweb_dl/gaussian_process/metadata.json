@@ -1,0 +1,24 @@
+{
+  "model_type": "GaussianProcess",
+  "train_samples": 5000,
+  "test_samples": 1000,
+  "training_time_sec": 1868.3243498802185,
+  "model_key": "gaussian_process",
+  "provider": "oneweb",
+  "experiment_type": "dl",
+  "targets": [
+    "throughput_mbps"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results\\oneweb_dl\\gaussian_process"
+}

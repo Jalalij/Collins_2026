@@ -109,6 +109,7 @@ import torch
 
 from models import ModelRegistry
 from models.base import _register_builtins
+from model import ThroughputSeq2Seq
 
 from evaluation.evaluate import evaluate_predictions, compare_saved_runs
 
@@ -386,16 +387,15 @@ def run_one_model(model_key, feature_cols, targets, args, out_dir) -> dict | Non
             )
         else:
             # Legacy interface: trainer.train_and_evaluate(train_set, test_set, ...)
-            # seq2seq uses build_dataloaders directly; other legacy models use
-            # ExperimentDataset via build_experiment_datasets.
-            if model_key == "seq2seq":
-                train_loader, val_loader, test_loader, _, _, _ = build_dataloaders(cfg)
-                train_set = train_loader.dataset
-                val_set   = val_loader.dataset   if val_loader   else None
-                test_set  = test_loader.dataset  if test_loader  else train_loader.dataset
-            else:
-                train_set, test_set, _, _, _ = build_experiment_datasets(cfg)
-                val_set = None
+            # ALL legacy models go through build_dataloaders so their datasets
+            # yield 4-tuples (feat, hour, dow, target). build_experiment_datasets
+            # yields 2-tuples (x, y) and must NOT be used here — it would cause
+            # "not enough values to unpack (expected 4, got 2)" inside the trainer
+            # whenever the first batch is consumed (e.g. starnet_models.py:409).
+            train_loader, val_loader, test_loader, _, _, _ = build_dataloaders(cfg)
+            train_set = train_loader.dataset
+            val_set   = val_loader.dataset  if val_loader  else None
+            test_set  = test_loader.dataset if test_loader else train_loader.dataset
 
             result = trainer.train_and_evaluate(
                 train_set   = train_set,

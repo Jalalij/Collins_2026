@@ -97,8 +97,10 @@ def evaluate_predictions(
     # ------------------------------------------------------------------ metrics
     rows = []
     for k in keys:
-        yt = np.asarray(y_true_dict[k], dtype=np.float32)
-        yp = np.asarray(y_pred_dict[k], dtype=np.float32)
+        # .ravel() first — if trainer returns (N,1), reshape(-1,1) would give
+        # (N,1,1) and subsequent broadcasting blows up to (N,N).
+        yt = np.asarray(y_true_dict[k], dtype=np.float32).ravel()
+        yp = np.asarray(y_pred_dict[k], dtype=np.float32).ravel()
         # Wrap in (N,1) for horizon functions
         yt2, yp2 = yt.reshape(-1, 1), yp.reshape(-1, 1)
         picp, mis = prediction_interval(yp2, yt2)
@@ -186,8 +188,14 @@ def _horizon_plot(y_true_dict, y_pred_dict, label, out_dir):
     for group, ks in groups.items():
         ks_sorted = sorted(ks, key=_horizon_step)
         horizons  = [k for k in ks_sorted]
-        mae_vals  = [float(np.mean(np.abs(y_pred_dict[k] - y_true_dict[k]))) for k in ks_sorted]
-        rmse_vals = [float(np.sqrt(np.mean((y_pred_dict[k] - y_true_dict[k])**2))) for k in ks_sorted]
+        # .ravel() prevents (N,1) - (N,1) broadcasting to (N,N) — same issue
+        # as in compute_aggregate_diagnostics; values must be strictly 1-D.
+        mae_vals  = [float(np.mean(np.abs(
+                        np.asarray(y_pred_dict[k]).ravel() -
+                        np.asarray(y_true_dict[k]).ravel()))) for k in ks_sorted]
+        rmse_vals = [float(np.sqrt(np.mean((
+                        np.asarray(y_pred_dict[k]).ravel() -
+                        np.asarray(y_true_dict[k]).ravel())**2))) for k in ks_sorted]
 
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
         ax1.plot(horizons, mae_vals,  marker="o"); ax1.set_title("MAE per horizon")

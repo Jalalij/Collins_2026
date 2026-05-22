@@ -1,0 +1,6 @@
+model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
+Seq2Seq-GRU,4.6793,8.2920,7.9387,6.0825,0.5845,0.9500,51.3015,results\starlink_latency_loss_throughput\seq2seq
+LSTM,1.5482,4.2870,2.7389,2.2396,0.8929,0.9499,29.5499,results\starlink_latency_loss_throughput\lstm
+Transformer,1.7677,4.4480,2.7466,2.4040,0.8847,0.9499,30.7822,results\starlink_latency_loss_throughput\transformer
+GaussianProcess,1.3447,2.4559,1.4116,1.3991,0.7505,0.9500,17.0380,results\starlink_latency_loss_throughput\gaussian_process
+Autoencoder-standard,1.7826,4.5078,2.6848,2.3970,0.8793,0.9500,30.9417,results\starlink_latency_loss_throughput\autoencoder

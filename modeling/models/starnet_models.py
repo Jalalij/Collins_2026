@@ -303,7 +303,7 @@ def _train_one_target(
                              hidden_size, num_layers, device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, patience=5, factor=0.5, verbose=False,
+        optimizer, patience=5, factor=0.5,
     )
     criterion   = nn.MSELoss()
     best_val    = float("inf")
@@ -325,7 +325,7 @@ def _train_one_target(
             x_seq, x_seq_attr = _get_xseq(feat, target_col, feature_cols)
             optimizer.zero_grad()
             preds, _ = model(x_seq, x_seq_attr)       # (B, H)
-            loss = criterion(preds, tgt_col.float())
+            loss = criterion(preds, tgt_col.squeeze(-1).float())
             loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
@@ -343,7 +343,7 @@ def _train_one_target(
                     tgt_col = tgt[:, :, target_idx].to(device)
                 x_seq, x_seq_attr = _get_xseq(feat, target_col, feature_cols)
                 preds, _ = model(x_seq, x_seq_attr)
-                val_loss += criterion(preds, tgt_col.float()).item()
+                val_loss += criterion(preds, tgt_col.squeeze(-1).float()).item()
 
         avg_val = val_loss / max(1, len(test_loader))
         scheduler.step(avg_val)

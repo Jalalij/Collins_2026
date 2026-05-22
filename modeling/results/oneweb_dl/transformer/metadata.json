@@ -1,0 +1,32 @@
+{
+  "model_type": "Transformer",
+  "d_model": 64,
+  "nhead": 4,
+  "num_layers": 2,
+  "dim_feedforward": 256,
+  "num_targets": 1,
+  "input_dim": 13,
+  "seq_len": 30,
+  "epochs_trained": 27,
+  "best_val_loss": 0.1462212705771014,
+  "training_time_sec": 267.6328248977661,
+  "parameters": 100929,
+  "model_key": "transformer",
+  "provider": "oneweb",
+  "experiment_type": "dl",
+  "targets": [
+    "throughput_mbps"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results\\oneweb_dl\\transformer"
+}

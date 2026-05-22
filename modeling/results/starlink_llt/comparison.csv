@@ -1,0 +1,4 @@
+model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
+Satellite-GRU,4.6616,8.2218,7.8052,6.0501,0.5923,0.9500,50.4960,results\starlink_llt\satellite_gru
+Satellite-ATTENTION,4.9373,8.3093,8.3011,6.3628,0.5853,0.9500,50.3110,results\starlink_llt\satellite_attention
+Satellite-FNN,5.1571,8.7301,8.7361,6.7188,0.5413,0.9500,54.2928,results\starlink_llt\satellite_fnn

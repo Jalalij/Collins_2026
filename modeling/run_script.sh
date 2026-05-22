@@ -1,63 +1,63 @@
-for PROVIDER in starlink oneweb quectel; do
-
-  python run.py train \
-    --provider $PROVIDER \
-    --experiment_type latency \
-    --models gaussian_process autoencoder \
-    --out_dir results/${PROVIDER}_latency
-
-  python run.py train \
-    --provider $PROVIDER \
-    --experiment_type latency_loss_throughput \
-    --models gaussian_process autoencoder \
-    --out_dir results/${PROVIDER}_llt
-
-done
-
-
-# # ── Train all models on DL-only experiment types ──────────────────────────
-
 # for PROVIDER in starlink oneweb quectel; do
 
-#   # latency
 #   python run.py train \
 #     --provider $PROVIDER \
 #     --experiment_type latency \
-#     --models all \
+#     --models gaussian_process autoencoder \
 #     --out_dir results/${PROVIDER}_latency
 
-#   # latency + loss + throughput
 #   python run.py train \
 #     --provider $PROVIDER \
 #     --experiment_type latency_loss_throughput \
-#     --models all \
+#     --models gaussian_process autoencoder \
 #     --out_dir results/${PROVIDER}_llt
 
 # done
 
 
-# # ── Cross-model comparison: latency ──────────────────────────────────────
+# ── Train all models on DL-only experiment types ──────────────────────────
 
-# for PROVIDER in starlink oneweb quectel; do
-#   python run.py compare \
-#     --run_dirs \
-#       results/${PROVIDER}_latency/seq2seq \
-#       results/${PROVIDER}_latency/lstm \
-#       results/${PROVIDER}_latency/transformer \
-#     --out_dir results/${PROVIDER}_latency/comparison
-# done
+for PROVIDER in starlink oneweb quectel; do
+
+  # latency
+  python run.py train \
+    --provider $PROVIDER \
+    --experiment_type latency \
+    --models all \
+    --out_dir results/${PROVIDER}_latency
+
+  # latency + loss + throughput
+  python run.py train \
+    --provider $PROVIDER \
+    --experiment_type latency_loss_throughput \
+    --models all \
+    --out_dir results/${PROVIDER}_llt
+
+done
 
 
-# # ── Cross-model comparison: latency_loss_throughput ──────────────────────
+# ── Cross-model comparison: latency ──────────────────────────────────────
 
-# for PROVIDER in starlink oneweb quectel; do
-#   python run.py compare \
-#     --run_dirs \
-#       results/${PROVIDER}_llt/seq2seq \
-#       results/${PROVIDER}_llt/lstm \
-#       results/${PROVIDER}_llt/transformer \
-#     --out_dir results/${PROVIDER}_llt/comparison
-# done
+for PROVIDER in starlink oneweb quectel; do
+  python run.py compare \
+    --run_dirs \
+      results/${PROVIDER}_latency/seq2seq \
+      results/${PROVIDER}_latency/lstm \
+      results/${PROVIDER}_latency/transformer \
+    --out_dir results/${PROVIDER}_latency/comparison
+done
+
+
+# ── Cross-model comparison: latency_loss_throughput ──────────────────────
+
+for PROVIDER in starlink oneweb quectel; do
+  python run.py compare \
+    --run_dirs \
+      results/${PROVIDER}_llt/seq2seq \
+      results/${PROVIDER}_llt/lstm \
+      results/${PROVIDER}_llt/transformer \
+    --out_dir results/${PROVIDER}_llt/comparison
+done
 
 
 

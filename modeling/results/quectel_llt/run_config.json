@@ -5,7 +5,7 @@
   "provider": "quectel",
   "subcommand": "train",
   "models": [
-    "all"
+    "autoencoder"
   ],
   "experiment_type": "latency_loss_throughput_dl",
   "data_root": "data/lsn-data",
@@ -44,13 +44,6 @@
     "iperf_throughput_mbps"
   ],
   "resolved_models": [
-    "seq2seq",
-    "lstm",
-    "transformer",
-    "gaussian_process",
-    "autoencoder",
-    "satellite_gru",
-    "satellite_attention",
-    "satellite_fnn"
+    "autoencoder"
   ]
 }

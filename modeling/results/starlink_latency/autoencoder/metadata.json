@@ -1,10 +1,9 @@
 {
-  "model_type": "Autoencoder-standard",
   "variant": "standard",
   "latent_dim": 32,
-  "epochs_trained": 14,
-  "training_time_sec": 296.6735107898712,
-  "parameters": 20424,
+  "epochs_trained": 18,
+  "training_time_sec": 80.54713773727417,
+  "parameters": 20686,
   "model_key": "autoencoder",
   "provider": "starlink",
   "experiment_type": "latency",

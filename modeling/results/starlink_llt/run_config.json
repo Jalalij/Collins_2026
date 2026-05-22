@@ -5,7 +5,6 @@
   "provider": "starlink",
   "subcommand": "train",
   "models": [
-    "gaussian_process",
     "autoencoder"
   ],
   "experiment_type": "latency_loss_throughput_dl",
@@ -54,7 +53,6 @@
     "iperf_throughput_mbps"
   ],
   "resolved_models": [
-    "gaussian_process",
     "autoencoder"
   ]
 }

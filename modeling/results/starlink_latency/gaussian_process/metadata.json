@@ -1,8 +1,7 @@
 {
-  "model_type": "GaussianProcess",
-  "train_samples": 5000,
-  "test_samples": 1000,
-  "training_time_sec": 1170.3582029342651,
+  "model": "GaussianProcess",
+  "train_samples": 1000,
+  "test_samples": 28590,
   "model_key": "gaussian_process",
   "provider": "starlink",
   "experiment_type": "latency",

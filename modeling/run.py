@@ -11,30 +11,30 @@ Modes
 Quick examples
 --------------
   # Train Seq2Seq on Starlink throughput data (DL default target):
-      python run.py train --provider starlink --experiment_type throughput
+      python run.py train --provider starlink --experiment_type throughput_dl
 
   # Train predicting two targets simultaneously:
-      python run.py train --provider starlink --experiment_type throughput \\
+      python run.py train --provider starlink --experiment_type throughput_dl \\
           --targets dish_dl_throughput_mbps ping_tunnel_rtt_ms
 
   # Train multiple models:
-      python run.py train --provider starlink --experiment_type throughput \\
+      python run.py train --provider starlink --experiment_type throughput_dl \\
           --models seq2seq lstm transformer
 
   # Train all models:
-      python run.py train --provider starlink --experiment_type throughput --models all
+      python run.py train --provider starlink --experiment_type throughput_dl --models all
 
   # OneWeb downlink, default target:
       python run.py train --provider oneweb --experiment_type dl
 
   # Quectel latency+loss+throughput, two targets:
-      python run.py train --provider quectel --experiment_type latency_loss_throughput \\
+      python run.py train --provider quectel --experiment_type latency_loss_throughput_dl \\
           --targets iperf sinr
 
   # Evaluate a saved checkpoint:
       python run.py evaluate \\
           --checkpoint results/seq2seq/metadata.json \\
-          --provider starlink --experiment_type throughput
+          --provider starlink --experiment_type throughput_dl
 
   # Compare multiple existing result directories:
       python run.py compare \\
@@ -43,12 +43,12 @@ Quick examples
 
   # Feature ablation:
       python run.py ablation \\
-          --provider starlink --experiment_type throughput \\
+          --provider starlink --experiment_type throughput_dl \\
           --study feature --strategy leave_one_out
 
   # Architecture sweep:
       python run.py ablation \\
-          --provider starlink --experiment_type throughput \\
+          --provider starlink --experiment_type throughput_dl \\
           --study architecture --arch_param hidden_size
 
   # List all registered models:
@@ -107,22 +107,42 @@ import numpy as np
 import pandas as pd
 import torch
 
+from models import ModelRegistry
+from models.base import _register_builtins
+
+from evaluation.evaluate import evaluate_predictions, compare_saved_runs
+
 from dataset import (
     # Provider constants
     PROVIDERS, PROVIDER_STARLINK, PROVIDER_ONEWEB, PROVIDER_QUECTEL,
     VALID_EXPERIMENT_TYPES,
+
     # Per-provider feature / target registries
-    ALL_FEATURES, DEFAULT_FEATURES, ALL_TARGETS, TARGET_ALIASES,
+    ALL_FEATURES,
+    DEFAULT_FEATURES,
+    ALL_TARGETS,
+    TARGET_ALIASES,
     DEFAULT_TARGET,
-    # Feature groups + flat name list — single source of truth in dataset.py
+
+    # ADD THESE
+    ALL_FEATURES_BY_EXP,
+    DEFAULT_FEATURES_BY_EXP,
+
+    # Feature groups + flat name list
     FEATURE_GROUPS, ALL_FEATURE_NAMES,
+
     # Config + builders
     DataConfig, build_dataloaders, build_experiment_datasets,
 )
-from model  import ThroughputSeq2Seq
-from models import ModelRegistry
-from models.base import _register_builtins   # noqa: ensure registry populated
-from evaluation.evaluate import evaluate_predictions, compare_saved_runs
+
+# ---------------------------------------------------------------------------
+# Legacy experiment compatibility
+# ---------------------------------------------------------------------------
+
+LEGACY_EXPERIMENT_MAP = {
+    "throughput": "throughput_dl",
+    "latency_loss_throughput": "latency_loss_throughput_dl",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -131,11 +151,15 @@ from evaluation.evaluate import evaluate_predictions, compare_saved_runs
 
 def resolve_features(args) -> list[str]:
     provider = getattr(args, "provider", PROVIDER_STARLINK)
+    exp_type = getattr(args, "experiment_type", "throughput_dl")
+
+    exp_type = LEGACY_EXPERIMENT_MAP.get(exp_type, exp_type)
 
     if getattr(args, "feature_group", None) or getattr(args, "feature_groups", None):
         groups = list(getattr(args, "feature_groups", None) or [])
         if getattr(args, "feature_group", None):
             groups.append(args.feature_group)
+
         combined: list[str] = []
         for g in groups:
             if g not in FEATURE_GROUPS:
@@ -143,43 +167,57 @@ def resolve_features(args) -> list[str]:
                     f"Unknown feature group '{g}'. Available: {list(FEATURE_GROUPS)}"
                 )
             combined += [f for f in FEATURE_GROUPS[g] if f not in combined]
-        provider_all = ALL_FEATURES[provider]
-        return [f for f in combined if f in provider_all]
+
+        exp_features = ALL_FEATURES_BY_EXP[(provider, exp_type)]
+        return [f for f in combined if f in exp_features]
 
     raw = getattr(args, "features", None) or ["default"]
+
     if raw == ["all"]:
-        return list(ALL_FEATURES[provider])
+        return list(ALL_FEATURES_BY_EXP[(provider, exp_type)])
+
     if raw == ["default"]:
-        return list(DEFAULT_FEATURES[provider])
-    # Explicit list — validate against provider's full feature set
-    provider_all = ALL_FEATURES[provider]
-    bad = [f for f in raw if f not in provider_all]
+        return list(DEFAULT_FEATURES_BY_EXP[(provider, exp_type)])
+
+    exp_features = ALL_FEATURES_BY_EXP[(provider, exp_type)]
+
+    bad = [f for f in raw if f not in exp_features]
     if bad:
         raise ValueError(
-            f"Unknown features for provider '{provider}': {bad}\n"
-            f"Run  python run.py --list_features --provider {provider}  to see options."
+            f"Unknown features for provider '{provider}' "
+            f"experiment_type '{exp_type}': {bad}\n"
+            f"Run:\n"
+            f"  python run.py --list_features --provider {provider}"
         )
+
     return raw
 
 
 def resolve_targets(args) -> list[str]:
-    provider    = getattr(args, "provider",         PROVIDER_STARLINK)
-    exp_type    = getattr(args, "experiment_type",  "throughput")
+    provider = getattr(args, "provider", PROVIDER_STARLINK)
+
+    exp_type = getattr(args, "experiment_type", "throughput_dl")
+    exp_type = LEGACY_EXPERIMENT_MAP.get(exp_type, exp_type)
+
     aliases     = TARGET_ALIASES[provider]
     all_targets = ALL_TARGETS[provider]
 
     raw = getattr(args, "targets", None)
+
     if not raw:
         return [DEFAULT_TARGET[(provider, exp_type)]]
 
     resolved = [aliases.get(t, t) for t in raw]
+
     bad = [t for t in resolved if t not in all_targets]
+
     if bad:
         raise ValueError(
             f"Unknown target column(s) for provider '{provider}': {bad}\n"
             f"Available: {all_targets}\n"
             f"Shorthand keys: {list(aliases)}"
         )
+
     return resolved
 
 
@@ -334,23 +372,38 @@ def run_one_model(model_key, feature_cols, targets, args, out_dir) -> dict | Non
         seed            = args.seed,
     )
 
-    try:
-        if model_key == "seq2seq":
-            train_loader, val_loader, test_loader, _, _, _ = build_dataloaders(cfg)
-            train_set = train_loader.dataset
-            val_set   = val_loader.dataset   if val_loader   else None
-            test_set  = test_loader.dataset  if test_loader  else train_loader.dataset
-        else:
-            train_set, test_set, _, _, _ = build_experiment_datasets(cfg)
-            val_set = None
+    # Models that consume DataConfig directly (next-step predictors).
+    # These call build_dataloaders() internally and set output_len=1 themselves.
+    CFG_NATIVE_MODELS = {"lstm", "transformer"}
 
-        result = trainer.train_and_evaluate(
-            train_set   = train_set,
-            val_set     = val_set,
-            test_set    = test_set,
-            results_dir = str(model_out),
-            config      = def_config,
-        )
+    try:
+        if model_key in CFG_NATIVE_MODELS:
+            # New interface: trainer.train_and_evaluate(cfg, results_dir, config)
+            result = trainer.train_and_evaluate(
+                cfg         = cfg,
+                results_dir = str(model_out),
+                config      = def_config,
+            )
+        else:
+            # Legacy interface: trainer.train_and_evaluate(train_set, test_set, ...)
+            # seq2seq uses build_dataloaders directly; other legacy models use
+            # ExperimentDataset via build_experiment_datasets.
+            if model_key == "seq2seq":
+                train_loader, val_loader, test_loader, _, _, _ = build_dataloaders(cfg)
+                train_set = train_loader.dataset
+                val_set   = val_loader.dataset   if val_loader   else None
+                test_set  = test_loader.dataset  if test_loader  else train_loader.dataset
+            else:
+                train_set, test_set, _, _, _ = build_experiment_datasets(cfg)
+                val_set = None
+
+            result = trainer.train_and_evaluate(
+                train_set   = train_set,
+                val_set     = val_set,
+                test_set    = test_set,
+                results_dir = str(model_out),
+                config      = def_config,
+            )
     except Exception as exc:
         print(f"\n  [ERROR] {model_key} failed: {exc}")
         import traceback; traceback.print_exc()
@@ -431,30 +484,58 @@ def cmd_train(args):
     print(f"\nAll results in: {out_dir}/")
 
 
+# cmd_evaluate()
+
 def cmd_evaluate(args):
     meta_path = Path(args.checkpoint)
+
     if meta_path.suffix == ".json":
         with open(meta_path) as f:
             meta = json.load(f)
-        ckpt            = meta.get("checkpoint", "")
-        provider        = meta.get("provider",        args.provider)
-        experiment_type = meta.get("experiment_type", args.experiment_type)
-        targets         = meta.get("targets",
-                                   [DEFAULT_TARGET[(provider, experiment_type)]])
-        features        = meta.get("features",
-                                   list(DEFAULT_FEATURES[provider]))
-        hidden_size     = meta.get("hidden_size", args.hidden_size)
-        embed_dim       = meta.get("embed_dim",   args.embed_dim)
+
+        ckpt = meta.get("checkpoint", "")
+
+        provider = meta.get("provider", args.provider)
+
+        experiment_type = meta.get(
+            "experiment_type",
+            args.experiment_type,
+        )
+
+        experiment_type = LEGACY_EXPERIMENT_MAP.get(
+            experiment_type,
+            experiment_type,
+        )
+
+        targets = meta.get(
+            "targets",
+            [DEFAULT_TARGET[(provider, experiment_type)]],
+        )
+
+        features = meta.get(
+            "features",
+            list(DEFAULT_FEATURES_BY_EXP[(provider, experiment_type)]),
+        )
+
+        hidden_size = meta.get("hidden_size", args.hidden_size)
+        embed_dim   = meta.get("embed_dim", args.embed_dim)
+
     else:
         ckpt            = str(meta_path)
         provider        = args.provider
-        experiment_type = args.experiment_type
+
+        experiment_type = LEGACY_EXPERIMENT_MAP.get(
+            args.experiment_type,
+            args.experiment_type,
+        )
+
         targets         = resolve_targets(args)
         features        = resolve_features(args)
         hidden_size     = args.hidden_size
         embed_dim       = args.embed_dim
 
     normalise = args.normalise if args.normalise != "none" else None
+
     result = _eval_from_checkpoint(
         ckpt_path       = ckpt,
         data_root       = args.data_root,
@@ -470,7 +551,9 @@ def cmd_evaluate(args):
         batch_size      = args.batch_size,
         seed            = args.seed,
     )
+
     evaluate_predictions(result, args.out_dir)
+
     print(f"\nEvaluation results -> {args.out_dir}/")
 
 
@@ -505,23 +588,30 @@ def cmd_ablation(args):
 # ---------------------------------------------------------------------------
 
 def _add_provider_args(p):
-    """Provider + experiment_type — the new equivalent of --mode."""
+    """Provider + experiment_type."""
+
     p.add_argument(
         "--provider",
-        default = PROVIDER_STARLINK,
-        choices = list(PROVIDERS),
-        help    = "Data provider.  (default: starlink)",
+        default=PROVIDER_STARLINK,
+        choices=list(PROVIDERS),
+        help="Data provider. (default: starlink)",
     )
+
     p.add_argument(
         "--experiment_type",
-        default = "throughput",
-        # Choices validated post-parse against provider; keep open here
-        # so the parser doesn't reject valid (provider, exp_type) pairs.
-        metavar = "EXP_TYPE",
-        help    = (
-            "Experiment type.  "
-            "starlink/quectel: latency | latency_loss_throughput | throughput  "
-            "oneweb: dl | ul"
+        default="throughput_dl",
+        metavar="EXP_TYPE",
+        help=(
+            "Experiment type.\n"
+            "  starlink/quectel:\n"
+            "    latency\n"
+            "    latency_loss_throughput_dl\n"
+            "    latency_loss_throughput_ul\n"
+            "    throughput_dl\n"
+            "    throughput_ul\n"
+            "  oneweb:\n"
+            "    dl\n"
+            "    ul"
         ),
     )
 
@@ -568,12 +658,19 @@ def _add_model_hparam_args(p):
 
 
 def _validate_experiment_type(args):
-    """Post-parse validation: check experiment_type is valid for provider."""
+    """Post-parse validation."""
+
+    args.experiment_type = LEGACY_EXPERIMENT_MAP.get(
+        args.experiment_type,
+        args.experiment_type,
+    )
+
     valid = VALID_EXPERIMENT_TYPES.get(args.provider, ())
+
     if args.experiment_type not in valid:
         print(
-            f"[ERROR] experiment_type '{args.experiment_type}' is not valid for "
-            f"provider '{args.provider}'.\n"
+            f"[ERROR] experiment_type '{args.experiment_type}' "
+            f"is not valid for provider '{args.provider}'.\n"
             f"  Valid choices: {list(valid)}"
         )
         sys.exit(1)
@@ -690,9 +787,9 @@ def print_features(provider: str):
                 print(f"  {g}: {relevant}")
 
     print(f"\nUsage: python run.py train --provider {provider} "
-          f"--experiment_type throughput --features default")
+          f"--experiment_type throughput_dl --features default")
     print(f"       python run.py train --provider {provider} "
-          f"--experiment_type throughput --features all")
+          f"--experiment_type throughput_dl --features all")
 
 
 def print_targets(provider: str):
@@ -708,7 +805,7 @@ def print_targets(provider: str):
         print(f"  {short:<12} {col}")
 
     print(f"\nUsage: python run.py train --provider {provider} "
-          f"--experiment_type throughput --targets <shorthand or full name>")
+          f"--experiment_type throughput_dl --targets <shorthand or full name>")
 
 
 # ---------------------------------------------------------------------------

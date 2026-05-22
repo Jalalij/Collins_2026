@@ -40,10 +40,29 @@ from torch.utils.data import DataLoader
 
 from dataset import (
     PROVIDERS, PROVIDER_STARLINK, VALID_EXPERIMENT_TYPES,
-    ALL_FEATURES, DEFAULT_FEATURES, ALL_TARGETS, TARGET_ALIASES, DEFAULT_TARGET,
+
+    ALL_FEATURES,
+    DEFAULT_FEATURES,
+    ALL_TARGETS,
+    TARGET_ALIASES,
+    DEFAULT_TARGET,
+
+    # ADD THESE
+    DEFAULT_FEATURES_BY_EXP,
+
     DataConfig, ThroughputFileDataset, load_csv,
 )
 from model import ThroughputSeq2Seq
+
+
+# ---------------------------------------------------------------------------
+# Legacy experiment compatibility
+# ---------------------------------------------------------------------------
+
+LEGACY_EXPERIMENT_MAP = {
+    "throughput": "throughput_dl",
+    "latency_loss_throughput": "latency_loss_throughput_dl",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -57,10 +76,17 @@ def _short(col: str) -> str:
                .replace("_mbps", ""))
 
 
-def _resolve_targets(raw: list[str] | None, provider: str, exp_type: str) -> list[str]:
+def _resolve_targets(raw: list[str] | None,
+                     provider: str,
+                     exp_type: str) -> list[str]:
+
+    exp_type = LEGACY_EXPERIMENT_MAP.get(exp_type, exp_type)
+
     if not raw:
         return [DEFAULT_TARGET[(provider, exp_type)]]
+
     aliases = TARGET_ALIASES[provider]
+
     return [aliases.get(t, t) for t in raw]
 
 
@@ -116,9 +142,22 @@ def _build_parser() -> argparse.ArgumentParser:
     # Provider / experiment — overridden by metadata.json when available
     p.add_argument("--provider",        default=PROVIDER_STARLINK,
                    choices=list(PROVIDERS))
-    p.add_argument("--experiment_type", default="throughput", metavar="EXP_TYPE",
-                   help=("starlink/quectel: latency | latency_loss_throughput | throughput  "
-                         "oneweb: dl | ul"))
+    p.add_argument(
+        "--experiment_type",
+        default="throughput_dl",
+        metavar="EXP_TYPE",
+        help=(
+            "starlink/quectel:\n"
+            "  latency\n"
+            "  latency_loss_throughput_dl\n"
+            "  latency_loss_throughput_ul\n"
+            "  throughput_dl\n"
+            "  throughput_ul\n"
+            "oneweb:\n"
+            "  dl\n"
+            "  ul"
+        ),
+    )
 
     # Optional overrides (ignored when metadata.json supplies them)
     p.add_argument("--features",    nargs="+", default=None, metavar="FEATURE",
@@ -161,8 +200,17 @@ def main():
                 )
 
     # Provider / experiment_type — prefer metadata, fall back to CLI args
-    provider        = meta.get("provider",        args.provider)
-    experiment_type = meta.get("experiment_type", args.experiment_type)
+    provider = meta.get("provider", args.provider)
+
+    experiment_type = meta.get(
+        "experiment_type",
+        args.experiment_type,
+    )
+
+    experiment_type = LEGACY_EXPERIMENT_MAP.get(
+        experiment_type,
+        experiment_type,
+    )
 
     # Validate (provider, experiment_type)
     valid_exp = VALID_EXPERIMENT_TYPES.get(provider, ())
@@ -173,9 +221,11 @@ def main():
         )
 
     # Features / targets / hyper-params — prefer metadata, fall back to CLI
-    feature_cols = (args.features
-                    or meta.get("features")
-                    or list(DEFAULT_FEATURES[provider]))
+    feature_cols = (
+        args.features
+        or meta.get("features")
+        or list(DEFAULT_FEATURES_BY_EXP[(provider, experiment_type)])
+    )
     targets      = _resolve_targets(
                        args.targets or meta.get("targets"),
                        provider, experiment_type,

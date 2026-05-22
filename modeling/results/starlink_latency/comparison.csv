@@ -1,0 +1,4 @@
+model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
+Seq2Seq-GRU,5.2903,9.5537,11.8658,11.3650,0.3061,0.9500,57.6034,results\starlink_latency\seq2seq
+GaussianProcess,6.1892,8.9944,13.2135,12.7719,0.1383,0.9500,51.4956,results\starlink_latency\gaussian_process
+Autoencoder-standard,5.3108,8.9725,11.9732,11.5861,0.3888,0.9500,53.3885,results\starlink_latency\autoencoder

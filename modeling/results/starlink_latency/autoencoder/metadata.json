@@ -1,0 +1,33 @@
+{
+  "model_type": "Autoencoder-standard",
+  "variant": "standard",
+  "latent_dim": 32,
+  "epochs_trained": 11,
+  "training_time_sec": 269.87383365631104,
+  "parameters": 20424,
+  "model_key": "autoencoder",
+  "provider": "starlink",
+  "experiment_type": "latency",
+  "targets": [
+    "ping_server_rtt_ms"
+  ],
+  "features": [
+    "ping_server_rtt_ms",
+    "ping_dns_rtt_ms",
+    "dish_pop_ping_ms",
+    "satellite_dtc",
+    "satellite_handoff",
+    "satellite_age_s",
+    "distance_km",
+    "elevation_deg",
+    "azimuth_deg",
+    "dish_obstruction_fraction",
+    "dish_snr",
+    "dish_boresight_azimuth_deg",
+    "dish_boresight_elevation_deg",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\starlink_latency\\autoencoder"
+}

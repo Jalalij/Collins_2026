@@ -136,6 +136,9 @@ def compute_horizon_metrics(pred, target, label="model", mape_eps=1.0):
 
 
 def compute_aggregate_diagnostics(pred_flat, target_flat):
+    # Guarantee 1-D — callers may pass (N,1) which would broadcast to (N,N)
+    pred_flat   = np.asarray(pred_flat).ravel()
+    target_flat = np.asarray(target_flat).ravel()
     residuals = target_flat - pred_flat
     r1, r1p   = residual_pearson_lag1(residuals)
     return {

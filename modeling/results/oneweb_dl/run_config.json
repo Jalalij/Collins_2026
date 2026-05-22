@@ -1,0 +1,55 @@
+{
+  "list_models": false,
+  "list_features": false,
+  "list_targets": false,
+  "provider": "oneweb",
+  "subcommand": "train",
+  "models": [
+    "all"
+  ],
+  "experiment_type": "dl",
+  "data_root": "data/lsn-data",
+  "targets": null,
+  "input_len": 30,
+  "output_len": 15,
+  "normalise": "zscore",
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "batch_size": null,
+  "seed": 42,
+  "features": [
+    "default"
+  ],
+  "feature_group": null,
+  "feature_groups": null,
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "dropout": null,
+  "epochs": 100,
+  "lr": 0.001,
+  "out_dir": "results/oneweb_dl",
+  "resolved_features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "resolved_targets": [
+    "throughput_mbps"
+  ],
+  "resolved_models": [
+    "seq2seq",
+    "lstm",
+    "transformer",
+    "gaussian_process",
+    "autoencoder",
+    "satellite_gru",
+    "satellite_attention",
+    "satellite_fnn"
+  ]
+}

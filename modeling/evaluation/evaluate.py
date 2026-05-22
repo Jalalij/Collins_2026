@@ -124,8 +124,11 @@ def evaluate_predictions(
     df.to_csv(out_path / "metrics_summary.csv", index=False, float_format="%.4f")
 
     # ----------------------------------------------------------- diagnostics
-    all_yt = np.concatenate([y_true_dict[k] for k in keys])
-    all_yp = np.concatenate([y_pred_dict[k] for k in keys])
+    # .ravel() is critical: if any trainer returns (N,1) arrays instead of
+    # (N,), concatenation produces (total, 1) and the subsequent subtraction
+    # in compute_aggregate_diagnostics broadcasts to (total, total) — 560 GiB.
+    all_yt = np.concatenate([np.asarray(y_true_dict[k]).ravel() for k in keys])
+    all_yp = np.concatenate([np.asarray(y_pred_dict[k]).ravel() for k in keys])
     diag   = compute_aggregate_diagnostics(all_yp, all_yt)
     diag["model"] = model_name
     diag_df = pd.DataFrame([diag]).set_index("model")

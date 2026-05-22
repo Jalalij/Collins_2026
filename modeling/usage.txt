@@ -1,29 +1,51 @@
-# Train Seq2Seq on Starlink throughput, default features, default target
-python run.py train --provider starlink --experiment_type throughput
+# Train Seq2Seq on Starlink DL throughput
+python run.py train \
+    --provider starlink \
+    --experiment_type dl
+
+# Train Seq2Seq on Starlink UL throughput
+python run.py train \
+    --provider starlink \
+    --experiment_type ul
 
 # Train all models, two targets, Quectel
-python run.py train --provider quectel --experiment_type latency_loss_throughput \
-    --targets iperf sinr --models all --epochs 50
+# (unchanged if latency_loss_throughput still exists)
+python run.py train \
+    --provider quectel \
+    --experiment_type latency_loss_throughput \
+    --targets iperf sinr \
+    --models all \
+    --epochs 50
 
 # Evaluate a saved checkpoint
 python run.py evaluate \
     --checkpoint results/seq2seq/metadata.json \
-    --provider starlink --experiment_type throughput
+    --provider starlink \
+    --experiment_type dl
 
-# Run predictions on a single file
+# Run predictions on a Starlink DL file
 python inference.py \
     --checkpoint results/seq2seq/metadata.json \
-    --csv data/lsn-data/starlink/throughput/starlink_20260514_030021_throughput.csv
+    --csv data/lsn-data/starlink/dl/starlink_20260514_030021_DL.csv
 
-# Feature ablation — leave-one-out on Starlink
-python evaluation/ablation.py \
-    --provider starlink --experiment_type throughput \
-    --study feature --strategy leave_one_out
+# Run predictions on a Starlink UL file
+python inference.py \
+    --checkpoint results/seq2seq/metadata.json \
+    --csv data/lsn-data/starlink/ul/starlink_20260514_030021_UL.csv
 
-# Architecture sweep — vary hidden_size on OneWeb
+# Feature ablation — leave-one-out on Starlink DL
 python evaluation/ablation.py \
-    --provider oneweb --experiment_type dl \
-    --study architecture --arch_param hidden_size
+    --provider starlink \
+    --experiment_type dl \
+    --study feature \
+    --strategy leave_one_out
+
+# Architecture sweep — vary hidden_size on OneWeb DL
+python evaluation/ablation.py \
+    --provider oneweb \
+    --experiment_type dl \
+    --study architecture \
+    --arch_param hidden_size
 
 # Compare two saved runs
 python run.py compare \

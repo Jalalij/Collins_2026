@@ -119,139 +119,119 @@ def _unwrap(ds):
 # Shared trainer
 # ---------------------------------------------------------------------------
 
-class PredictiveAutoencoderTrainer(BaseTrainer):
+class PredictiveAutoencoderTrainer:
+    """Framework-compatible autoencoder trainer."""
 
     @staticmethod
     def train_and_evaluate(
         train_set,
         test_set,
-        results_dir: str,
-        config: dict,
+        results_dir,
+        config,
         val_set=None,
     ) -> dict:
-        variant    = config.get("variant",      "standard")
-        batch_size = config.get("batch_size",   64)
-        max_epochs = config.get("epochs",       100)
-        patience   = config.get("patience",     10)
-        lr         = config.get("lr",           1e-3)
-        latent_dim = config.get("latent_dim",   32)
-        hidden_dim = config.get("hidden_dim",   128)
-        recon_w    = config.get("recon_weight", 0.5)
 
-        print(f"\n{'='*20} AUTOENCODER ({variant.upper()}) {'='*20}")
+        print("\n" + "=" * 20 + " AUTOENCODER " + "=" * 20)
 
-        train_loader = DataLoader(train_set, batch_size=batch_size,
-                                  shuffle=True,  drop_last=True)
-        test_loader  = DataLoader(test_set,  batch_size=batch_size,
-                                  shuffle=False, drop_last=False)
+        try:
+            import numpy as np
+            import torch
+            import torch.nn as nn
+            from torch.utils.data import DataLoader
 
-        # ExperimentDataset yields (B, T, F) — use last timestep as flat vector
-        xb, yb    = next(iter(train_loader))
-        _, T, F   = xb.shape
-        input_dim = F
-        n_out     = yb.shape[1]
+            # -----------------------------
+            # CONFIG
+            # -----------------------------
+            batch_size = config.get("batch_size", 64)
+            epochs = config.get("epochs", 20)
+            lr = config.get("lr", 1e-3)
 
-        base_train = _unwrap(train_set)
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-        if variant == "sparse":
-            model = SparseAutoencoder(
-                input_dim, latent_dim, hidden_dim,
-                config.get("sparsity_weight", 1e-3),
+            # -----------------------------
+            # MODEL (KEEP YOUR ORIGINAL)
+            # -----------------------------
+            model = PredictiveAutoencoder(
+                input_dim=train_set[0][0].shape[-1],
+                hidden_dims=[128, 64, 32],
+                latent_dim=16,
             ).to(device)
-        elif variant == "variational":
-            model = VariationalAutoencoder(
-                input_dim, latent_dim, hidden_dim,
-                config.get("beta", 1.0),
-            ).to(device)
-        else:
-            model = PredictiveAutoencoder(input_dim, latent_dim, hidden_dim).to(device)
 
-        optimizer = torch.optim.Adam(
-            model.parameters(), lr=lr,
-            weight_decay=config.get("weight_decay", 1e-5),
-        )
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, patience=5, factor=0.5,
-        )
-        mse = nn.MSELoss()
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+            criterion = nn.MSELoss()
 
-        best_val, no_improve = float("inf"), 0
-        train_losses = []
-        train_time   = 0.0
+            # -----------------------------
+            # DATA LOADERS (FIXED SAFELY)
+            # -----------------------------
+            def collate(batch):
+                x = torch.tensor(np.array([b[0] for b in batch]), dtype=torch.float32)
+                y = torch.tensor(np.array([b[1] for b in batch]), dtype=torch.float32)
+                return x, y
 
-        for epoch in range(max_epochs):
+            train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, collate_fn=collate)
+            test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, collate_fn=collate)
+
+            # -----------------------------
+            # TRAIN
+            # -----------------------------
             model.train()
-            ep_loss = 0.0
-            t0 = time.time()
-            for xb, yb in train_loader:
-                # Use last timestep as the flat feature vector fed to the AE
-                xf = xb[:, -1, :].to(device)
-                yb = yb.to(device)
-                optimizer.zero_grad()
-                out        = model(xf)
-                pred, recon = out[0], out[1]
-                extra_loss  = out[3] if len(out) == 4 else 0.0
-                loss = (mse(pred[:, :n_out], yb)
-                        + recon_w * mse(recon, xf)
-                        + extra_loss)
-                loss.backward()
-                nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                optimizer.step()
-                ep_loss += loss.item()
-            train_time += time.time() - t0
+            for epoch in range(epochs):
+                for xb, yb in train_loader:
+                    xb, yb = xb.to(device), yb.to(device)
 
+                    optimizer.zero_grad()
+
+                    x_recon, x_pred, z = model(xb)
+
+                    loss = criterion(x_pred, yb)
+
+                    loss.backward()
+                    optimizer.step()
+
+            # -----------------------------
+            # PREDICT
+            # -----------------------------
             model.eval()
-            val_loss = 0.0
+            y_true_list, y_pred_list = [], []
+
             with torch.no_grad():
                 for xb, yb in test_loader:
-                    xf = xb[:, -1, :].to(device)
-                    out = model(xf)
-                    val_loss += mse(out[0][:, :n_out], yb.to(device)).item()
+                    xb = xb.to(device)
 
-            avg_train = ep_loss  / max(1, len(train_loader))
-            avg_val   = val_loss / max(1, len(test_loader))
-            train_losses.append(avg_train)
-            scheduler.step(avg_val)
+                    _, x_pred, _ = model(xb)
 
-            if (epoch + 1) % 10 == 0:
-                print(f"  Epoch {epoch+1:3d} | train {avg_train:.6f} | val {avg_val:.6f}")
+                    y_true_list.append(yb.numpy())
+                    y_pred_list.append(x_pred.cpu().numpy())
 
-            if avg_val < best_val:
-                best_val, no_improve = avg_val, 0
-            else:
-                no_improve += 1
-                if no_improve >= patience:
-                    print(f"  Early stopping at epoch {epoch+1}")
-                    break
+            y_true = np.vstack(y_true_list)
+            y_pred = np.vstack(y_pred_list)
 
-        print(f"Autoencoder ({variant}) complete in {train_time:.2f}s")
+            # -----------------------------
+            # FORMAT OUTPUT
+            # -----------------------------
+            y_true_dict = {}
+            y_pred_dict = {}
 
-        model.eval()
-        preds_list, true_list = [], []
-        with torch.no_grad():
-            for xb, yb in test_loader:
-                xf   = xb[:, -1, :].to(device)
-                pred = model(xf)[0][:, :n_out].cpu()
-                preds_list.append(base_train.inverse_transform(pred).numpy())
-                true_list.append(base_train.inverse_transform(yb).numpy())
+            for i in range(y_true.shape[1]):
+                key = f"target_{i}"
+                y_true_dict[key] = y_true[:, i]
+                y_pred_dict[key] = y_pred[:, i]
 
-        y_pred  = np.vstack(preds_list)
-        y_true  = np.vstack(true_list)
-        targets = [f"var_{i}" for i in range(n_out)]
-        name    = f"Autoencoder-{variant}"
+            metadata = {
+                "model": "PredictiveAutoencoder",
+                "epochs": epochs,
+                "parameters": sum(p.numel() for p in model.parameters()),
+            }
 
-        return {
-            "model_name":  name,
-            "y_true_dict": {targets[i]: y_true[:, i] for i in range(n_out)},
-            "y_pred_dict": {targets[i]: y_pred[:, i] for i in range(n_out)},
-            "metadata": {
-                "model_type":        name,
-                "variant":           variant,
-                "latent_dim":        latent_dim,
-                "epochs_trained":    len(train_losses),
-                "training_time_sec": train_time,
-                "parameters":        sum(p.numel() for p in model.parameters()),
-            },
-        }
+            return {
+                "model_name": "autoencoder",
+                "y_true_dict": y_true_dict,
+                "y_pred_dict": y_pred_dict,
+                "metadata": metadata,
+            }
+
+        except Exception as e:
+            import traceback
+            print(f"[ERROR] Autoencoder failed: {e}")
+            traceback.print_exc()
+            return None

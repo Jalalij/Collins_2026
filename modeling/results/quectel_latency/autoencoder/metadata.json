@@ -1,0 +1,23 @@
+{
+  "variant": "standard",
+  "latent_dim": 32,
+  "epochs_trained": 51,
+  "training_time_sec": 1774.0195846557617,
+  "parameters": 18373,
+  "model_key": "autoencoder",
+  "provider": "quectel",
+  "experiment_type": "latency",
+  "targets": [
+    "ping_rtt_ms"
+  ],
+  "features": [
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_latency\\autoencoder"
+}

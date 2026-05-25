@@ -1,2 +1,2 @@
 model,relative_rmse,relative_mae,resid_pearson_lag1,resid_pearson_lag1_p,resid_ljung_p_lag10
-Transformer,0.8204,0.7999,0.1194,0.0000,
+Transformer,0.8237,0.8033,0.1356,0.0000,

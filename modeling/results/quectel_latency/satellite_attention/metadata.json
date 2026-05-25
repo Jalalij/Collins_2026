@@ -1,0 +1,28 @@
+{
+  "model_type": "Satellite-ATTENTION",
+  "arch": "attention",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 1,
+  "target_cols": [
+    "ping_rtt_ms"
+  ],
+  "output_len": 15,
+  "training_time_sec": 1972.4855535030365,
+  "model_key": "satellite_attention",
+  "provider": "quectel",
+  "experiment_type": "latency",
+  "targets": [
+    "ping_rtt_ms"
+  ],
+  "features": [
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_latency\\satellite_attention"
+}

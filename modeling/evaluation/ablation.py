@@ -165,7 +165,14 @@ def run_one(
             shutil.copy(actual_ckpt, ckpt_path)
 
     # Evaluate via run.py helper
-    from run import _eval_from_checkpoint
+    try:
+        from run import _eval_from_checkpoint
+    except ImportError as e:
+        raise ImportError(
+            "ablation.py requires '_eval_from_checkpoint' from run.py. "
+            "Make sure run.py is on sys.path and exports that function. "
+            f"Original error: {e}"
+        ) from e
     try:
         result = _eval_from_checkpoint(
             ckpt_path       = str(ckpt_path),

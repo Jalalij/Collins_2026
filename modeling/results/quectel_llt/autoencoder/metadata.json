@@ -1,0 +1,26 @@
+{
+  "variant": "standard",
+  "latent_dim": 32,
+  "epochs_trained": 30,
+  "training_time_sec": 1049.2973458766937,
+  "parameters": 19144,
+  "model_key": "autoencoder",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_dl",
+  "targets": [
+    "iperf_throughput_mbps"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_llt\\autoencoder"
+}

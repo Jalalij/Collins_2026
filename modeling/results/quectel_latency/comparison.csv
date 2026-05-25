@@ -1,0 +1,8 @@
+model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
+LSTM,4.3064,8.0884,32.4623,27.2750,0.1308,0.9500,45.9256,results\quectel_latency\lstm
+Transformer,4.4237,8.1537,33.0903,28.0013,0.1167,0.9500,45.9055,results\quectel_latency\transformer
+gaussian_process,5.9540,7.5821,84.7005,78.5298,-0.0076,0.9500,34.2591,results\quectel_latency\gaussian_process
+Autoencoder-standard,4.3927,6.1210,73.7967,79.6020,0.3433,0.9500,34.1843,results\quectel_latency\autoencoder
+Satellite-GRU,4.4297,8.1577,33.8436,28.0186,0.1170,0.9500,46.1420,results\quectel_latency\satellite_gru
+Satellite-ATTENTION,4.4166,8.1443,33.6056,27.9235,0.1199,0.9500,46.1564,results\quectel_latency\satellite_attention
+Satellite-FNN,4.4756,8.1675,33.7367,28.2863,0.1149,0.9500,46.1087,results\quectel_latency\satellite_fnn

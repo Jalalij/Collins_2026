@@ -118,9 +118,17 @@ def evaluate_predictions(
 
     df = pd.DataFrame(rows)
 
-    # Aggregate row
+    # Aggregate row — sample-weighted so multi-target keys with unequal N
+    # don't get equal weight. Store per-key N alongside the rows.
+    key_n = {k: int(np.asarray(y_true_dict[k]).ravel().size) for k in keys}
+    total_n = sum(key_n.values())
     num_cols = ["MAE", "RMSE", "MAPE_pct", "sMAPE_pct", "R2", "PICP_95", "MIS"]
-    agg = df[num_cols].mean().to_dict()
+    agg: dict = {}
+    for col in num_cols:
+        col_vals = df.set_index("key")[col]
+        agg[col] = float(sum(
+            col_vals[k] * key_n[k] for k in keys if np.isfinite(col_vals[k])
+        ) / max(sum(key_n[k] for k in keys if np.isfinite(col_vals[k])), 1))
     agg["key"] = "AGGREGATE"; agg["model"] = model_name
     df = pd.concat([df, pd.DataFrame([agg])], ignore_index=True)
     df.to_csv(out_path / "metrics_summary.csv", index=False, float_format="%.4f")
@@ -164,7 +172,8 @@ def evaluate_predictions(
 def _scatter(y_pred, y_true, label, out_dir):
     p, t = y_pred.ravel(), y_true.ravel()
     if len(p) > 50_000:
-        idx = np.random.choice(len(p), 50_000, replace=False)
+        rng = np.random.default_rng(seed=0)   # fixed seed — plot is reproducible
+        idx = rng.choice(len(p), 50_000, replace=False)
         p, t = p[idx], t[idx]
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.scatter(t, p, alpha=0.15, s=4, color="steelblue")
@@ -242,7 +251,21 @@ def compare_saved_runs(run_dirs: list[str], out_dir: str) -> pd.DataFrame:
         print("No valid run directories found.")
         return pd.DataFrame()
 
-    comp_df = pd.DataFrame(records).set_index("model")
+    comp_df = pd.DataFrame(records)
+    # Guard: duplicate model names would produce a non-unique index and silently
+    # corrupt downstream .loc lookups.  Suffix duplicates so every row is unique.
+    seen: dict[str, int] = {}
+    deduped = []
+    for name in comp_df["model"]:
+        if name in seen:
+            seen[name] += 1
+            deduped.append(f"{name} ({seen[name]})")
+            print(f"  [warn] duplicate model name '{name}' — renamed to '{deduped[-1]}'")
+        else:
+            seen[name] = 0
+            deduped.append(name)
+    comp_df["model"] = deduped
+    comp_df = comp_df.set_index("model")
     comp_df.drop(columns=["key"], errors="ignore", inplace=True)
     comp_df.to_csv(out_path / "comparison.csv", float_format="%.4f")
     print(f"Comparison saved to {out_path / 'comparison.csv'}")
@@ -277,4 +300,4 @@ def _comparison_plot(df: pd.DataFrame, out_dir: Path) -> None:
     plt.tight_layout()
     plt.savefig(out_dir / "comparison.png", dpi=150, bbox_inches="tight")
     plt.close()
-    print(f"Comparison plot  -> {out_dir / 'comparison.png'}")
+    print(f"Comparison plot  -> {out_dir / 'comparison.png'}")  

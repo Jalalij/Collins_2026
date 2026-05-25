@@ -1,4 +1,8 @@
 model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
-Satellite-GRU,5.0446,9.0636,11.3252,11.0333,0.3759,0.9500,53.0485,results\starlink_latency\satellite_gru
-Satellite-ATTENTION,4.8995,9.0359,10.7463,10.6551,0.3797,0.9500,52.8611,results\starlink_latency\satellite_attention
-Satellite-FNN,5.0128,9.2130,11.0214,10.9193,0.3549,0.9500,53.8884,results\starlink_latency\satellite_fnn
+LSTM,4.5820,8.4059,10.0457,9.9068,0.4622,0.9499,50.2888,results\starlink_latency\lstm
+Transformer,4.5709,8.4447,10.0105,9.8906,0.4573,0.9499,49.8455,results\starlink_latency\transformer
+gaussian_process,8.2660,9.5386,229.2701,117.2027,-0.8591,0.9500,28.1999,results\starlink_latency\gaussian_process
+Autoencoder-standard,6.7015,8.3681,164.7063,122.3355,-0.4308,0.9500,25.1066,results\starlink_latency\autoencoder
+Satellite-GRU,4.9688,8.9993,11.0986,10.8945,0.3848,0.9500,52.1366,results\starlink_latency\satellite_gru
+Satellite-ATTENTION,5.0040,9.0589,11.0868,10.9178,0.3765,0.9500,52.3999,results\starlink_latency\satellite_attention
+Satellite-FNN,5.0488,9.2123,11.1582,11.0098,0.3550,0.9500,53.8717,results\starlink_latency\satellite_fnn

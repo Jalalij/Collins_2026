@@ -1,2 +1,2 @@
 model,relative_rmse,relative_mae,resid_pearson_lag1,resid_pearson_lag1_p,resid_ljung_p_lag10
-Satellite-GRU,1.7943,3.8988,0.8151,0.0000,
+Satellite-GRU,1.8030,3.9643,0.8154,0.0000,

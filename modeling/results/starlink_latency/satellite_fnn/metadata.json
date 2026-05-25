@@ -8,7 +8,7 @@
     "ping_server_rtt_ms"
   ],
   "output_len": 15,
-  "training_time_sec": 56.03771209716797,
+  "training_time_sec": 209.05399751663208,
   "model_key": "satellite_fnn",
   "provider": "starlink",
   "experiment_type": "latency",

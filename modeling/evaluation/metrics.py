@@ -38,13 +38,14 @@ def rmse(pred, target):
     return np.sqrt(((pred - target) ** 2).mean(axis=0))
 
 def mape(pred, target, eps=1.0):
+    # Ensure at least 2-D with shape (N, H); a bare 1-D (N,) becomes (N, 1).
+    pred   = np.asarray(pred);   pred   = pred.reshape(-1, 1)   if pred.ndim   == 1 else pred
+    target = np.asarray(target); target = target.reshape(-1, 1) if target.ndim == 1 else target
     mask   = np.abs(target) >= eps
-    result = np.full(pred.shape[1], np.nan)
-    for h in range(pred.shape[1]):
-        m = mask[:, h]
-        if m.sum() > 0:
-            result[h] = (np.abs(pred[m, h] - target[m, h]) / np.abs(target[m, h])).mean() * 100
-    return result
+    # Use nan-mean: positions that don't pass the mask contribute NaN,
+    # which nanmean ignores — vectorised and consistent with other metrics.
+    pct_err = np.where(mask, np.abs(pred - target) / np.abs(target) * 100, np.nan)
+    return np.nanmean(pct_err, axis=0)
 
 def smape(pred, target, eps=1e-8):
     denom = (np.abs(pred) + np.abs(target)) / 2 + eps
@@ -62,9 +63,11 @@ def prediction_interval(pred, target, alpha=0.05):
     lower   = pred + lo;  upper = pred + hi
     covered = ((target >= lower) & (target <= upper)).mean(axis=0)
     width   = upper - lower
-    penalty = ((2/alpha) * np.maximum(lower - target, 0) +
-               (2/alpha) * np.maximum(target - upper, 0)).mean(axis=0)
-    return covered, width.mean(axis=0) + penalty
+    # MIS: average of (width + penalties) per sample — do NOT pre-average width
+    # before adding penalty, that double-counts the averaging.
+    mis = (width + (2/alpha) * np.maximum(lower - target, 0)
+                 + (2/alpha) * np.maximum(target - upper, 0)).mean(axis=0)
+    return covered, mis
 
 
 # ---------------------------------------------------------------------------
@@ -72,17 +75,21 @@ def prediction_interval(pred, target, alpha=0.05):
 # ---------------------------------------------------------------------------
 
 def _persistence(y):
-    yhat = np.empty_like(y); yhat[0] = y[0]; yhat[1:] = y[:-1]
-    return yhat
+    # yhat[i] = y[i-1].  We have no lag-1 for the first sample, so we drop
+    # it from both arrays in the callers (relative_rmse / relative_mae) rather
+    # than assigning zero error to it, which flatters the baseline.
+    return y[:-1]          # shape (N-1,); callers must align y[1:]
 
 def relative_rmse(y_true, y_pred):
     m = float(np.sqrt(np.mean((y_true - y_pred) ** 2)))
-    n = float(np.sqrt(np.mean((y_true - _persistence(y_true)) ** 2)))
+    # persistence baseline: yhat[i] = y[i-1]; compare on y[1:] vs y[:-1]
+    n = float(np.sqrt(np.mean((y_true[1:] - _persistence(y_true)) ** 2)))
     return m / (n + 1e-12)
 
 def relative_mae(y_true, y_pred):
     m = float(np.mean(np.abs(y_true - y_pred)))
-    n = float(np.mean(np.abs(y_true - _persistence(y_true))))
+    # persistence baseline: yhat[i] = y[i-1]; compare on y[1:] vs y[:-1]
+    n = float(np.mean(np.abs(y_true[1:] - _persistence(y_true))))
     return m / (n + 1e-12)
 
 def residual_pearson_lag1(residuals):

@@ -8,7 +8,7 @@
     "iperf_throughput_mbps"
   ],
   "output_len": 15,
-  "training_time_sec": 192.85931944847107,
+  "training_time_sec": 317.4833688735962,
   "model_key": "satellite_gru",
   "provider": "starlink",
   "experiment_type": "latency_loss_throughput_dl",

@@ -1,8 +1,8 @@
 {
   "variant": "standard",
   "latent_dim": 32,
-  "epochs_trained": 18,
-  "training_time_sec": 80.54713773727417,
+  "epochs_trained": 14,
+  "training_time_sec": 103.26990962028503,
   "parameters": 20686,
   "model_key": "autoencoder",
   "provider": "starlink",

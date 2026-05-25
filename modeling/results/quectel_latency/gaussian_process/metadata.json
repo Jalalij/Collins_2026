@@ -1,0 +1,21 @@
+{
+  "model": "GaussianProcess",
+  "train_samples": 1000,
+  "test_samples": 122641,
+  "model_key": "gaussian_process",
+  "provider": "quectel",
+  "experiment_type": "latency",
+  "targets": [
+    "ping_rtt_ms"
+  ],
+  "features": [
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_latency\\gaussian_process"
+}

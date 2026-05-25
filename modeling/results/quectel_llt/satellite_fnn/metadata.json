@@ -1,0 +1,31 @@
+{
+  "model_type": "Satellite-FNN",
+  "arch": "fnn",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 1,
+  "target_cols": [
+    "iperf_throughput_mbps"
+  ],
+  "output_len": 15,
+  "training_time_sec": 812.7877423763275,
+  "model_key": "satellite_fnn",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_dl",
+  "targets": [
+    "iperf_throughput_mbps"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_llt\\satellite_fnn"
+}

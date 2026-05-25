@@ -1,0 +1,30 @@
+{
+  "model_type": "Transformer",
+  "d_model": 64,
+  "nhead": 4,
+  "num_layers": 2,
+  "dim_feedforward": 256,
+  "num_targets": 1,
+  "input_dim": 11,
+  "seq_len": 30,
+  "epochs_trained": 12,
+  "best_val_loss": 0.8502529279550349,
+  "training_time_sec": 558.8017575740814,
+  "parameters": 100801,
+  "model_key": "transformer",
+  "provider": "quectel",
+  "experiment_type": "latency",
+  "targets": [
+    "ping_rtt_ms"
+  ],
+  "features": [
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_latency\\transformer"
+}

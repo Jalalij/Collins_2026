@@ -8,7 +8,7 @@
     "ping_server_rtt_ms"
   ],
   "output_len": 15,
-  "training_time_sec": 226.07867193222046,
+  "training_time_sec": 297.9997396469116,
   "model_key": "satellite_gru",
   "provider": "starlink",
   "experiment_type": "latency",

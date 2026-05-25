@@ -1,0 +1,28 @@
+{
+  "model_type": "LSTM",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 1,
+  "input_size": 11,
+  "seq_len": 30,
+  "epochs_trained": 27,
+  "best_val_loss": 0.8351294409255434,
+  "training_time_sec": 1713.1578850746155,
+  "parameters": 204417,
+  "model_key": "lstm",
+  "provider": "quectel",
+  "experiment_type": "latency",
+  "targets": [
+    "ping_rtt_ms"
+  ],
+  "features": [
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_latency\\lstm"
+}

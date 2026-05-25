@@ -1,0 +1,31 @@
+{
+  "model_type": "LSTM",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 1,
+  "input_size": 14,
+  "seq_len": 30,
+  "epochs_trained": 38,
+  "best_val_loss": 0.0001611687698059888,
+  "training_time_sec": 2431.8108291625977,
+  "parameters": 205953,
+  "model_key": "lstm",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_dl",
+  "targets": [
+    "iperf_throughput_mbps"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_llt\\lstm"
+}

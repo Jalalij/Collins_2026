@@ -295,7 +295,7 @@ def train(
                 best_smooth_val = ema_val
                 no_improve_count = 0
                 torch.save(model.state_dict(), best_path)
-                flag = f" ← best ({ema_val:.4f})"
+                flag = f" <- best ({ema_val:.4f})"
             else:
                 no_improve_count += 1
                 flag = f" (no improve {no_improve_count}/{early_stop_patience})"

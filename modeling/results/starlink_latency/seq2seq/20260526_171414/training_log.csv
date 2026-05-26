@@ -1,0 +1,2 @@
+epoch,train_loss,val_loss,val_loss_smooth,lr,elapsed_s
+1,0.561862,1.077426,1.077426,1.00e-03,13.5

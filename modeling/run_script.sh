@@ -1,3 +1,9 @@
+#!/bin/bash
+
+LOGFILE="training_$(date +%Y%m%d_%H%M%S).log"
+
+exec > >(tee -a "$LOGFILE") 2>&1
+
 # ── Starlink + Quectel ────────────────────────────────────────────────────
 for PROVIDER in starlink quectel; do
   python run.py train \

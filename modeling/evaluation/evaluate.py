@@ -7,6 +7,7 @@ Input:
     result dict from a trainer:
         {
             "model_name"  : str,
+            "pred_mode"   : str,          # "MIMO" | "MISO" | "SISO"  (default: "MIMO")
             "y_true_dict" : {key: np.ndarray shape (N,)},
             "y_pred_dict" : {key: np.ndarray shape (N,)},
             "metadata"    : dict,
@@ -17,11 +18,16 @@ Input:
         "dl_t+1s", "rtt_t+2s", ...        -> multi-target Seq2Seq
         "var_0", "var_1", ...             -> legacy next-step trainers
 
+    pred_mode controls which plots are produced:
+        MIMO  -> per-key metrics + scatter + horizon_metrics.png
+        MISO  -> per-key metrics + scatter  (no horizon plot)
+        SISO  -> per-key metrics + scatter  (no horizon plot)
+
 Output (returned + written to out_dir):
     metrics_summary.csv     per-key + AGGREGATE rows
     diagnostics.csv         residual diagnostic metrics
     plots/scatter.png
-    plots/horizon_metrics.png   (if horizon keys detected)
+    plots/horizon_metrics.png   (MIMO only, if horizon keys detected)
 """
 
 from __future__ import annotations
@@ -90,6 +96,7 @@ def evaluate_predictions(
     out_path.mkdir(parents=True, exist_ok=True)
 
     model_name  = result.get("model_name", "Model")
+    pred_mode   = result.get("pred_mode", "MIMO")   # "MIMO" | "MISO" | "SISO"
     y_true_dict = result["y_true_dict"]
     y_pred_dict = result["y_pred_dict"]
     keys        = list(y_true_dict.keys())
@@ -107,6 +114,7 @@ def evaluate_predictions(
         rows.append({
             "key":       k,
             "model":     model_name,
+            "pred_mode": pred_mode,
             "MAE":       float(mae(yp2, yt2)[0]),
             "RMSE":      float(rmse(yp2, yt2)[0]),
             "MAPE_pct":  float(mape(yp2, yt2, eps=mape_eps)[0]),
@@ -129,7 +137,7 @@ def evaluate_predictions(
         agg[col] = float(sum(
             col_vals[k] * key_n[k] for k in keys if np.isfinite(col_vals[k])
         ) / max(sum(key_n[k] for k in keys if np.isfinite(col_vals[k])), 1))
-    agg["key"] = "AGGREGATE"; agg["model"] = model_name
+    agg["key"] = "AGGREGATE"; agg["model"] = model_name; agg["pred_mode"] = pred_mode
     df = pd.concat([df, pd.DataFrame([agg])], ignore_index=True)
     df.to_csv(out_path / "metrics_summary.csv", index=False, float_format="%.4f")
 
@@ -150,11 +158,14 @@ def evaluate_predictions(
         plots_dir.mkdir(exist_ok=True)
         _scatter(all_yp, all_yt, model_name, plots_dir)
 
-        if any(_is_horizon_key(k) for k in keys):
+        # Horizon plot only makes sense for MIMO models that produce a sequence
+        # of predictions at multiple future steps.  MISO and SISO models output
+        # a single step, so the plot would be a single point and is skipped.
+        if pred_mode == "MIMO" and any(_is_horizon_key(k) for k in keys):
             _horizon_plot(y_true_dict, y_pred_dict, model_name, plots_dir)
 
     # ------------------------------------------------------------------ print
-    print(f"\n  [{model_name}] Aggregate metrics:")
+    print(f"\n  [{model_name}] ({pred_mode}) Aggregate metrics:")
     for col in num_cols:
         print(f"    {col:<14}: {agg[col]:.4f}")
     diag_show = {k: v for k, v in diag.items() if k != "model"}
@@ -266,7 +277,7 @@ def compare_saved_runs(run_dirs: list[str], out_dir: str) -> pd.DataFrame:
             deduped.append(name)
     comp_df["model"] = deduped
     comp_df = comp_df.set_index("model")
-    comp_df.drop(columns=["key"], errors="ignore", inplace=True)
+    comp_df.drop(columns=["key", "pred_mode"], errors="ignore", inplace=True)
     comp_df.to_csv(out_path / "comparison.csv", float_format="%.4f")
     print(f"Comparison saved to {out_path / 'comparison.csv'}")
 
@@ -300,4 +311,4 @@ def _comparison_plot(df: pd.DataFrame, out_dir: Path) -> None:
     plt.tight_layout()
     plt.savefig(out_dir / "comparison.png", dpi=150, bbox_inches="tight")
     plt.close()
-    print(f"Comparison plot  -> {out_dir / 'comparison.png'}")  
+    print(f"Comparison plot  -> {out_dir / 'comparison.png'}")

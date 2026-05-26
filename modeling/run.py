@@ -8,6 +8,19 @@ Modes
   compare     Compare metrics across multiple saved run directories.
   ablation    Feature or architecture ablation (delegates to evaluation/ablation.py).
 
+Prediction modes
+----------------
+  MIMO  (Multi-Input Multi-Output)   full (B, H, T) horizon × target tensor
+        Models: seq2seq, lstm, transformer, attention, starnet
+  MISO  (Multi-Input Single-Output)  (B, T) — one-step ahead, multi-target OK
+        Models: gaussian_process, autoencoder, mlp
+  SISO  (Single-Input Single-Output) scalar per window, single target only
+        Models: arima
+
+  The mode is stored in each ModelRegistry entry under the key ``"mode"``.
+  ``build_dataloaders`` accepts a ``mode`` kwarg and shapes targets accordingly.
+  ``evaluate_predictions`` detects shape and dispatches to the right metrics path.
+
 Quick examples
 --------------
   # Train Seq2Seq on Starlink throughput data (DL default target):
@@ -64,7 +77,7 @@ Quick examples
 
 Model keys
 ----------
-  seq2seq, lstm, transformer, gaussian_process, autoencoder
+  seq2seq, lstm, transformer, gaussian_process, autoencoder, arima
 
 Feature selection (--features flag)
 ------------------------------------
@@ -88,7 +101,7 @@ Output layout
           diagnostics.csv
           plots/
               scatter.png
-              horizon_metrics.png
+              horizon_metrics.png   (MIMO only)
       comparison.csv
       comparison.png
       run_config.json
@@ -100,6 +113,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Literal
 
 import matplotlib
 matplotlib.use("Agg")
@@ -125,7 +139,6 @@ from dataset import (
     TARGET_ALIASES,
     DEFAULT_TARGET,
 
-    # ADD THESE
     ALL_FEATURES_BY_EXP,
     DEFAULT_FEATURES_BY_EXP,
 
@@ -133,8 +146,21 @@ from dataset import (
     FEATURE_GROUPS, ALL_FEATURE_NAMES,
 
     # Config + builders
-    DataConfig, build_dataloaders, build_experiment_datasets,
+    DataConfig, build_dataloaders,
 )
+
+# ---------------------------------------------------------------------------
+# Prediction-mode type alias
+# ---------------------------------------------------------------------------
+
+PredMode = Literal["MIMO", "MISO", "SISO"]
+
+# MIMO: full multi-horizon, multi-target  — shape (B, H, T)
+# MISO: single-step ahead, multi-target  — shape (B, T)   [H is dropped]
+# SISO: single-step, single target       — shape (B,)     [H and T both dropped]
+
+_VALID_MODES: frozenset[PredMode] = frozenset({"MIMO", "MISO", "SISO"})
+
 
 # ---------------------------------------------------------------------------
 # Legacy experiment compatibility
@@ -235,6 +261,131 @@ def resolve_models(args) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# CHANGED: mode lookup helper
+# ---------------------------------------------------------------------------
+
+def get_model_mode(model_key: str) -> PredMode:
+    """Return the prediction mode declared in the ModelRegistry entry.
+
+    Falls back to ``"MIMO"`` if the registry entry has no ``"mode"`` key so
+    that existing registrations without the field keep working unchanged.
+    """
+    entry = ModelRegistry.get(model_key)
+    mode  = entry.get("mode", "MIMO")
+    if mode not in _VALID_MODES:
+        raise ValueError(
+            f"Model '{model_key}' has unknown mode '{mode}'. "
+            f"Must be one of {sorted(_VALID_MODES)}."
+        )
+    return mode
+
+
+# ---------------------------------------------------------------------------
+# CHANGED: mode-aware denormalisation + dict building
+# ---------------------------------------------------------------------------
+
+def _build_pred_dicts(
+    preds_t:   torch.Tensor,
+    targets_t: torch.Tensor,
+    targets:   list[str],
+    target_stats: dict,
+    normalise: str | None,
+    mode:      PredMode,
+) -> tuple[dict, dict]:
+    """Convert raw tensors to {key: np.ndarray} dicts for evaluate_predictions.
+
+    Tensor shapes on entry
+    ----------------------
+    MIMO : preds (B, H, T),  targets (B, H, T)   — multi-horizon, multi-target
+    MISO : preds (B, T),     targets (B, T)       — single-step, multi-target
+    SISO : preds (B,),       targets (B,)         — single-step, single-target
+
+    Keys produced
+    -------------
+    MIMO, single target  : ``t+1s``, ``t+2s``, …
+    MIMO, multi-target   : ``dl_t+1s``, ``dl_t+2s``, …, ``rtt_t+1s``, …
+    MISO, single target  : ``t+1s``  (step-0 treated as the one prediction)
+    MISO, multi-target   : ``dl_t+1s``, ``rtt_t+1s``, …
+    SISO                 : ``t+1s``
+    """
+
+    def denorm(arr: torch.Tensor, col: str) -> np.ndarray:
+        stats = target_stats.get(col, {})
+        if not stats or not normalise or normalise == "none":
+            return arr.float().numpy()
+        if normalise == "zscore":
+            return (arr.float() * stats["std"] + stats["mean"]).numpy()
+        # minmax
+        return (arr.float() * (stats["max"] - stats["min"]) + stats["min"]).numpy()
+
+    def _short(col: str) -> str:
+        return (col.replace("dish_", "")
+                   .replace("_throughput_mbps", "")
+                   .replace("_ms_mean", "_ms")
+                   .replace("_mbps", ""))
+
+    y_true_dict: dict[str, np.ndarray] = {}
+    y_pred_dict: dict[str, np.ndarray] = {}
+    num_targets = len(targets)
+
+    # ------------------------------------------------------------------
+    if mode == "SISO":
+        # preds / targets both shape (B,)
+        col   = targets[0]
+        p_np  = denorm(preds_t,   col)      # (B,)
+        t_np  = denorm(targets_t, col)
+        y_true_dict["t+1s"] = t_np
+        y_pred_dict["t+1s"] = p_np
+
+    # ------------------------------------------------------------------
+    elif mode == "MISO":
+        # preds / targets both shape (B, T)
+        if num_targets == 1:
+            col  = targets[0]
+            p_np = denorm(preds_t[:, 0],   col)   # (B,)  — step 0
+            t_np = denorm(targets_t[:, 0], col)
+            y_true_dict["t+1s"] = t_np
+            y_pred_dict["t+1s"] = p_np
+        else:
+            for ti, col in enumerate(targets):
+                short = _short(col)
+                p_np  = denorm(preds_t[:, ti],   col)
+                t_np  = denorm(targets_t[:, ti], col)
+                y_true_dict[f"{short}_t+1s"] = t_np
+                y_pred_dict[f"{short}_t+1s"] = p_np
+
+    # ------------------------------------------------------------------
+    else:  # MIMO
+        # preds / targets both shape (B, H, T)  or  (B, H) when T==1
+        # Normalise to 3-D just in case the model squeezes the last dim.
+        if preds_t.dim() == 2:                     # (B, H) → (B, H, 1)
+            preds_t   = preds_t.unsqueeze(-1)
+            targets_t = targets_t.unsqueeze(-1)
+
+        H = preds_t.shape[1]
+
+        if num_targets == 1:
+            col  = targets[0]
+            p_np = denorm(preds_t[:, :, 0],   col)   # (B, H)
+            t_np = denorm(targets_t[:, :, 0], col)
+            for h in range(H):
+                key = f"t+{h+1}s"
+                y_true_dict[key] = t_np[:, h]
+                y_pred_dict[key] = p_np[:, h]
+        else:
+            for ti, col in enumerate(targets):
+                short = _short(col)
+                p_np  = denorm(preds_t[:, :, ti],   col)
+                t_np  = denorm(targets_t[:, :, ti], col)
+                for h in range(H):
+                    key = f"{short}_t+{h+1}s"
+                    y_true_dict[key] = t_np[:, h]
+                    y_pred_dict[key] = p_np[:, h]
+
+    return y_true_dict, y_pred_dict
+
+
+# ---------------------------------------------------------------------------
 # Checkpoint re-evaluation helper (used by ablation.py too)
 # ---------------------------------------------------------------------------
 
@@ -245,9 +396,13 @@ def _eval_from_checkpoint(
     input_len, output_len,
     hidden_size, embed_dim,
     normalise, batch_size, seed,
+    # CHANGED: mode is now explicit; defaults to MIMO for backwards compat
+    mode: PredMode = "MIMO",
 ) -> dict:
     """Load a saved checkpoint and collect predictions for evaluation."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # CHANGED: pass mode so build_dataloaders shapes targets correctly
     cfg = DataConfig(
         data_root       = data_root,
         provider        = provider,
@@ -259,6 +414,7 @@ def _eval_from_checkpoint(
         normalise       = normalise,
         batch_size      = batch_size,
         seed            = seed,
+        mode            = mode,          # CHANGED
     )
     _, _, test_loader, _, target_stats, feature_cols = build_dataloaders(cfg)
     if test_loader is None:
@@ -287,51 +443,21 @@ def _eval_from_checkpoint(
     preds_t   = torch.cat(all_preds,        dim=0)
     targets_t = torch.cat(all_targets_list, dim=0)
 
-    def denorm(arr, col):
-        stats = target_stats.get(col, {})
-        if not stats:
-            return arr.numpy()
-        if normalise == "zscore":
-            return (arr.float() * stats["std"] + stats["mean"]).numpy()
-        return (arr.float() * (stats["max"] - stats["min"]) + stats["min"]).numpy()
-
-    def _short(col: str) -> str:
-        return (col.replace("dish_", "")
-                   .replace("_throughput_mbps", "")
-                   .replace("_ms_mean", "_ms")
-                   .replace("_mbps", ""))
-
-    y_true_dict, y_pred_dict = {}, {}
-    num_targets = len(targets)
-
-    if num_targets == 1:
-        col  = targets[0]
-        p_np = denorm(preds_t,   col)
-        t_np = denorm(targets_t, col)
-        H    = p_np.shape[1]
-        for h in range(H):
-            key = f"t+{h+1}s"
-            y_true_dict[key] = t_np[:, h]
-            y_pred_dict[key] = p_np[:, h]
-    else:
-        H = preds_t.shape[1]
-        for ti, col in enumerate(targets):
-            short = _short(col)
-            p_np  = denorm(preds_t[:, :, ti],   col)
-            t_np  = denorm(targets_t[:, :, ti], col)
-            for h in range(H):
-                key = f"{short}_t+{h+1}s"
-                y_true_dict[key] = t_np[:, h]
-                y_pred_dict[key] = p_np[:, h]
+    # CHANGED: delegate to the shared, mode-aware helper
+    y_true_dict, y_pred_dict = _build_pred_dicts(
+        preds_t, targets_t, targets, target_stats, normalise, mode
+    )
 
     return {
         "model_name":  "Seq2Seq-GRU",
         "y_true_dict": y_true_dict,
         "y_pred_dict": y_pred_dict,
+        "pred_mode":   mode,             # CHANGED: carry mode forward
         "metadata": {
             "checkpoint": ckpt_path,
             "targets":    targets,
             "features":   feature_cols,
+            "mode":       mode,          # CHANGED
         },
     }
 
@@ -344,6 +470,17 @@ def run_one_model(model_key, feature_cols, targets, args, out_dir) -> dict | Non
     entry      = ModelRegistry.get(model_key)
     trainer    = entry["cls"]
     def_config = entry["default_config"].copy()
+
+    # CHANGED: read the model's declared prediction mode
+    mode: PredMode = get_model_mode(model_key)
+
+    # Guard: SISO models must have exactly one target
+    if mode == "SISO" and len(targets) > 1:
+        print(
+            f"\n  [SKIP] {model_key} is SISO but {len(targets)} targets were "
+            f"requested. Dropping to first target only: {targets[0]}"
+        )
+        targets = [targets[0]]
 
     for key in ("hidden_size", "embed_dim", "dropout", "batch_size"):
         val = getattr(args, key, None)
@@ -358,6 +495,7 @@ def run_one_model(model_key, feature_cols, targets, args, out_dir) -> dict | Non
     model_out = out_dir / model_key
     model_out.mkdir(parents=True, exist_ok=True)
 
+    # CHANGED: DataConfig now receives mode so build_dataloaders shapes targets
     cfg = DataConfig(
         data_root       = args.data_root,
         provider        = args.provider,
@@ -371,43 +509,33 @@ def run_one_model(model_key, feature_cols, targets, args, out_dir) -> dict | Non
         train_frac      = args.train_frac,
         val_frac        = args.val_frac,
         seed            = args.seed,
+        mode            = mode,          # CHANGED
     )
 
-    # Models that consume DataConfig directly (next-step predictors).
-    # These call build_dataloaders() internally and set output_len=1 themselves.
-    CFG_NATIVE_MODELS = {"lstm", "transformer"}
-
     try:
-        if model_key in CFG_NATIVE_MODELS:
-            # New interface: trainer.train_and_evaluate(cfg, results_dir, config)
-            result = trainer.train_and_evaluate(
-                cfg         = cfg,
-                results_dir = str(model_out),
-                config      = def_config,
-            )
-        else:
-            # Legacy interface: trainer.train_and_evaluate(train_set, test_set, ...)
-            # ALL legacy models go through build_dataloaders so their datasets
-            # yield 4-tuples (feat, hour, dow, target). build_experiment_datasets
-            # yields 2-tuples (x, y) and must NOT be used here — it would cause
-            # "not enough values to unpack (expected 4, got 2)" inside the trainer
-            # whenever the first batch is consumed (e.g. starnet_models.py:409).
-            train_loader, val_loader, test_loader, _, _, _ = build_dataloaders(cfg)
-            train_set = train_loader.dataset
-            val_set   = val_loader.dataset  if val_loader  else None
-            test_set  = test_loader.dataset if test_loader else train_loader.dataset
+        train_loader, val_loader, test_loader, _, target_stats, _ = build_dataloaders(cfg)
+        train_set = train_loader.dataset
+        val_set   = val_loader.dataset  if val_loader  else None
+        test_set  = test_loader.dataset if test_loader else train_loader.dataset
 
-            result = trainer.train_and_evaluate(
-                train_set   = train_set,
-                val_set     = val_set,
-                test_set    = test_set,
-                results_dir = str(model_out),
-                config      = def_config,
-            )
+        result = trainer.train_and_evaluate(
+            train_set   = train_set,
+            val_set     = val_set,
+            test_set    = test_set,
+            results_dir = str(model_out),
+            config      = def_config,
+        )
     except Exception as exc:
         print(f"\n  [ERROR] {model_key} failed: {exc}")
         import traceback; traceback.print_exc()
         return None
+
+    # CHANGED: if the trainer returns raw tensors, build the dicts here.
+    # Trainers that already build y_true_dict / y_pred_dict are untouched.
+    result = _ensure_pred_dicts(result, targets, target_stats, normalise, mode)
+
+    # CHANGED: carry mode into result so evaluate_predictions can branch
+    result["pred_mode"] = mode
 
     metrics_df = evaluate_predictions(result, str(model_out))
 
@@ -418,6 +546,7 @@ def run_one_model(model_key, feature_cols, targets, args, out_dir) -> dict | Non
     meta["targets"]         = targets
     meta["features"]        = feature_cols
     meta["out_dir"]         = str(model_out)
+    meta["mode"]            = mode       # CHANGED
     with open(model_out / "metadata.json", "w") as f:
         json.dump(meta, f, indent=2, default=str)
 
@@ -427,7 +556,53 @@ def run_one_model(model_key, feature_cols, targets, args, out_dir) -> dict | Non
     summary = agg.iloc[0].to_dict()
     summary["model"]     = result.get("model_name", model_key)
     summary["model_key"] = model_key
+    summary["mode"]      = mode          # CHANGED: visible in cross-model table
     return summary
+
+
+# ---------------------------------------------------------------------------
+# CHANGED: helper — normalise trainer output into the canonical dict form
+# ---------------------------------------------------------------------------
+
+def _ensure_pred_dicts(
+    result:       dict,
+    targets:      list[str],
+    target_stats: dict,
+    normalise:    str | None,
+    mode:         PredMode,
+) -> dict:
+    """If the trainer returned raw tensors, convert them to pred-dict form.
+
+    Trainers that already populate ``y_true_dict`` / ``y_pred_dict`` are
+    passed through unchanged.  Trainers that return ``preds`` / ``targets``
+    as tensors (legacy behaviour) are converted here so that
+    ``evaluate_predictions`` always receives the same contract regardless of
+    model mode.
+    """
+    if "y_true_dict" in result and "y_pred_dict" in result:
+        return result   # already in canonical form
+
+    preds_t   = result.get("preds")
+    targets_t = result.get("targets")
+
+    if preds_t is None or targets_t is None:
+        raise ValueError(
+            "Trainer result must contain either (y_true_dict, y_pred_dict) "
+            "or (preds, targets) tensors."
+        )
+
+    if not isinstance(preds_t, torch.Tensor):
+        preds_t   = torch.tensor(preds_t,   dtype=torch.float32)
+        targets_t = torch.tensor(targets_t, dtype=torch.float32)
+
+    y_true_dict, y_pred_dict = _build_pred_dicts(
+        preds_t, targets_t, targets, target_stats, normalise, mode
+    )
+
+    result = dict(result)    # shallow copy — don't mutate caller's dict
+    result["y_true_dict"] = y_true_dict
+    result["y_pred_dict"] = y_pred_dict
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -454,6 +629,12 @@ def cmd_train(args):
     print(f"  Targets         : {targets}")
     print(f"  Features        : {len(feature_cols)}  {feature_cols}")
     print(f"  Models          : {model_keys}")
+    # CHANGED: print the mode alongside each model key for clarity
+    for mk in model_keys:
+        try:
+            print(f"    {mk:<22} mode={get_model_mode(mk)}")
+        except Exception:
+            pass
     print(f"  Out dir         : {out_dir}")
     print("=" * 65)
 
@@ -466,7 +647,8 @@ def cmd_train(args):
 
     summaries = []
     for model_key in model_keys:
-        print(f"\n{'#'*65}\n  MODEL: {model_key.upper()}\n{'#'*65}")
+        print(f"\n{'#'*65}\n  MODEL: {model_key.upper()} "
+              f"[mode={get_model_mode(model_key)}]\n{'#'*65}")
         result = run_one_model(model_key, feature_cols, targets, args, out_dir)
         if result is not None:
             summaries.append(result)
@@ -474,7 +656,9 @@ def cmd_train(args):
     if len(summaries) > 1:
         print(f"\n{'='*65}\nCROSS-MODEL COMPARISON\n{'='*65}")
         comp_df = pd.DataFrame(summaries).set_index("model")
-        disp = [c for c in ["MAE", "RMSE", "R2", "PICP_95"] if c in comp_df.columns]
+        # CHANGED: include "mode" column in the cross-model summary table
+        disp = [c for c in ["mode", "MAE", "RMSE", "R2", "PICP_95"]
+                if c in comp_df.columns]
         print(comp_df[disp].to_string(float_format="%.4f"))
         compare_saved_runs(
             [str(out_dir / m["model_key"]) for m in summaries],
@@ -483,8 +667,6 @@ def cmd_train(args):
 
     print(f"\nAll results in: {out_dir}/")
 
-
-# cmd_evaluate()
 
 def cmd_evaluate(args):
     meta_path = Path(args.checkpoint)
@@ -519,6 +701,8 @@ def cmd_evaluate(args):
 
         hidden_size = meta.get("hidden_size", args.hidden_size)
         embed_dim   = meta.get("embed_dim", args.embed_dim)
+        # CHANGED: read mode from saved metadata; fall back to MIMO
+        mode: PredMode = meta.get("mode", "MIMO")
 
     else:
         ckpt            = str(meta_path)
@@ -533,6 +717,8 @@ def cmd_evaluate(args):
         features        = resolve_features(args)
         hidden_size     = args.hidden_size
         embed_dim       = args.embed_dim
+        # CHANGED: no metadata available — default to MIMO
+        mode            = "MIMO"
 
     normalise = args.normalise if args.normalise != "none" else None
 
@@ -550,6 +736,7 @@ def cmd_evaluate(args):
         normalise       = normalise,
         batch_size      = args.batch_size,
         seed            = args.seed,
+        mode            = mode,           # CHANGED
     )
 
     evaluate_predictions(result, args.out_dir)
@@ -698,7 +885,7 @@ def build_parser():
     tr.add_argument("--models", nargs="+", default=["seq2seq"], metavar="MODEL",
                     help="Model keys (or 'all'). "
                          "Available: seq2seq, lstm, transformer, "
-                         "gaussian_process, autoencoder")
+                         "gaussian_process, autoencoder, arima")
     _add_provider_args(tr)
     _add_data_args(tr)
     _add_feature_args(tr)
@@ -760,10 +947,12 @@ def build_parser():
 
 def print_models():
     print("\nRegistered models:")
-    print(f"  {'Key':<22} Description")
-    print("  " + "-" * 60)
+    # CHANGED: include the mode column so users know what each model expects
+    print(f"  {'Key':<22} {'Mode':<6} Description")
+    print("  " + "-" * 68)
     for entry in ModelRegistry.list_models():
-        print(f"  {entry['key']:<22} {entry['description']}")
+        mode = entry.get("mode", "MIMO")
+        print(f"  {entry['key']:<22} {mode:<6} {entry['description']}")
     print("\nUsage: python run.py train --models seq2seq lstm ...")
 
 

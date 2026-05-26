@@ -36,6 +36,28 @@ train_and_evaluate(train_set, test_set, results_dir, config, val_set=None) -> di
         "t+1s", "t+2s", ...          single-target Seq2Seq horizon labels
         "dl_t+1s", "rtt_t+2s", ...   multi-target Seq2Seq horizon labels
         "var_0", "var_1", ...         legacy next-step trainers
+
+Registry fields
+---------------
+Each entry in ModelRegistry contains:
+    "cls"            : trainer class
+    "description"    : human-readable description
+    "default_config" : dict of default hyperparameters
+    "mode"           : one of:
+        "MIMO"  — Multiple Input, Multiple Output.
+                  Predicts all horizon steps jointly in one forward pass.
+                  Used by sequence models that benefit from multi-horizon
+                  co-training (Seq2Seq, LSTM, Transformer, attention,
+                  StarNet variants).
+        "MISO"  — Multiple Input, Single Output.
+                  Takes the full input window but predicts one step at a
+                  time (or one target at a time). Used by models whose
+                  architecture or library interface is inherently
+                  single-output (GaussianProcess, Autoencoder, MLP
+                  baselines, statistical models).
+        "SISO"  — Single Input, Single Output.
+                  Univariate, single-step models (ARIMA and similar).
+                  Feature dimension is 1; horizon is 1.
 """
 
 from __future__ import annotations
@@ -59,12 +81,23 @@ class _ModelRegistry:
     def __init__(self):
         self._r: dict[str, dict] = {}
 
-    def register(self, key: str, trainer_cls, description: str = "",
-                 default_config: dict | None = None) -> None:
+    def register(
+        self,
+        key: str,
+        trainer_cls,
+        description: str = "",
+        default_config: dict | None = None,
+        mode: str = "MIMO",
+    ) -> None:
+        if mode not in {"MIMO", "MISO", "SISO"}:
+            raise ValueError(
+                f"mode must be 'MIMO', 'MISO', or 'SISO', got {mode!r}"
+            )
         self._r[key] = {
             "cls":            trainer_cls,
             "description":    description,
             "default_config": default_config or {},
+            "mode":           mode,
         }
 
     def get(self, key: str) -> dict:
@@ -74,13 +107,25 @@ class _ModelRegistry:
 
     def list_models(self) -> list[dict]:
         return [
-            {"key": k, "description": v["description"],
-             "default_config": v["default_config"]}
+            {
+                "key":            k,
+                "description":    v["description"],
+                "default_config": v["default_config"],
+                "mode":           v["mode"],
+            }
             for k, v in self._r.items()
         ]
 
     def keys(self) -> list[str]:
         return list(self._r.keys())
+
+    def keys_by_mode(self, mode: str) -> list[str]:
+        """Return all registered keys whose mode matches the given value."""
+        if mode not in {"MIMO", "MISO", "SISO"}:
+            raise ValueError(
+                f"mode must be 'MIMO', 'MISO', or 'SISO', got {mode!r}"
+            )
+        return [k for k, v in self._r.items() if v["mode"] == mode]
 
     def __contains__(self, key: str) -> bool:
         return key in self._r
@@ -102,10 +147,13 @@ def _register_builtins() -> None:
     from .transformer_model      import TransformerTrainer
     from .gaussian_process_model import GaussianProcessTrainer
     from .autoencoder_models     import PredictiveAutoencoderTrainer
-    from .starnet_models       import (
+    from .starnet_models         import (
         SatelliteGRUTrainer, SatelliteAttentionTrainer, SatelliteFNNTrainer,
     )
 
+    # ------------------------------------------------------------------
+    # MIMO — multi-horizon, all outputs predicted jointly
+    # ------------------------------------------------------------------
     ModelRegistry.register(
         "seq2seq", Seq2SeqTrainer,
         description="GRU Seq2Seq with attention + periodic time embedding (primary model)",
@@ -113,6 +161,7 @@ def _register_builtins() -> None:
             "hidden_size": 128, "embed_dim": 16, "dropout": 0.3,
             "epochs": 100, "lr": 1e-3, "batch_size": 512,
         },
+        mode="MIMO",
     )
     ModelRegistry.register(
         "lstm", LSTMTrainer,
@@ -121,6 +170,7 @@ def _register_builtins() -> None:
             "hidden_size": 64, "num_layers": 2, "dropout": 0.2,
             "epochs": 100, "lr": 1e-3, "batch_size": 64,
         },
+        mode="MIMO",
     )
     ModelRegistry.register(
         "transformer", TransformerTrainer,
@@ -130,18 +180,7 @@ def _register_builtins() -> None:
             "dim_feedforward": 256, "dropout": 0.1,
             "epochs": 100, "lr": 1e-3, "batch_size": 64,
         },
-    )
-    ModelRegistry.register(
-        "gaussian_process", GaussianProcessTrainer,
-        description="Gaussian Process regressor (sklearn) — small datasets only",
-        default_config={"train_samples": 5000, "test_samples": 1000},
-    )
-    ModelRegistry.register(
-        "autoencoder", PredictiveAutoencoderTrainer,
-        description="Predictive autoencoder (standard | sparse | variational)",
-        default_config={
-            "variant": "standard", "epochs": 100, "lr": 1e-3, "batch_size": 64,
-        },
+        mode="MIMO",
     )
     ModelRegistry.register(
         "satellite_gru", SatelliteGRUTrainer,
@@ -150,6 +189,7 @@ def _register_builtins() -> None:
             "hidden_size": 128, "num_layers": 2,
             "epochs": 100, "lr": 1e-3, "batch_size": 256, "patience": 15,
         },
+        mode="MIMO",
     )
     ModelRegistry.register(
         "satellite_attention", SatelliteAttentionTrainer,
@@ -158,6 +198,7 @@ def _register_builtins() -> None:
             "hidden_size": 128, "num_layers": 2,
             "epochs": 100, "lr": 1e-3, "batch_size": 256, "patience": 15,
         },
+        mode="MIMO",
     )
     ModelRegistry.register(
         "satellite_fnn", SatelliteFNNTrainer,
@@ -166,4 +207,28 @@ def _register_builtins() -> None:
             "hidden_size": 128, "num_layers": 2,
             "epochs": 100, "lr": 1e-3, "batch_size": 256, "patience": 15,
         },
+        mode="MIMO",
     )
+
+    # ------------------------------------------------------------------
+    # MISO — full input window, single output step / target
+    # ------------------------------------------------------------------
+    ModelRegistry.register(
+        "gaussian_process", GaussianProcessTrainer,
+        description="Gaussian Process regressor (sklearn) — small datasets only",
+        default_config={"train_samples": 5000, "test_samples": 1000},
+        mode="MISO",
+    )
+    ModelRegistry.register(
+        "autoencoder", PredictiveAutoencoderTrainer,
+        description="Predictive autoencoder (standard | sparse | variational)",
+        default_config={
+            "variant": "standard", "epochs": 100, "lr": 1e-3, "batch_size": 64,
+        },
+        mode="MISO",
+    )
+
+    # ------------------------------------------------------------------
+    # SISO — univariate single-step (ARIMA and similar)
+    # Register ARIMA / statistical models here when added.
+    # ------------------------------------------------------------------

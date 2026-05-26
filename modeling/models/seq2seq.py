@@ -322,7 +322,7 @@ class Seq2SeqTrainer(BaseTrainer):
         lr           = config.get("lr",                 1e-3)
         batch_size   = config.get("batch_size",          512)
         weight_decay = config.get("weight_decay",       1e-3)
-        es_patience  = config.get("early_stop_patience",  20)
+        es_patience  = config.get("early_stop_patience",  40)
         ema_alpha    = config.get("ema_alpha",            0.3)
 
         # ------------------------------------------------------------------ data

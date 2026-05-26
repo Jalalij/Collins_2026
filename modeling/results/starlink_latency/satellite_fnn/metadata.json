@@ -1,5 +1,6 @@
 {
   "model_type": "Satellite-FNN",
+  "strategy": "MIMO",
   "arch": "fnn",
   "hidden_size": 128,
   "num_layers": 2,
@@ -8,7 +9,8 @@
     "ping_server_rtt_ms"
   ],
   "output_len": 15,
-  "training_time_sec": 209.05399751663208,
+  "feature_size": 16,
+  "training_time_sec": 111.5369143486023,
   "model_key": "satellite_fnn",
   "provider": "starlink",
   "experiment_type": "latency",
@@ -33,5 +35,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_latency\\satellite_fnn"
+  "out_dir": "results\\starlink_latency\\satellite_fnn",
+  "mode": "MIMO"
 }

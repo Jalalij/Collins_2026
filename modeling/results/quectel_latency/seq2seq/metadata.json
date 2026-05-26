@@ -1,0 +1,32 @@
+{
+  "model_type": "Seq2Seq-GRU",
+  "strategy": "MIMO",
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "num_features": 7,
+  "num_targets": 1,
+  "target_cols": [
+    "ping_rtt_ms"
+  ],
+  "output_len": 15,
+  "epochs_trained": 21,
+  "checkpoint": "results\\quectel_latency\\seq2seq\\20260526_141100\\best_model.pt",
+  "parameters": 414720,
+  "model_key": "seq2seq",
+  "provider": "quectel",
+  "experiment_type": "latency",
+  "targets": [
+    "ping_rtt_ms"
+  ],
+  "features": [
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_latency\\seq2seq",
+  "mode": "MIMO"
+}

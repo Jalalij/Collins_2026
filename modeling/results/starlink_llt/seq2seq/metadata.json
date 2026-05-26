@@ -1,5 +1,6 @@
 {
   "model_type": "Seq2Seq-GRU",
+  "strategy": "MIMO",
   "hidden_size": 128,
   "embed_dim": 16,
   "num_features": 19,
@@ -8,8 +9,9 @@
     "iperf_throughput_mbps"
   ],
   "output_len": 15,
-  "epochs_trained": 29,
-  "checkpoint": "results\\starlink_llt\\seq2seq\\20260522_115742\\best_model.pt",
+  "epochs_trained": 28,
+  "checkpoint": "results\\starlink_llt\\seq2seq\\20260526_135844\\best_model.pt",
+  "parameters": 423960,
   "model_key": "seq2seq",
   "provider": "starlink",
   "experiment_type": "latency_loss_throughput_dl",
@@ -37,5 +39,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_llt\\seq2seq"
+  "out_dir": "results\\starlink_llt\\seq2seq",
+  "mode": "MIMO"
 }

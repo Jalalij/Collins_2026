@@ -209,7 +209,7 @@ class TransformerTrainer(BaseTrainer):
         # ------------------------------------------------------------------ hparams
         batch_size      = config.get("batch_size",      64)
         max_epochs      = config.get("epochs",          100)
-        patience        = config.get("patience",        10)
+        patience        = config.get("patience",        40)
         d_model         = config.get("d_model",         64)
         nhead           = config.get("nhead",           4)
         num_layers      = config.get("num_layers",      2)

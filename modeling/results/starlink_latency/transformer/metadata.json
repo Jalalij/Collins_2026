@@ -5,12 +5,13 @@
   "num_layers": 2,
   "dim_feedforward": 256,
   "num_targets": 1,
+  "output_len": 15,
   "input_dim": 20,
   "seq_len": 30,
-  "epochs_trained": 43,
-  "best_val_loss": 0.354004357491344,
-  "training_time_sec": 434.27854585647583,
-  "parameters": 101377,
+  "epochs_trained": 12,
+  "best_val_loss": 0.4195149436768069,
+  "training_time_sec": 143.53822588920593,
+  "parameters": 102287,
   "model_key": "transformer",
   "provider": "starlink",
   "experiment_type": "latency",
@@ -35,5 +36,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_latency\\transformer"
+  "out_dir": "results\\starlink_latency\\transformer",
+  "mode": "MIMO"
 }

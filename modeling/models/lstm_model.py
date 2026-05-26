@@ -185,7 +185,7 @@ class LSTMTrainer(BaseTrainer):
         # ------------------------------------------------------------------ hparams
         batch_size   = config.get("batch_size",   64)
         max_epochs   = config.get("epochs",       100)
-        patience     = config.get("patience",     10)
+        patience     = config.get("patience",     40)
         hidden_size  = config.get("hidden_size",  64)
         num_layers   = config.get("num_layers",   2)
         dropout      = config.get("dropout",      0.2)

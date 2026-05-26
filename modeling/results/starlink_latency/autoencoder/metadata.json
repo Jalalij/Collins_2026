@@ -1,9 +1,15 @@
 {
   "variant": "standard",
+  "strategy": "MISO",
+  "input_dim": 480,
   "latent_dim": 32,
-  "epochs_trained": 14,
-  "training_time_sec": 103.26990962028503,
-  "parameters": 20686,
+  "output_len": 15,
+  "seq_len": 30,
+  "feat_dim": 16,
+  "primary_target": "ping_server_rtt_ms",
+  "epochs_trained": 13,
+  "training_time_sec": 127.81894564628601,
+  "parameters": 137999,
   "model_key": "autoencoder",
   "provider": "starlink",
   "experiment_type": "latency",
@@ -28,5 +34,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_latency\\autoencoder"
+  "out_dir": "results\\starlink_latency\\autoencoder",
+  "mode": "MISO"
 }

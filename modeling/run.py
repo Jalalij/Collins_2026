@@ -18,8 +18,16 @@ Prediction modes
         Models: arima
 
   The mode is stored in each ModelRegistry entry under the key ``"mode"``.
-  ``build_dataloaders`` accepts a ``mode`` kwarg and shapes targets accordingly.
+  ``DataConfig.io_mode`` controls target tensor shape in the dataset.
   ``evaluate_predictions`` detects shape and dispatches to the right metrics path.
+
+Trainer contract
+----------------
+All trainers implement:
+    train_and_evaluate(cfg: DataConfig, results_dir: str, config: dict) -> dict
+
+``run_one_model`` builds a ``DataConfig`` (with the correct ``io_mode``) and
+passes it directly to the trainer.  Trainers own their own dataloaders.
 
 Quick examples
 --------------
@@ -123,7 +131,10 @@ import torch
 
 from models import ModelRegistry
 from models.base import _register_builtins
-from model import ThroughputSeq2Seq
+
+# ThroughputSeq2Seq is now private to models/seq2seq.py.
+# _eval_from_checkpoint imports it locally to avoid coupling run.py
+# to a specific model architecture.
 
 from evaluation.evaluate import evaluate_predictions, compare_saved_runs
 
@@ -147,7 +158,13 @@ from dataset import (
 
     # Config + builders
     DataConfig, build_dataloaders,
+
+    # IO mode constants
+    IO_MODE_MIMO, IO_MODE_MISO, IO_MODE_SISO,
 )
+
+# Ensure all built-in trainers are registered before any lookup.
+_register_builtins()
 
 # ---------------------------------------------------------------------------
 # Prediction-mode type alias
@@ -155,11 +172,14 @@ from dataset import (
 
 PredMode = Literal["MIMO", "MISO", "SISO"]
 
-# MIMO: full multi-horizon, multi-target  — shape (B, H, T)
-# MISO: single-step ahead, multi-target  — shape (B, T)   [H is dropped]
-# SISO: single-step, single target       — shape (B,)     [H and T both dropped]
-
 _VALID_MODES: frozenset[PredMode] = frozenset({"MIMO", "MISO", "SISO"})
+
+# Map registry mode string → DataConfig io_mode constant.
+_MODE_TO_IO_MODE: dict[str, str] = {
+    "MIMO": IO_MODE_MIMO,
+    "MISO": IO_MODE_MISO,
+    "SISO": IO_MODE_SISO,
+}
 
 
 # ---------------------------------------------------------------------------
@@ -167,7 +187,7 @@ _VALID_MODES: frozenset[PredMode] = frozenset({"MIMO", "MISO", "SISO"})
 # ---------------------------------------------------------------------------
 
 LEGACY_EXPERIMENT_MAP = {
-    "throughput": "throughput_dl",
+    "throughput":              "throughput_dl",
     "latency_loss_throughput": "latency_loss_throughput_dl",
 }
 
@@ -179,7 +199,6 @@ LEGACY_EXPERIMENT_MAP = {
 def resolve_features(args) -> list[str]:
     provider = getattr(args, "provider", PROVIDER_STARLINK)
     exp_type = getattr(args, "experiment_type", "throughput_dl")
-
     exp_type = LEGACY_EXPERIMENT_MAP.get(exp_type, exp_type)
 
     if getattr(args, "feature_group", None) or getattr(args, "feature_groups", None):
@@ -202,12 +221,10 @@ def resolve_features(args) -> list[str]:
 
     if raw == ["all"]:
         return list(ALL_FEATURES_BY_EXP[(provider, exp_type)])
-
     if raw == ["default"]:
         return list(DEFAULT_FEATURES_BY_EXP[(provider, exp_type)])
 
     exp_features = ALL_FEATURES_BY_EXP[(provider, exp_type)]
-
     bad = [f for f in raw if f not in exp_features]
     if bad:
         raise ValueError(
@@ -216,35 +233,29 @@ def resolve_features(args) -> list[str]:
             f"Run:\n"
             f"  python run.py --list_features --provider {provider}"
         )
-
     return raw
 
 
 def resolve_targets(args) -> list[str]:
     provider = getattr(args, "provider", PROVIDER_STARLINK)
-
     exp_type = getattr(args, "experiment_type", "throughput_dl")
     exp_type = LEGACY_EXPERIMENT_MAP.get(exp_type, exp_type)
 
     aliases     = TARGET_ALIASES[provider]
     all_targets = ALL_TARGETS[provider]
-
-    raw = getattr(args, "targets", None)
+    raw         = getattr(args, "targets", None)
 
     if not raw:
         return [DEFAULT_TARGET[(provider, exp_type)]]
 
     resolved = [aliases.get(t, t) for t in raw]
-
     bad = [t for t in resolved if t not in all_targets]
-
     if bad:
         raise ValueError(
             f"Unknown target column(s) for provider '{provider}': {bad}\n"
             f"Available: {all_targets}\n"
             f"Shorthand keys: {list(aliases)}"
         )
-
     return resolved
 
 
@@ -261,15 +272,11 @@ def resolve_models(args) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-# CHANGED: mode lookup helper
+# Mode lookup
 # ---------------------------------------------------------------------------
 
 def get_model_mode(model_key: str) -> PredMode:
-    """Return the prediction mode declared in the ModelRegistry entry.
-
-    Falls back to ``"MIMO"`` if the registry entry has no ``"mode"`` key so
-    that existing registrations without the field keep working unchanged.
-    """
+    """Return the prediction mode declared in the ModelRegistry entry."""
     entry = ModelRegistry.get(model_key)
     mode  = entry.get("mode", "MIMO")
     if mode not in _VALID_MODES:
@@ -281,30 +288,30 @@ def get_model_mode(model_key: str) -> PredMode:
 
 
 # ---------------------------------------------------------------------------
-# CHANGED: mode-aware denormalisation + dict building
+# Mode-aware denormalisation + dict building
 # ---------------------------------------------------------------------------
 
 def _build_pred_dicts(
-    preds_t:   torch.Tensor,
-    targets_t: torch.Tensor,
-    targets:   list[str],
+    preds_t:      torch.Tensor,
+    targets_t:    torch.Tensor,
+    targets:      list[str],
     target_stats: dict,
-    normalise: str | None,
-    mode:      PredMode,
+    normalise:    str | None,
+    mode:         PredMode,
 ) -> tuple[dict, dict]:
     """Convert raw tensors to {key: np.ndarray} dicts for evaluate_predictions.
 
     Tensor shapes on entry
     ----------------------
-    MIMO : preds (B, H, T),  targets (B, H, T)   — multi-horizon, multi-target
-    MISO : preds (B, T),     targets (B, T)       — single-step, multi-target
-    SISO : preds (B,),       targets (B,)         — single-step, single-target
+    MIMO : preds (B, H, T),  targets (B, H, T)
+    MISO : preds (B, T),     targets (B, T)
+    SISO : preds (B,),       targets (B,)
 
     Keys produced
     -------------
     MIMO, single target  : ``t+1s``, ``t+2s``, …
-    MIMO, multi-target   : ``dl_t+1s``, ``dl_t+2s``, …, ``rtt_t+1s``, …
-    MISO, single target  : ``t+1s``  (step-0 treated as the one prediction)
+    MIMO, multi-target   : ``dl_t+1s``, ``dl_t+2s``, …
+    MISO, single target  : ``t+1s``
     MISO, multi-target   : ``dl_t+1s``, ``rtt_t+1s``, …
     SISO                 : ``t+1s``
     """
@@ -315,7 +322,6 @@ def _build_pred_dicts(
             return arr.float().numpy()
         if normalise == "zscore":
             return (arr.float() * stats["std"] + stats["mean"]).numpy()
-        # minmax
         return (arr.float() * (stats["max"] - stats["min"]) + stats["min"]).numpy()
 
     def _short(col: str) -> str:
@@ -328,81 +334,79 @@ def _build_pred_dicts(
     y_pred_dict: dict[str, np.ndarray] = {}
     num_targets = len(targets)
 
-    # ------------------------------------------------------------------
     if mode == "SISO":
-        # preds / targets both shape (B,)
-        col   = targets[0]
-        p_np  = denorm(preds_t,   col)      # (B,)
-        t_np  = denorm(targets_t, col)
-        y_true_dict["t+1s"] = t_np
-        y_pred_dict["t+1s"] = p_np
+        col = targets[0]
+        y_true_dict["t+1s"] = denorm(targets_t, col)
+        y_pred_dict["t+1s"] = denorm(preds_t,   col)
 
-    # ------------------------------------------------------------------
     elif mode == "MISO":
-        # preds / targets both shape (B, T)
         if num_targets == 1:
-            col  = targets[0]
-            p_np = denorm(preds_t[:, 0],   col)   # (B,)  — step 0
-            t_np = denorm(targets_t[:, 0], col)
-            y_true_dict["t+1s"] = t_np
-            y_pred_dict["t+1s"] = p_np
+            col = targets[0]
+            y_true_dict["t+1s"] = denorm(targets_t[:, 0], col)
+            y_pred_dict["t+1s"] = denorm(preds_t[:, 0],   col)
         else:
             for ti, col in enumerate(targets):
                 short = _short(col)
-                p_np  = denorm(preds_t[:, ti],   col)
-                t_np  = denorm(targets_t[:, ti], col)
-                y_true_dict[f"{short}_t+1s"] = t_np
-                y_pred_dict[f"{short}_t+1s"] = p_np
+                y_true_dict[f"{short}_t+1s"] = denorm(targets_t[:, ti], col)
+                y_pred_dict[f"{short}_t+1s"] = denorm(preds_t[:, ti],   col)
 
-    # ------------------------------------------------------------------
     else:  # MIMO
-        # preds / targets both shape (B, H, T)  or  (B, H) when T==1
-        # Normalise to 3-D just in case the model squeezes the last dim.
-        if preds_t.dim() == 2:                     # (B, H) → (B, H, 1)
+        # Normalise to 3-D in case a trainer squeezes the last dim.
+        if preds_t.dim() == 2:
             preds_t   = preds_t.unsqueeze(-1)
             targets_t = targets_t.unsqueeze(-1)
 
         H = preds_t.shape[1]
 
         if num_targets == 1:
-            col  = targets[0]
-            p_np = denorm(preds_t[:, :, 0],   col)   # (B, H)
+            col = targets[0]
+            p_np = denorm(preds_t[:, :, 0],   col)
             t_np = denorm(targets_t[:, :, 0], col)
             for h in range(H):
-                key = f"t+{h+1}s"
-                y_true_dict[key] = t_np[:, h]
-                y_pred_dict[key] = p_np[:, h]
+                y_true_dict[f"t+{h+1}s"] = t_np[:, h]
+                y_pred_dict[f"t+{h+1}s"] = p_np[:, h]
         else:
             for ti, col in enumerate(targets):
                 short = _short(col)
                 p_np  = denorm(preds_t[:, :, ti],   col)
                 t_np  = denorm(targets_t[:, :, ti], col)
                 for h in range(H):
-                    key = f"{short}_t+{h+1}s"
-                    y_true_dict[key] = t_np[:, h]
-                    y_pred_dict[key] = p_np[:, h]
+                    y_true_dict[f"{short}_t+{h+1}s"] = t_np[:, h]
+                    y_pred_dict[f"{short}_t+{h+1}s"] = p_np[:, h]
 
     return y_true_dict, y_pred_dict
 
 
 # ---------------------------------------------------------------------------
-# Checkpoint re-evaluation helper (used by ablation.py too)
+# Checkpoint re-evaluation (evaluate subcommand + ablation)
 # ---------------------------------------------------------------------------
 
 def _eval_from_checkpoint(
-    ckpt_path,
-    data_root, provider, experiment_type,
-    targets, features,
-    input_len, output_len,
-    hidden_size, embed_dim,
-    normalise, batch_size, seed,
-    # CHANGED: mode is now explicit; defaults to MIMO for backwards compat
-    mode: PredMode = "MIMO",
+    ckpt_path:       str,
+    data_root:       str,
+    provider:        str,
+    experiment_type: str,
+    targets:         list[str],
+    features:        list[str],
+    input_len:       int,
+    output_len:      int,
+    hidden_size:     int,
+    embed_dim:       int,
+    normalise:       str | None,
+    batch_size:      int,
+    seed:            int,
+    mode:            PredMode = "MIMO",
 ) -> dict:
-    """Load a saved checkpoint and collect predictions for evaluation."""
+    """Load a saved checkpoint and collect predictions for evaluation.
+
+    ThroughputSeq2Seq is imported locally so that run.py has no hard
+    dependency on the seq2seq model architecture.
+    """
+    # Local import — ThroughputSeq2Seq is private to models/seq2seq.py.
+    from models.seq2seq import ThroughputSeq2Seq
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # CHANGED: pass mode so build_dataloaders shapes targets correctly
     cfg = DataConfig(
         data_root       = data_root,
         provider        = provider,
@@ -414,11 +418,12 @@ def _eval_from_checkpoint(
         normalise       = normalise,
         batch_size      = batch_size,
         seed            = seed,
-        mode            = mode,          # CHANGED
+        io_mode         = _MODE_TO_IO_MODE[mode],   # DataConfig uses io_mode, not mode
     )
+
     _, _, test_loader, _, target_stats, feature_cols = build_dataloaders(cfg)
     if test_loader is None:
-        raise ValueError("No test windows available.")
+        raise ValueError("No test windows available for checkpoint evaluation.")
 
     model = ThroughputSeq2Seq(
         num_features = len(feature_cols),
@@ -433,135 +438,36 @@ def _eval_from_checkpoint(
     )
     model = model.to(device).eval()
 
-    all_preds, all_targets_list = [], []
+    all_preds, all_targets = [], []
     with torch.no_grad():
         for feat, hour, dow, tgt in test_loader:
             preds, _ = model(feat.to(device), hour.to(device), dow.to(device))
             all_preds.append(preds.cpu())
-            all_targets_list.append(tgt.cpu())
+            all_targets.append(tgt.cpu())
 
-    preds_t   = torch.cat(all_preds,        dim=0)
-    targets_t = torch.cat(all_targets_list, dim=0)
+    preds_t   = torch.cat(all_preds,   dim=0)
+    targets_t = torch.cat(all_targets, dim=0)
 
-    # CHANGED: delegate to the shared, mode-aware helper
     y_true_dict, y_pred_dict = _build_pred_dicts(
-        preds_t, targets_t, targets, target_stats, normalise, mode
+        preds_t, targets_t, targets, target_stats, normalise, mode,
     )
 
     return {
         "model_name":  "Seq2Seq-GRU",
         "y_true_dict": y_true_dict,
         "y_pred_dict": y_pred_dict,
-        "pred_mode":   mode,             # CHANGED: carry mode forward
+        "pred_mode":   mode,
         "metadata": {
             "checkpoint": ckpt_path,
             "targets":    targets,
             "features":   feature_cols,
-            "mode":       mode,          # CHANGED
+            "mode":       mode,
         },
     }
 
 
 # ---------------------------------------------------------------------------
 # Per-model train + evaluate
-# ---------------------------------------------------------------------------
-
-def run_one_model(model_key, feature_cols, targets, args, out_dir) -> dict | None:
-    entry      = ModelRegistry.get(model_key)
-    trainer    = entry["cls"]
-    def_config = entry["default_config"].copy()
-
-    # CHANGED: read the model's declared prediction mode
-    mode: PredMode = get_model_mode(model_key)
-
-    # Guard: SISO models must have exactly one target
-    if mode == "SISO" and len(targets) > 1:
-        print(
-            f"\n  [SKIP] {model_key} is SISO but {len(targets)} targets were "
-            f"requested. Dropping to first target only: {targets[0]}"
-        )
-        targets = [targets[0]]
-
-    for key in ("hidden_size", "embed_dim", "dropout", "batch_size"):
-        val = getattr(args, key, None)
-        if val is not None:
-            def_config[key] = val
-    def_config["epochs"]     = args.epochs
-    def_config["lr"]         = args.lr
-    def_config["input_len"]  = args.input_len
-    def_config["output_len"] = args.output_len
-
-    normalise = args.normalise if args.normalise != "none" else None
-    model_out = out_dir / model_key
-    model_out.mkdir(parents=True, exist_ok=True)
-
-    # CHANGED: DataConfig now receives mode so build_dataloaders shapes targets
-    cfg = DataConfig(
-        data_root       = args.data_root,
-        provider        = args.provider,
-        experiment_type = args.experiment_type,
-        targets         = targets,
-        features        = feature_cols,
-        input_len       = args.input_len,
-        output_len      = args.output_len,
-        normalise       = normalise,
-        batch_size      = def_config.get("batch_size", 512),
-        train_frac      = args.train_frac,
-        val_frac        = args.val_frac,
-        seed            = args.seed,
-        mode            = mode,          # CHANGED
-    )
-
-    try:
-        train_loader, val_loader, test_loader, _, target_stats, _ = build_dataloaders(cfg)
-        train_set = train_loader.dataset
-        val_set   = val_loader.dataset  if val_loader  else None
-        test_set  = test_loader.dataset if test_loader else train_loader.dataset
-
-        result = trainer.train_and_evaluate(
-            train_set   = train_set,
-            val_set     = val_set,
-            test_set    = test_set,
-            results_dir = str(model_out),
-            config      = def_config,
-        )
-    except Exception as exc:
-        print(f"\n  [ERROR] {model_key} failed: {exc}")
-        import traceback; traceback.print_exc()
-        return None
-
-    # CHANGED: if the trainer returns raw tensors, build the dicts here.
-    # Trainers that already build y_true_dict / y_pred_dict are untouched.
-    result = _ensure_pred_dicts(result, targets, target_stats, normalise, mode)
-
-    # CHANGED: carry mode into result so evaluate_predictions can branch
-    result["pred_mode"] = mode
-
-    metrics_df = evaluate_predictions(result, str(model_out))
-
-    meta = result.get("metadata", {})
-    meta["model_key"]       = model_key
-    meta["provider"]        = args.provider
-    meta["experiment_type"] = args.experiment_type
-    meta["targets"]         = targets
-    meta["features"]        = feature_cols
-    meta["out_dir"]         = str(model_out)
-    meta["mode"]            = mode       # CHANGED
-    with open(model_out / "metadata.json", "w") as f:
-        json.dump(meta, f, indent=2, default=str)
-
-    agg = metrics_df[metrics_df["key"] == "AGGREGATE"]
-    if agg.empty:
-        return None
-    summary = agg.iloc[0].to_dict()
-    summary["model"]     = result.get("model_name", model_key)
-    summary["model_key"] = model_key
-    summary["mode"]      = mode          # CHANGED: visible in cross-model table
-    return summary
-
-
-# ---------------------------------------------------------------------------
-# CHANGED: helper — normalise trainer output into the canonical dict form
 # ---------------------------------------------------------------------------
 
 def _ensure_pred_dicts(
@@ -571,16 +477,13 @@ def _ensure_pred_dicts(
     normalise:    str | None,
     mode:         PredMode,
 ) -> dict:
-    """If the trainer returned raw tensors, convert them to pred-dict form.
+    """Normalise trainer output into canonical {y_true_dict, y_pred_dict} form.
 
-    Trainers that already populate ``y_true_dict`` / ``y_pred_dict`` are
-    passed through unchanged.  Trainers that return ``preds`` / ``targets``
-    as tensors (legacy behaviour) are converted here so that
-    ``evaluate_predictions`` always receives the same contract regardless of
-    model mode.
+    Trainers that already populate these keys are passed through unchanged.
+    Trainers that return raw ``preds`` / ``targets`` tensors are converted here.
     """
     if "y_true_dict" in result and "y_pred_dict" in result:
-        return result   # already in canonical form
+        return result
 
     preds_t   = result.get("preds")
     targets_t = result.get("targets")
@@ -596,13 +499,109 @@ def _ensure_pred_dicts(
         targets_t = torch.tensor(targets_t, dtype=torch.float32)
 
     y_true_dict, y_pred_dict = _build_pred_dicts(
-        preds_t, targets_t, targets, target_stats, normalise, mode
+        preds_t, targets_t, targets, target_stats, normalise, mode,
     )
 
-    result = dict(result)    # shallow copy — don't mutate caller's dict
+    result = dict(result)
     result["y_true_dict"] = y_true_dict
     result["y_pred_dict"] = y_pred_dict
     return result
+
+
+def run_one_model(
+    model_key:    str,
+    feature_cols: list[str],
+    targets:      list[str],
+    args,
+    out_dir:      Path,
+) -> dict | None:
+    entry      = ModelRegistry.get(model_key)
+    trainer    = entry["cls"]
+    def_config = entry["default_config"].copy()
+    mode:  PredMode = get_model_mode(model_key)
+
+    # SISO models may only predict one target.
+    if mode == "SISO" and len(targets) > 1:
+        print(
+            f"\n  [SKIP] {model_key} is SISO but {len(targets)} targets were "
+            f"requested. Dropping to first target only: {targets[0]}"
+        )
+        targets = [targets[0]]
+
+    # Merge CLI overrides into the default config.
+    for key in ("hidden_size", "embed_dim", "dropout", "batch_size"):
+        val = getattr(args, key, None)
+        if val is not None:
+            def_config[key] = val
+    def_config["epochs"]     = args.epochs
+    def_config["lr"]         = args.lr
+    def_config["input_len"]  = args.input_len
+    def_config["output_len"] = args.output_len
+
+    normalise = args.normalise if args.normalise != "none" else None
+    model_out = out_dir / model_key
+    model_out.mkdir(parents=True, exist_ok=True)
+
+    # Build DataConfig with the correct io_mode for this model.
+    # Trainers own their own dataloaders — run.py just passes cfg.
+    cfg = DataConfig(
+        data_root       = args.data_root,
+        provider        = args.provider,
+        experiment_type = args.experiment_type,
+        targets         = targets,
+        features        = feature_cols,
+        input_len       = args.input_len,
+        output_len      = args.output_len,
+        normalise       = normalise,
+        batch_size      = def_config.get("batch_size", 512),
+        train_frac      = args.train_frac,
+        val_frac        = args.val_frac,
+        seed            = args.seed,
+        io_mode         = _MODE_TO_IO_MODE[mode],
+    )
+
+    try:
+        result = trainer.train_and_evaluate(
+            cfg         = cfg,
+            results_dir = str(model_out),
+            config      = def_config,
+        )
+    except Exception as exc:
+        print(f"\n  [ERROR] {model_key} failed: {exc}")
+        import traceback; traceback.print_exc()
+        return None
+
+    # Derive target_stats for _ensure_pred_dicts from a fresh dataloader
+    # only if the trainer didn't already return canonical dicts.
+    if "y_true_dict" not in result or "y_pred_dict" not in result:
+        _, _, _, _, target_stats, _ = build_dataloaders(cfg)
+        result = _ensure_pred_dicts(result, targets, target_stats, normalise, mode)
+
+    result["pred_mode"] = mode
+
+    metrics_df = evaluate_predictions(result, str(model_out))
+
+    meta = result.get("metadata", {})
+    meta.update({
+        "model_key":       model_key,
+        "provider":        args.provider,
+        "experiment_type": args.experiment_type,
+        "targets":         targets,
+        "features":        feature_cols,
+        "out_dir":         str(model_out),
+        "mode":            mode,
+    })
+    with open(model_out / "metadata.json", "w") as f:
+        json.dump(meta, f, indent=2, default=str)
+
+    agg = metrics_df[metrics_df["key"] == "AGGREGATE"]
+    if agg.empty:
+        return None
+    summary = agg.iloc[0].to_dict()
+    summary["model"]     = result.get("model_name", model_key)
+    summary["model_key"] = model_key
+    summary["mode"]      = mode
+    return summary
 
 
 # ---------------------------------------------------------------------------
@@ -628,8 +627,7 @@ def cmd_train(args):
     print(f"  Data root       : {args.data_root}")
     print(f"  Targets         : {targets}")
     print(f"  Features        : {len(feature_cols)}  {feature_cols}")
-    print(f"  Models          : {model_keys}")
-    # CHANGED: print the mode alongside each model key for clarity
+    print(f"  Models          :")
     for mk in model_keys:
         try:
             print(f"    {mk:<22} mode={get_model_mode(mk)}")
@@ -647,8 +645,10 @@ def cmd_train(args):
 
     summaries = []
     for model_key in model_keys:
-        print(f"\n{'#'*65}\n  MODEL: {model_key.upper()} "
-              f"[mode={get_model_mode(model_key)}]\n{'#'*65}")
+        print(
+            f"\n{'#'*65}\n  MODEL: {model_key.upper()} "
+            f"[mode={get_model_mode(model_key)}]\n{'#'*65}"
+        )
         result = run_one_model(model_key, feature_cols, targets, args, out_dir)
         if result is not None:
             summaries.append(result)
@@ -656,7 +656,6 @@ def cmd_train(args):
     if len(summaries) > 1:
         print(f"\n{'='*65}\nCROSS-MODEL COMPARISON\n{'='*65}")
         comp_df = pd.DataFrame(summaries).set_index("model")
-        # CHANGED: include "mode" column in the cross-model summary table
         disp = [c for c in ["mode", "MAE", "RMSE", "R2", "PICP_95"]
                 if c in comp_df.columns]
         print(comp_df[disp].to_string(float_format="%.4f"))
@@ -675,49 +674,29 @@ def cmd_evaluate(args):
         with open(meta_path) as f:
             meta = json.load(f)
 
-        ckpt = meta.get("checkpoint", "")
-
-        provider = meta.get("provider", args.provider)
-
-        experiment_type = meta.get(
-            "experiment_type",
-            args.experiment_type,
-        )
-
+        ckpt            = meta.get("checkpoint", "")
+        provider        = meta.get("provider", args.provider)
         experiment_type = LEGACY_EXPERIMENT_MAP.get(
-            experiment_type,
-            experiment_type,
+            meta.get("experiment_type", args.experiment_type),
+            meta.get("experiment_type", args.experiment_type),
         )
-
-        targets = meta.get(
-            "targets",
-            [DEFAULT_TARGET[(provider, experiment_type)]],
-        )
-
-        features = meta.get(
-            "features",
-            list(DEFAULT_FEATURES_BY_EXP[(provider, experiment_type)]),
-        )
-
-        hidden_size = meta.get("hidden_size", args.hidden_size)
-        embed_dim   = meta.get("embed_dim", args.embed_dim)
-        # CHANGED: read mode from saved metadata; fall back to MIMO
-        mode: PredMode = meta.get("mode", "MIMO")
-
+        targets         = meta.get("targets",
+                            [DEFAULT_TARGET[(provider, experiment_type)]])
+        features        = meta.get("features",
+                            list(DEFAULT_FEATURES_BY_EXP[(provider, experiment_type)]))
+        hidden_size     = meta.get("hidden_size", args.hidden_size)
+        embed_dim       = meta.get("embed_dim",   args.embed_dim)
+        mode: PredMode  = meta.get("mode", "MIMO")
     else:
         ckpt            = str(meta_path)
         provider        = args.provider
-
         experiment_type = LEGACY_EXPERIMENT_MAP.get(
-            args.experiment_type,
-            args.experiment_type,
+            args.experiment_type, args.experiment_type,
         )
-
         targets         = resolve_targets(args)
         features        = resolve_features(args)
         hidden_size     = args.hidden_size
         embed_dim       = args.embed_dim
-        # CHANGED: no metadata available — default to MIMO
         mode            = "MIMO"
 
     normalise = args.normalise if args.normalise != "none" else None
@@ -736,11 +715,10 @@ def cmd_evaluate(args):
         normalise       = normalise,
         batch_size      = args.batch_size,
         seed            = args.seed,
-        mode            = mode,           # CHANGED
+        mode            = mode,
     )
 
     evaluate_predictions(result, args.out_dir)
-
     print(f"\nEvaluation results -> {args.out_dir}/")
 
 
@@ -775,19 +753,12 @@ def cmd_ablation(args):
 # ---------------------------------------------------------------------------
 
 def _add_provider_args(p):
-    """Provider + experiment_type."""
-
     p.add_argument(
-        "--provider",
-        default=PROVIDER_STARLINK,
-        choices=list(PROVIDERS),
+        "--provider", default=PROVIDER_STARLINK, choices=list(PROVIDERS),
         help="Data provider. (default: starlink)",
     )
-
     p.add_argument(
-        "--experiment_type",
-        default="throughput_dl",
-        metavar="EXP_TYPE",
+        "--experiment_type", default="throughput_dl", metavar="EXP_TYPE",
         help=(
             "Experiment type.\n"
             "  starlink/quectel:\n"
@@ -804,12 +775,8 @@ def _add_provider_args(p):
 
 
 def _add_data_args(p):
-    p.add_argument("--data_root",  default="data/lsn-data",
-                   help="Root directory containing provider sub-folders.")
-    p.add_argument("--targets",    nargs="+", default=None, metavar="TARGET",
-                   help="Target column(s) to predict. Use shorthand keys or full "
-                        "column names. Run --list_targets --provider <p> to see "
-                        "options. Default: provider/experiment_type-specific.")
+    p.add_argument("--data_root",  default="data/lsn-data")
+    p.add_argument("--targets",    nargs="+", default=None, metavar="TARGET")
     p.add_argument("--input_len",  type=int,   default=30)
     p.add_argument("--output_len", type=int,   default=15)
     p.add_argument("--normalise",  default="zscore",
@@ -828,11 +795,9 @@ def _add_feature_args(p):
     )
     fg.add_argument(
         "--feature_group", default=None, choices=list(FEATURE_GROUPS),
-        help="One semantic feature group.",
     )
     fg.add_argument(
         "--feature_groups", nargs="+", default=None, choices=list(FEATURE_GROUPS),
-        help="Union of multiple semantic feature groups.",
     )
 
 
@@ -845,15 +810,10 @@ def _add_model_hparam_args(p):
 
 
 def _validate_experiment_type(args):
-    """Post-parse validation."""
-
     args.experiment_type = LEGACY_EXPERIMENT_MAP.get(
-        args.experiment_type,
-        args.experiment_type,
+        args.experiment_type, args.experiment_type,
     )
-
     valid = VALID_EXPERIMENT_TYPES.get(args.provider, ())
-
     if args.experiment_type not in valid:
         print(
             f"[ERROR] experiment_type '{args.experiment_type}' "
@@ -868,13 +828,9 @@ def build_parser():
         description="Throughput Prediction Framework",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument("--list_models",   action="store_true",
-                        help="Print all registered models and exit.")
-    parser.add_argument("--list_features", action="store_true",
-                        help="Print all features for --provider and exit.")
-    parser.add_argument("--list_targets",  action="store_true",
-                        help="Print all targets for --provider and exit.")
-    # Allow --provider at top level for --list_* flags
+    parser.add_argument("--list_models",   action="store_true")
+    parser.add_argument("--list_features", action="store_true")
+    parser.add_argument("--list_targets",  action="store_true")
     parser.add_argument("--provider", default=PROVIDER_STARLINK,
                         choices=list(PROVIDERS))
 
@@ -882,10 +838,7 @@ def build_parser():
 
     # ---- train ----
     tr = subs.add_parser("train", help="Train one or more models.")
-    tr.add_argument("--models", nargs="+", default=["seq2seq"], metavar="MODEL",
-                    help="Model keys (or 'all'). "
-                         "Available: seq2seq, lstm, transformer, "
-                         "gaussian_process, autoencoder, arima")
+    tr.add_argument("--models", nargs="+", default=["seq2seq"], metavar="MODEL")
     _add_provider_args(tr)
     _add_data_args(tr)
     _add_feature_args(tr)
@@ -894,8 +847,7 @@ def build_parser():
 
     # ---- evaluate ----
     ev = subs.add_parser("evaluate", help="Evaluate a saved checkpoint.")
-    ev.add_argument("--checkpoint", required=True,
-                    help="Path to metadata.json or best_model.pt")
+    ev.add_argument("--checkpoint", required=True)
     _add_provider_args(ev)
     _add_data_args(ev)
     _add_feature_args(ev)
@@ -904,14 +856,12 @@ def build_parser():
     ev.add_argument("--out_dir",     default="eval_results")
 
     # ---- compare ----
-    cp = subs.add_parser("compare",
-                         help="Compare metrics across multiple saved run directories.")
-    cp.add_argument("--run_dirs", nargs="+", required=True,
-                    help="Paths to run output directories.")
+    cp = subs.add_parser("compare")
+    cp.add_argument("--run_dirs", nargs="+", required=True)
     cp.add_argument("--out_dir", default="results/comparison")
 
     # ---- ablation ----
-    ab = subs.add_parser("ablation", help="Feature or architecture ablation study.")
+    ab = subs.add_parser("ablation")
     _add_provider_args(ab)
     ab.add_argument("--data_root",      default="data/lsn-data")
     ab.add_argument("--targets",        nargs="+", default=None)
@@ -922,9 +872,7 @@ def build_parser():
                     choices=["feature", "architecture"])
     ab.add_argument("--strategy",       default="leave_one_out",
                     choices=["leave_one_out", "add_one", "groups", "custom"])
-    ab.add_argument("--base_features",  nargs="+", default=None,
-                    metavar="FEATURE",
-                    help="Feature names to use as ablation base.")
+    ab.add_argument("--base_features",  nargs="+", default=None)
     ab.add_argument("--feature_sets",   nargs="+", default=None)
     ab.add_argument("--arch_param",     default="hidden_size",
                     choices=["hidden_size", "input_len", "output_len", "embed_dim"])
@@ -947,12 +895,10 @@ def build_parser():
 
 def print_models():
     print("\nRegistered models:")
-    # CHANGED: include the mode column so users know what each model expects
     print(f"  {'Key':<22} {'Mode':<6} Description")
     print("  " + "-" * 68)
     for entry in ModelRegistry.list_models():
-        mode = entry.get("mode", "MIMO")
-        print(f"  {entry['key']:<22} {mode:<6} {entry['description']}")
+        print(f"  {entry['key']:<22} {entry.get('mode','MIMO'):<6} {entry['description']}")
     print("\nUsage: python run.py train --models seq2seq lstm ...")
 
 
@@ -964,10 +910,8 @@ def print_features(provider: str):
 
     print(f"\nAll features for provider '{provider}' ({len(all_f)}):")
     for i, f in enumerate(all_f, 1):
-        marker = " *" if f in def_f else ""
-        print(f"  {i:2d}. {f}{marker}")
+        print(f"  {i:2d}. {f}{' *' if f in def_f else ''}")
     print(f"\n  (* = included in default set of {len(def_f)} features)")
-
     if groups:
         print("\nRelevant semantic groups:")
         for g, feats in groups.items():
@@ -975,26 +919,17 @@ def print_features(provider: str):
             if relevant:
                 print(f"  {g}: {relevant}")
 
-    print(f"\nUsage: python run.py train --provider {provider} "
-          f"--experiment_type throughput_dl --features default")
-    print(f"       python run.py train --provider {provider} "
-          f"--experiment_type throughput_dl --features all")
-
 
 def print_targets(provider: str):
     all_t   = ALL_TARGETS[provider]
     aliases = TARGET_ALIASES[provider]
+    alias_map = {v: k for k, v in aliases.items()}
 
     print(f"\nAvailable prediction targets for provider '{provider}':")
     print(f"  {'Shorthand':<12} Full column name")
     print("  " + "-" * 50)
-    alias_map = {v: k for k, v in aliases.items()}
     for col in all_t:
-        short = alias_map.get(col, "—")
-        print(f"  {short:<12} {col}")
-
-    print(f"\nUsage: python run.py train --provider {provider} "
-          f"--experiment_type throughput_dl --targets <shorthand or full name>")
+        print(f"  {alias_map.get(col, '—'):<12} {col}")
 
 
 # ---------------------------------------------------------------------------
@@ -1005,7 +940,6 @@ def main():
     parser = build_parser()
     args   = parser.parse_args()
 
-    # --list_* flags at the top level (no subcommand required)
     if args.list_models:
         print_models(); sys.exit(0)
 
@@ -1017,10 +951,8 @@ def main():
         print_targets(provider); sys.exit(0)
 
     if args.subcommand is None:
-        parser.print_help()
-        sys.exit(0)
+        parser.print_help(); sys.exit(0)
 
-    # Validate (provider, experiment_type) for subcommands that use it
     if args.subcommand in ("train", "evaluate", "ablation"):
         _validate_experiment_type(args)
 

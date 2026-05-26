@@ -1,2 +1,2 @@
 model,relative_rmse,relative_mae,resid_pearson_lag1,resid_pearson_lag1_p,resid_ljung_p_lag10
-LSTM,0.7082,0.6792,0.0134,0.0000,
+LSTM,0.7181,0.6985,0.0320,0.0000,

@@ -1,7 +1,11 @@
 {
-  "model": "GaussianProcess",
+  "model_type": "GaussianProcess",
+  "strategy": "MISO",
+  "output_len": 15,
+  "primary_target": "ping_server_rtt_ms",
   "train_samples": 1000,
   "test_samples": 28590,
+  "input_dim": 480,
   "model_key": "gaussian_process",
   "provider": "starlink",
   "experiment_type": "latency",
@@ -26,5 +30,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_latency\\gaussian_process"
+  "out_dir": "results\\starlink_latency\\gaussian_process",
+  "mode": "MISO"
 }

@@ -1,14 +1,16 @@
 {
   "model_type": "LSTM",
+  "strategy": "MIMO",
   "hidden_size": 128,
   "num_layers": 2,
   "num_targets": 1,
   "input_size": 20,
   "seq_len": 30,
-  "epochs_trained": 19,
-  "best_val_loss": 0.3514518694441873,
-  "training_time_sec": 248.13308119773865,
-  "parameters": 209025,
+  "output_len": 15,
+  "epochs_trained": 12,
+  "best_val_loss": 0.414503544335664,
+  "training_time_sec": 181.19127583503723,
+  "parameters": 210831,
   "model_key": "lstm",
   "provider": "starlink",
   "experiment_type": "latency",
@@ -33,5 +35,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_latency\\lstm"
+  "out_dir": "results\\starlink_latency\\lstm",
+  "mode": "MIMO"
 }

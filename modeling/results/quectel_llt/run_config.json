@@ -47,10 +47,10 @@
     "seq2seq",
     "lstm",
     "transformer",
-    "gaussian_process",
-    "autoencoder",
     "satellite_gru",
     "satellite_attention",
-    "satellite_fnn"
+    "satellite_fnn",
+    "gaussian_process",
+    "autoencoder"
   ]
 }

@@ -1,5 +1,6 @@
 {
   "model_type": "Satellite-ATTENTION",
+  "strategy": "MIMO",
   "arch": "attention",
   "hidden_size": 128,
   "num_layers": 2,
@@ -8,7 +9,8 @@
     "ping_server_rtt_ms"
   ],
   "output_len": 15,
-  "training_time_sec": 343.48554706573486,
+  "feature_size": 16,
+  "training_time_sec": 645.2613499164581,
   "model_key": "satellite_attention",
   "provider": "starlink",
   "experiment_type": "latency",
@@ -33,5 +35,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_latency\\satellite_attention"
+  "out_dir": "results\\starlink_latency\\satellite_attention",
+  "mode": "MIMO"
 }

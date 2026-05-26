@@ -1,2 +1,2 @@
 model,relative_rmse,relative_mae,resid_pearson_lag1,resid_pearson_lag1_p,resid_ljung_p_lag10
-Seq2Seq-GRU,0.7157,0.6966,0.0210,0.0000,
+Seq2Seq-GRU,0.7136,0.7008,0.0169,0.0000,

@@ -1,0 +1,35 @@
+{
+  "variant": "standard",
+  "strategy": "MISO",
+  "input_dim": 300,
+  "latent_dim": 32,
+  "output_len": 15,
+  "seq_len": 30,
+  "feat_dim": 10,
+  "primary_target": "ping_rtt_ms",
+  "epochs_trained": 90,
+  "training_time_sec": 4320.551965475082,
+  "parameters": 91739,
+  "model_key": "autoencoder",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_dl",
+  "targets": [
+    "ping_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_llt_dl\\autoencoder",
+  "mode": "MISO"
+}

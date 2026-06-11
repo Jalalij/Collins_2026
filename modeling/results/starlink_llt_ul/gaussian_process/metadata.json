@@ -1,0 +1,42 @@
+{
+  "model_type": "GaussianProcess",
+  "strategy": "MISO",
+  "output_len": 15,
+  "primary_target": "ping_server_rtt_ms",
+  "train_samples": 1000,
+  "test_samples": 25666,
+  "input_dim": 570,
+  "pca_components": 50,
+  "variance_retained": 0.869408130645752,
+  "model_key": "gaussian_process",
+  "provider": "starlink",
+  "experiment_type": "latency_loss_throughput_ul",
+  "targets": [
+    "ping_server_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "features": [
+    "ping_server_rtt_ms",
+    "ping_dns_rtt_ms",
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "dish_pop_ping_ms",
+    "satellite_dtc",
+    "satellite_handoff",
+    "satellite_age_s",
+    "distance_km",
+    "elevation_deg",
+    "azimuth_deg",
+    "dish_obstruction_fraction",
+    "dish_snr",
+    "dish_boresight_azimuth_deg",
+    "dish_boresight_elevation_deg",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\starlink_llt_ul\\gaussian_process",
+  "mode": "MISO"
+}

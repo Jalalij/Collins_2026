@@ -1,81 +1,157 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-LOGFILE="training_$(date +%Y%m%d_%H%M%S).log"
+TARGETS="rtt jitter loss"
 
-exec > >(tee -a "$LOGFILE") 2>&1
-
-# ── Starlink + Quectel ────────────────────────────────────────────────────
-for PROVIDER in starlink quectel; do
+run_train() {
+  local provider="$1"
+  local exp_type="$2"
+  local out_dir="$3"
+  echo ""
+  echo "--- ${provider}  ${exp_type} ---"
   python run.py train \
-    --provider $PROVIDER \
-    --experiment_type latency \
+    --provider "$provider" \
+    --experiment_type "$exp_type" \
+    --targets $TARGETS \
     --models all \
-    --out_dir results/${PROVIDER}_latency
+    --out_dir "$out_dir"
+  local code=$?
+  echo "  [exit $code] ${provider} ${exp_type}"
+  sleep 10
+}
 
-  python run.py train \
-    --provider $PROVIDER \
-    --experiment_type latency_loss_throughput_dl \
-    --models all \
-    --out_dir results/${PROVIDER}_llt_dl
+# =============================================================================
+# PHASE 1 — DOWNLINK
+# =============================================================================
+echo ""
+echo "============================================================"
+echo " PHASE 1: DOWNLINK (DL)"
+echo "============================================================"
 
-  python run.py train \
-    --provider $PROVIDER \
-    --experiment_type latency_loss_throughput_ul \
-    --models all \
-    --out_dir results/${PROVIDER}_llt_ul
-done
+# run_train starlink latency_loss_throughput_dl results/starlink_llt_dl
+# run_train quectel  latency_loss_throughput_dl results/quectel_llt_dl
+run_train oneweb   dl                         results/oneweb_llt_dl
 
-# ── OneWeb (latency + all targets, both directions) ───────────────────────
-for DIRECTION in dl ul; do
-  python run.py train \
-    --provider oneweb \
-    --experiment_type $DIRECTION \
-    --targets rtt \
-    --models all \
-    --out_dir results/oneweb_${DIRECTION}_latency
+# =============================================================================
+# PHASE 2 — UPLINK
+# =============================================================================
+echo ""
+echo "============================================================"
+echo " PHASE 2: UPLINK (UL)"
+echo "============================================================"
 
-  python run.py train \
-    --provider oneweb \
-    --experiment_type $DIRECTION \
-    --models all \
-    --out_dir results/oneweb_${DIRECTION}_all_targets
-done
+run_train starlink latency_loss_throughput_ul results/starlink_llt_ul
+run_train quectel  latency_loss_throughput_ul results/quectel_llt_ul
+run_train oneweb   ul                         results/oneweb_llt_ul
 
-# ── Cross-model comparison: starlink + quectel ───────────────────────────
-for PROVIDER in starlink quectel; do
+# =============================================================================
+# PHASE 3 — COMPARISONS
+# =============================================================================
+echo ""
+echo "============================================================"
+echo " PHASE 3: CROSS-MODEL COMPARISONS"
+echo "============================================================"
+
+compare_trio() {
+  local base_dir="$1"
+  echo ""
+  echo "  Comparing: ${base_dir}"
   python run.py compare \
     --run_dirs \
-      results/${PROVIDER}_latency/seq2seq \
-      results/${PROVIDER}_latency/lstm \
-      results/${PROVIDER}_latency/transformer \
-    --out_dir results/${PROVIDER}_latency/comparison
+      "${base_dir}/seq2seq" \
+      "${base_dir}/lstm" \
+      "${base_dir}/transformer" \
+    --out_dir "${base_dir}/comparison" || echo "  [compare failed for ${base_dir}]"
+}
 
-  for SUFFIX in llt_dl llt_ul; do
-    python run.py compare \
-      --run_dirs \
-        results/${PROVIDER}_${SUFFIX}/seq2seq \
-        results/${PROVIDER}_${SUFFIX}/lstm \
-        results/${PROVIDER}_${SUFFIX}/transformer \
-      --out_dir results/${PROVIDER}_${SUFFIX}/comparison
-  done
-done
+compare_trio results/starlink_llt_dl
+compare_trio results/quectel_llt_dl
+compare_trio results/oneweb_llt_dl
+compare_trio results/starlink_llt_ul
+compare_trio results/quectel_llt_ul
+compare_trio results/oneweb_llt_ul
 
-# ── Cross-model comparison: oneweb ───────────────────────────────────────
-for DIRECTION in dl ul; do
-  python run.py compare \
-    --run_dirs \
-      results/oneweb_${DIRECTION}_latency/seq2seq \
-      results/oneweb_${DIRECTION}_latency/lstm \
-      results/oneweb_${DIRECTION}_latency/transformer \
-    --out_dir results/oneweb_${DIRECTION}_latency/comparison
+echo ""
+echo "============================================================"
+echo " ALL DONE"
+echo "============================================================"
 
-  python run.py compare \
-    --run_dirs \
-      results/oneweb_${DIRECTION}_all_targets/seq2seq \
-      results/oneweb_${DIRECTION}_all_targets/lstm \
-      results/oneweb_${DIRECTION}_all_targets/transformer \
-    --out_dir results/oneweb_${DIRECTION}_all_targets/comparison
-done
+
+
+# # ── Starlink + Quectel ────────────────────────────────────────────────────
+# for PROVIDER in starlink quectel; do
+#   python run.py train \
+#     --provider $PROVIDER \
+#     --experiment_type latency \
+#     --models all \
+#     --out_dir results/${PROVIDER}_latency
+
+#   python run.py train \
+#     --provider $PROVIDER \
+#     --experiment_type latency_loss_throughput_dl \
+#     --models all \
+#     --out_dir results/${PROVIDER}_llt_dl
+
+#   python run.py train \
+#     --provider $PROVIDER \
+#     --experiment_type latency_loss_throughput_ul \
+#     --models all \
+#     --out_dir results/${PROVIDER}_llt_ul
+# done
+
+# # ── OneWeb (latency + all targets, both directions) ───────────────────────
+# for DIRECTION in dl ul; do
+#   python run.py train \
+#     --provider oneweb \
+#     --experiment_type $DIRECTION \
+#     --targets rtt \
+#     --models all \
+#     --out_dir results/oneweb_${DIRECTION}_latency
+
+#   python run.py train \
+#     --provider oneweb \
+#     --experiment_type $DIRECTION \
+#     --models all \
+#     --out_dir results/oneweb_${DIRECTION}_all_targets
+# done
+
+# # ── Cross-model comparison: starlink + quectel ───────────────────────────
+# for PROVIDER in starlink quectel; do
+#   python run.py compare \
+#     --run_dirs \
+#       results/${PROVIDER}_latency/seq2seq \
+#       results/${PROVIDER}_latency/lstm \
+#       results/${PROVIDER}_latency/transformer \
+#     --out_dir results/${PROVIDER}_latency/comparison
+
+#   for SUFFIX in llt_dl llt_ul; do
+#     python run.py compare \
+#       --run_dirs \
+#         results/${PROVIDER}_${SUFFIX}/seq2seq \
+#         results/${PROVIDER}_${SUFFIX}/lstm \
+#         results/${PROVIDER}_${SUFFIX}/transformer \
+#       --out_dir results/${PROVIDER}_${SUFFIX}/comparison
+#   done
+# done
+
+# # ── Cross-model comparison: oneweb ───────────────────────────────────────
+# for DIRECTION in dl ul; do
+#   python run.py compare \
+#     --run_dirs \
+#       results/oneweb_${DIRECTION}_latency/seq2seq \
+#       results/oneweb_${DIRECTION}_latency/lstm \
+#       results/oneweb_${DIRECTION}_latency/transformer \
+#     --out_dir results/oneweb_${DIRECTION}_latency/comparison
+
+#   python run.py compare \
+#     --run_dirs \
+#       results/oneweb_${DIRECTION}_all_targets/seq2seq \
+#       results/oneweb_${DIRECTION}_all_targets/lstm \
+#       results/oneweb_${DIRECTION}_all_targets/transformer \
+#     --out_dir results/oneweb_${DIRECTION}_all_targets/comparison
+# done
+
+
+
 
 
 # for PROVIDER in starlink oneweb quectel; do

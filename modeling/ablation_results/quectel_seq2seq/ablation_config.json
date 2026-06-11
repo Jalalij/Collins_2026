@@ -1,0 +1,27 @@
+{
+  "model": "seq2seq",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_dl",
+  "data_root": "data/lsn-data",
+  "targets": [
+    "rtt",
+    "jitter",
+    "loss"
+  ],
+  "normalise": "zscore",
+  "seed": 42,
+  "study": "feature",
+  "strategy": "leave_one_out",
+  "base_features": null,
+  "feature_sets": null,
+  "arch_param": "hidden_size",
+  "epochs": 30,
+  "batch_size": 512,
+  "input_len": 30,
+  "output_len": 15,
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "checkpoint_dir": "checkpoints/ablation",
+  "out_dir": "ablation_results/quectel_seq2seq",
+  "skip_existing": true
+}

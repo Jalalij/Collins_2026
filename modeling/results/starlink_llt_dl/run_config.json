@@ -9,7 +9,11 @@
   ],
   "experiment_type": "latency_loss_throughput_dl",
   "data_root": "data/lsn-data",
-  "targets": null,
+  "targets": [
+    "rtt",
+    "jitter",
+    "loss"
+  ],
   "input_len": 30,
   "output_len": 15,
   "normalise": "zscore",
@@ -50,7 +54,9 @@
     "weather_rain_rate"
   ],
   "resolved_targets": [
-    "iperf_throughput_mbps"
+    "ping_server_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
   ],
   "resolved_models": [
     "seq2seq",

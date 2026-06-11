@@ -1,0 +1,33 @@
+{
+  "model_type": "GaussianProcess",
+  "strategy": "MISO",
+  "output_len": 15,
+  "primary_target": "ping_rtt_ms",
+  "train_samples": 1000,
+  "test_samples": 169204,
+  "input_dim": 300,
+  "pca_components": 50,
+  "variance_retained": 0.9757034778594971,
+  "model_key": "gaussian_process",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_dl",
+  "targets": [
+    "ping_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_llt_dl\\gaussian_process",
+  "mode": "MISO"
+}

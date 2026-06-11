@@ -37,14 +37,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from dataset import (
     PROVIDERS, PROVIDER_STARLINK, VALID_EXPERIMENT_TYPES,
-    ALL_FEATURES, DEFAULT_FEATURES, ALL_TARGETS, TARGET_ALIASES, DEFAULT_TARGET,
+    ALL_FEATURES, DEFAULT_FEATURES, DEFAULT_FEATURES_BY_EXP,
+    ALL_TARGETS, TARGET_ALIASES, DEFAULT_TARGET,
     # Feature groups + flat name list — single source of truth in dataset.py
     FEATURE_GROUPS, ALL_FEATURE_NAMES,
     DataConfig, build_dataloaders,
+    IO_MODE_MIMO, IO_MODE_MISO, IO_MODE_SISO,
 )
-from model  import ThroughputSeq2Seq
-from train  import train as run_training
 from evaluation.evaluate import evaluate_predictions
+
+# ModelRegistry and run.py helpers — imported here so ablation works for any
+# registered model, not just Seq2Seq.
+from models import ModelRegistry
+from models.base import _register_builtins
+_register_builtins()
+
+# These are imported from run.py at call time inside run_one() to avoid a
+# circular import at module load. See the try/except blocks below.
 
 
 ARCH_GRIDS: dict[str, list[Any]] = {
@@ -84,10 +93,19 @@ def build_feature_sets(
 
     elif strategy == "groups":
         sets.append(("ALL_FEATURES", list(base_features)))
-        for gname, gfeats in FEATURE_GROUPS.items():
+        relevant_groups = {
+            g: feats for g, feats in FEATURE_GROUPS.items()
+            if any(f in base_features for f in feats)
+        }
+        if not relevant_groups:
+            raise ValueError(
+                f"No FEATURE_GROUPS intersect with the base features for "
+                f"provider '{provider}'. Use --strategy leave_one_out instead.\n"
+                f"Base features: {base_features}\n"
+                f"Available groups: {list(FEATURE_GROUPS)}"
+            )
+        for gname, gfeats in relevant_groups.items():
             to_remove = set(gfeats) & set(base_features)
-            if not to_remove:
-                continue
             subset = [f for f in base_features if f not in to_remove]
             if subset:
                 sets.append((f"drop_group_{gname}", subset))
@@ -115,80 +133,98 @@ def build_feature_sets(
 # ---------------------------------------------------------------------------
 
 def run_one(
-    label, data_root, provider, experiment_type,
+    label,
+    model_key,          # NEW: which registered model to train
+    mode,               # NEW: PredMode resolved from ModelRegistry
+    data_root, provider, experiment_type,
     targets, features,
     out_dir, ckpt_dir,
     epochs, batch_size, hidden_size, embed_dim,
     input_len, output_len,
     normalise, seed, skip_existing,
 ) -> dict:
-    ckpt_path   = ckpt_dir / _safe_name(label) / "best_model.pt"
-    eval_subdir = out_dir  / _safe_name(label)
+    eval_subdir = out_dir / _safe_name(label)
 
     print(f"\n{'='*60}")
     print(f"  Variant  : {label}")
+    print(f"  Model    : {model_key}  [mode={mode}]")
     print(f"  Features : {len(features)}  Targets: {targets}")
     print(f"{'='*60}")
 
-    if skip_existing and ckpt_path.exists():
-        print(f"  [skip] checkpoint exists: {ckpt_path}")
-    else:
-        ckpt_path.parent.mkdir(parents=True, exist_ok=True)
-        cfg = DataConfig(
-            data_root       = data_root,
-            provider        = provider,
-            experiment_type = experiment_type,
-            targets         = targets,
-            features        = features,
-            input_len       = input_len,
-            output_len      = output_len,
-            normalise       = normalise,
-            batch_size      = batch_size,
-            seed            = seed,
-        )
-        train_loader, val_loader, test_loader, _, _, _ = build_dataloaders(cfg)
-        model = ThroughputSeq2Seq(
-            num_features = len(features),
-            embed_dim    = embed_dim,
-            hidden_size  = hidden_size,
-            input_len    = input_len,
-            output_len   = output_len,
-            num_targets  = len(targets),
-        )
-        history = run_training(
-            model, train_loader, val_loader, test_loader,
-            num_epochs=epochs, save_dir=str(ckpt_path.parent),
-        )
-        actual_ckpt = Path(history.get("checkpoint", ""))
-        if actual_ckpt.exists() and actual_ckpt != ckpt_path:
-            import shutil
-            shutil.copy(actual_ckpt, ckpt_path)
+    if skip_existing and (eval_subdir / "metrics_summary.csv").exists():
+        print(f"  [skip] already evaluated: {eval_subdir}")
+        try:
+            existing = pd.read_csv(eval_subdir / "metrics_summary.csv")
+            agg = existing[existing["key"] == "AGGREGATE"]
+            row = agg.iloc[0].to_dict() if not agg.empty else {}
+            row["label"] = label
+            return row
+        except Exception:
+            pass  # fall through and re-evaluate if CSV is unreadable
 
-    # Evaluate via run.py helper
+    eval_subdir.mkdir(parents=True, exist_ok=True)
+
+    _MODE_TO_IO_MODE = {
+        "MIMO": IO_MODE_MIMO,
+        "MISO": IO_MODE_MISO,
+        "SISO": IO_MODE_SISO,
+    }
+    io_mode = _MODE_TO_IO_MODE[mode]
+
+    cfg = DataConfig(
+        data_root       = data_root,
+        provider        = provider,
+        experiment_type = experiment_type,
+        targets         = targets,
+        features        = features,
+        input_len       = input_len,
+        output_len      = output_len,
+        normalise       = normalise,
+        batch_size      = batch_size,
+        seed            = seed,
+        io_mode         = io_mode,
+    )
+
+    entry   = ModelRegistry.get(model_key)
+    trainer = entry["cls"]
+    config  = entry["default_config"].copy()
+    config.update({
+        "epochs":      epochs,
+        "hidden_size": hidden_size,
+        "embed_dim":   embed_dim,
+        "input_len":   input_len,
+        "output_len":  output_len,
+        "batch_size":  batch_size,
+        "lr":          config.get("lr", 1e-3),
+    })
+
     try:
-        from run import _eval_from_checkpoint
+        result = trainer.train_and_evaluate(
+            cfg         = cfg,
+            results_dir = str(eval_subdir),
+            config      = config,
+        )
+    except Exception as exc:
+        print(f"  [ERROR] training failed for '{label}': {exc}")
+        import traceback; traceback.print_exc()
+        return {"label": label, "MAE": np.nan, "RMSE": np.nan, "R2": np.nan}
+
+    try:
+        from run import _ensure_pred_dicts
     except ImportError as e:
         raise ImportError(
-            "ablation.py requires '_eval_from_checkpoint' from run.py. "
-            "Make sure run.py is on sys.path and exports that function. "
+            "ablation.py requires '_ensure_pred_dicts' from run.py. "
             f"Original error: {e}"
         ) from e
+
+    if "y_true_dict" not in result or "y_pred_dict" not in result:
+        _, _, _, _, target_stats, _ = build_dataloaders(cfg)
+        result = _ensure_pred_dicts(result, targets, target_stats, normalise, mode)
+
+    result["pred_mode"] = mode
+
     try:
-        result = _eval_from_checkpoint(
-            ckpt_path       = str(ckpt_path),
-            data_root       = data_root,
-            provider        = provider,
-            experiment_type = experiment_type,
-            targets         = targets,
-            features        = features,
-            input_len       = input_len,
-            output_len      = output_len,
-            hidden_size     = hidden_size,
-            embed_dim       = embed_dim,
-            normalise       = normalise,
-            batch_size      = batch_size,
-            seed            = seed,
-        )
+        from evaluation.evaluate import evaluate_predictions
         metrics_df = evaluate_predictions(result, str(eval_subdir), make_plots=False)
     except Exception as exc:
         print(f"  [warn] eval failed: {exc}")
@@ -208,24 +244,55 @@ def run_one(
 # ---------------------------------------------------------------------------
 
 def plot_ablation(results_df: pd.DataFrame, out_dir: Path, study: str) -> None:
-    metrics = [c for c in ["MAE", "RMSE", "R2", "PICP_95"] if c in results_df.columns]
-    if not metrics:
+    # Prefer delta columns for feature ablation; fall back to raw metrics.
+    delta_cols = [c for c in results_df.columns if c.startswith("delta_")]
+    if delta_cols:
+        plot_metrics = delta_cols
+        use_deltas   = True
+    else:
+        plot_metrics = [c for c in ["MAE", "RMSE", "R2", "PICP_95"]
+                        if c in results_df.columns]
+        use_deltas   = False
+
+    if not plot_metrics:
         return
-    n   = min(4, len(metrics))
+
+    n   = min(4, len(plot_metrics))
     fig, axes = plt.subplots(1, n, figsize=(5 * n, max(4, len(results_df) * 0.6 + 1)))
     if n == 1:
         axes = [axes]
-    for ax, metric in zip(axes, metrics):
+
+    for ax, metric in zip(axes, plot_metrics):
         vals   = results_df[metric].values.astype(float)
         labels = results_df["label"].values
-        order  = np.argsort(vals) if metric != "R2" else np.argsort(vals)[::-1]
+
+        if use_deltas:
+            # Sort by absolute impact descending; baseline row (delta=0) goes last
+            order = np.argsort(np.abs(vals))[::-1]
+        else:
+            order = np.argsort(vals) if "R2" not in metric else np.argsort(vals)[::-1]
+
         sv, sl = vals[order], labels[order]
-        colors = ["tomato" if i == 0 else "steelblue" for i in range(len(sl))]
-        bars   = ax.barh(sl, sv, color=colors)
-        ax.set_title(metric); ax.invert_yaxis(); ax.grid(True, axis="x", alpha=0.3)
+
+        if use_deltas:
+            # Red = dropping this feature hurt (positive delta for MAE/RMSE),
+            # Blue = negligible or helped
+            colors = ["tomato" if v > 0 else "steelblue" for v in sv]
+        else:
+            colors = ["tomato" if i == 0 else "steelblue" for i in range(len(sl))]
+
+        bars = ax.barh(sl, sv, color=colors)
+        title = metric if not use_deltas else f"{metric}\n(+ = dropping feature hurt)"
+        ax.set_title(title, fontsize=9)
+        ax.invert_yaxis()
+        ax.axvline(0, color="black", linewidth=0.8, linestyle="--")
+        ax.grid(True, axis="x", alpha=0.3)
         for bar, val in zip(bars, sv):
-            ax.text(bar.get_width() * 1.01, bar.get_y() + bar.get_height() / 2,
-                    f"{val:.3f}", va="center", fontsize=7)
+            x_pos = bar.get_width() + abs(bar.get_width()) * 0.02
+            ax.text(x_pos, bar.get_y() + bar.get_height() / 2,
+                    f"{val:+.3f}" if use_deltas else f"{val:.3f}",
+                    va="center", fontsize=7)
+
     study_label = "Feature" if study == "feature" else "Architecture"
     plt.suptitle(f"{study_label} ablation", fontsize=14)
     plt.tight_layout()
@@ -240,6 +307,11 @@ def plot_ablation(results_df: pd.DataFrame, out_dir: Path, study: str) -> None:
 
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Ablation study")
+
+    # Model — which registered model to ablate (one at a time)
+    p.add_argument("--model", default="seq2seq",
+                   help="Model key from ModelRegistry (e.g. seq2seq, lstm, transformer). "
+                        "Ablation trains one model at a time; run separately per model.")
 
     # Provider / experiment — replaces --mode
     p.add_argument("--provider",        default=PROVIDER_STARLINK,
@@ -309,9 +381,8 @@ def main():
     provider      = args.provider
     exp_type      = args.experiment_type
 
-    # Resolve base features (default to provider defaults)
     provider_all  = ALL_FEATURES[provider]
-    base_features = args.base_features or list(DEFAULT_FEATURES[provider])
+    base_features = args.base_features or list(DEFAULT_FEATURES_BY_EXP[(provider, exp_type)])
     bad_feat = [f for f in base_features if f not in provider_all]
     if bad_feat:
         print(f"[ERROR] Unknown features for provider '{provider}': {bad_feat}")
@@ -327,6 +398,14 @@ def main():
             sys.exit(1)
     else:
         targets = [DEFAULT_TARGET[(provider, exp_type)]]
+
+    # Resolve model mode from ModelRegistry
+    try:
+        from run import get_model_mode
+        mode = get_model_mode(args.model)
+    except (ImportError, KeyError) as e:
+        print(f"[ERROR] Could not resolve mode for model '{args.model}': {e}")
+        sys.exit(1)
 
     # Build variant list
     variants: list[tuple[str, dict]] = []
@@ -354,6 +433,7 @@ def main():
             variants.append((f"{args.arch_param}={val}", overrides))
 
     print(f"\nAblation  : {args.study}")
+    print(f"Model     : {args.model}  [mode={mode}]")
     print(f"Provider  : {provider}  /  {exp_type}")
     print(f"Targets   : {targets}")
     print(f"Variants  : {len(variants)}")
@@ -363,6 +443,8 @@ def main():
         try:
             row = run_one(
                 label           = label,
+                model_key       = args.model,
+                mode            = mode,
                 data_root       = args.data_root,
                 provider        = provider,
                 experiment_type = exp_type,
@@ -387,9 +469,29 @@ def main():
                                  "RMSE": np.nan, "R2": np.nan})
 
     results_df = pd.DataFrame(all_results)
+
+    if args.study == "feature" and "ALL_FEATURES" in results_df["label"].values:
+        baseline = results_df.loc[results_df["label"] == "ALL_FEATURES"].iloc[0]
+        for metric in ["MAE", "RMSE", "R2"]:
+            if metric not in results_df.columns:
+                continue
+            if metric == "R2":
+                # positive delta_R2 means dropping the feature raised R2 (unusual)
+                results_df[f"delta_{metric}"] = results_df[metric] - baseline[metric]
+            else:
+                # positive delta_MAE/RMSE means dropping the feature hurt performance
+                results_df[f"delta_{metric}"] = results_df[metric] - baseline[metric]
+        # Sort by descending delta_MAE so most impactful drops appear first
+        if "delta_MAE" in results_df.columns:
+            results_df = results_df.sort_values("delta_MAE", ascending=False)
+
     results_df.to_csv(out_dir / "ablation_results.csv", index=False, float_format="%.4f")
     print(f"\nResults -> {out_dir / 'ablation_results.csv'}")
-    print(results_df[["label", "MAE", "RMSE", "R2"]].to_string(index=False))
+
+    display_cols = ["label"] + [c for c in ["MAE", "RMSE", "R2",
+                                              "delta_MAE", "delta_RMSE", "delta_R2"]
+                                 if c in results_df.columns]
+    print(results_df[display_cols].to_string(index=False))
     plot_ablation(results_df, out_dir, args.study)
     with open(out_dir / "ablation_config.json", "w") as f:
         json.dump(vars(args), f, indent=2)

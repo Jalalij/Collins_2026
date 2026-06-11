@@ -1,0 +1,2093 @@
+
+============================================================
+ PHASE 1: DOWNLINK (DL)
+============================================================
+
+--- Starlink  latency_loss_throughput_dl ---
+
+=================================================================
+THROUGHPUT PREDICTION FRAMEWORK � TRAIN
+=================================================================
+  Provider        : starlink
+  Experiment type : latency_loss_throughput_dl
+  Data root       : data/lsn-data
+  Targets         : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Features        : 19  ['ping_server_rtt_ms', 'ping_dns_rtt_ms', 'iperf_throughput_mbps', 'iperf_jitter_ms', 'iperf_loss_pct', 'dish_pop_ping_ms', 'satellite_dtc', 'satellite_handoff', 'satellite_age_s', 'distance_km', 'elevation_deg', 'azimuth_deg', 'dish_obstruction_fraction', 'dish_snr', 'dish_boresight_azimuth_deg', 'dish_boresight_elevation_deg', 'weather_humidity', 'weather_pressure', 'weather_rain_rate']
+  Models          :
+    seq2seq                mode=MIMO
+    lstm                   mode=MIMO
+    transformer            mode=MIMO
+    satellite_gru          mode=MIMO
+    satellite_attention    mode=MIMO
+    satellite_fnn          mode=MIMO
+    gaussian_process       mode=MISO
+    autoencoder            mode=MISO
+  Out dir         : results\starlink_llt_dl
+=================================================================
+
+#################################################################
+  MODEL: SEQ2SEQ [mode=MIMO]
+#################################################################
+
+==================== SEQ2SEQ MODEL (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_dl  (suffix: *_latency_loss_throughput_dl.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=105,906  val=20,025  test=25,838
+  Input dim   : 19 feature(s)
+  num_features : 19  (actual after column intersection)
+  num_targets  : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+
+Training on: cuda  |  mode: MIMO
+Checkpoint dir: results\starlink_llt_dl\seq2seq\20260528_135445
+Epoch   1/100 | train=0.4631  val=0.9844  smooth=0.9844  lr=1.00e-03  [15.4s] <- best (0.9844)
+Epoch   2/100 | train=0.3405  val=0.9018  smooth=0.9596  lr=1.00e-03  [15.0s] <- best (0.9596)
+Epoch   3/100 | train=0.3335  val=0.8828  smooth=0.9366  lr=1.00e-03  [15.3s] <- best (0.9366)
+Epoch   4/100 | train=0.3281  val=0.8637  smooth=0.9147  lr=1.00e-03  [15.2s] <- best (0.9147)
+Epoch   5/100 | train=0.3151  val=0.9423  smooth=0.9230  lr=1.00e-03  [15.1s] (no improve 1/40)
+Epoch   6/100 | train=0.3089  val=0.9305  smooth=0.9252  lr=1.00e-03  [15.3s] (no improve 2/40)
+Epoch   7/100 | train=0.2980  val=0.9532  smooth=0.9336  lr=1.00e-03  [15.4s] (no improve 3/40)
+Epoch   8/100 | train=0.2877  val=0.9671  smooth=0.9437  lr=1.00e-03  [15.6s] (no improve 4/40)
+Epoch   9/100 | train=0.2822  val=0.9178  smooth=0.9359  lr=1.00e-03  [15.7s] (no improve 5/40)
+Epoch  10/100 | train=0.2690  val=0.9755  smooth=0.9478  lr=1.00e-03  [15.5s] (no improve 6/40)
+Epoch  11/100 | train=0.2579  val=0.9956  smooth=0.9621  lr=1.00e-03  [15.4s] (no improve 7/40)
+Epoch  12/100 | train=0.2511  val=0.9713  smooth=0.9649  lr=1.00e-03  [15.6s] (no improve 8/40)
+Epoch  13/100 | train=0.2494  val=0.9651  smooth=0.9650  lr=5.00e-04  [15.2s] (no improve 9/40)
+Epoch  14/100 | train=0.2322  val=0.9680  smooth=0.9659  lr=5.00e-04  [15.2s] (no improve 10/40)
+Epoch  15/100 | train=0.2239  val=0.9785  smooth=0.9697  lr=5.00e-04  [15.2s] (no improve 11/40)
+Epoch  16/100 | train=0.2254  val=1.0007  smooth=0.9790  lr=5.00e-04  [15.3s] (no improve 12/40)
+Epoch  17/100 | train=0.2231  val=0.9966  smooth=0.9843  lr=5.00e-04  [15.2s] (no improve 13/40)
+Epoch  18/100 | train=0.2223  val=0.9876  smooth=0.9853  lr=5.00e-04  [15.6s] (no improve 14/40)
+Epoch  19/100 | train=0.2194  val=0.9657  smooth=0.9794  lr=5.00e-04  [14.6s] (no improve 15/40)
+Epoch  20/100 | train=0.2246  val=0.9839  smooth=0.9807  lr=5.00e-04  [15.1s] (no improve 16/40)
+Epoch  21/100 | train=0.2190  val=1.0028  smooth=0.9873  lr=5.00e-04  [15.9s] (no improve 17/40)
+Epoch  22/100 | train=0.2161  val=1.0025  smooth=0.9919  lr=2.50e-04  [15.9s] (no improve 18/40)
+Epoch  23/100 | train=0.2097  val=0.9917  smooth=0.9918  lr=2.50e-04  [15.9s] (no improve 19/40)
+Epoch  24/100 | train=0.2126  val=1.0005  smooth=0.9944  lr=2.50e-04  [16.0s] (no improve 20/40)
+Epoch  25/100 | train=0.2063  val=0.9938  smooth=0.9943  lr=2.50e-04  [16.0s] (no improve 21/40)
+Epoch  26/100 | train=0.2107  val=1.0049  smooth=0.9974  lr=2.50e-04  [16.1s] (no improve 22/40)
+Epoch  27/100 | train=0.2110  val=1.0151  smooth=1.0027  lr=2.50e-04  [16.3s] (no improve 23/40)
+Epoch  28/100 | train=0.2103  val=1.0068  smooth=1.0039  lr=2.50e-04  [15.9s] (no improve 24/40)
+Epoch  29/100 | train=0.2124  val=0.9997  smooth=1.0027  lr=2.50e-04  [16.4s] (no improve 25/40)
+Epoch  30/100 | train=0.2096  val=1.0169  smooth=1.0069  lr=2.50e-04  [16.2s] (no improve 26/40)
+Epoch  31/100 | train=0.2124  val=1.0028  smooth=1.0057  lr=1.25e-04  [16.0s] (no improve 27/40)
+Epoch  32/100 | train=0.2070  val=1.0081  smooth=1.0064  lr=1.25e-04  [16.4s] (no improve 28/40)
+Epoch  33/100 | train=0.2064  val=1.0139  smooth=1.0087  lr=1.25e-04  [15.8s] (no improve 29/40)
+Epoch  34/100 | train=0.2081  val=1.0044  smooth=1.0074  lr=1.25e-04  [16.1s] (no improve 30/40)
+Epoch  35/100 | train=0.2120  val=0.9991  smooth=1.0049  lr=1.25e-04  [15.9s] (no improve 31/40)
+Epoch  36/100 | train=0.2132  val=1.0003  smooth=1.0035  lr=1.25e-04  [16.0s] (no improve 32/40)
+Epoch  37/100 | train=0.2128  val=1.0034  smooth=1.0035  lr=1.25e-04  [16.4s] (no improve 33/40)
+Epoch  38/100 | train=0.2090  val=1.0035  smooth=1.0035  lr=1.25e-04  [15.9s] (no improve 34/40)
+Epoch  39/100 | train=0.2126  val=0.9943  smooth=1.0007  lr=1.25e-04  [15.8s] (no improve 35/40)
+Epoch  40/100 | train=0.2146  val=1.0046  smooth=1.0019  lr=6.25e-05  [15.9s] (no improve 36/40)
+Epoch  41/100 | train=0.2157  val=1.0035  smooth=1.0024  lr=6.25e-05  [16.2s] (no improve 37/40)
+Epoch  42/100 | train=0.2142  val=1.0002  smooth=1.0017  lr=6.25e-05  [16.2s] (no improve 38/40)
+Epoch  43/100 | train=0.2162  val=1.0083  smooth=1.0037  lr=6.25e-05  [16.0s] (no improve 39/40)
+Epoch  44/100 | train=0.2206  val=1.0206  smooth=1.0088  lr=6.25e-05  [16.2s] (no improve 40/40)
+
+Early stopping after 44 epochs.
+
+Best val (smooth): 0.9147  ->  results\starlink_llt_dl\seq2seq\20260528_135445\best_model.pt
+Test MSE (MIMO): 0.6138
+
+  [Seq2Seq-GRU] (MIMO) Aggregate metrics:
+    MAE           : 8.2673
+    RMSE          : 14.8908
+    MAPE_pct      : 61.8329
+    sMAPE_pct     : 80.8813
+    R2            : 0.3778
+    PICP_95       : 0.9500
+    MIS           : 98.7023
+    relative_rmse                 : 0.6653
+    relative_mae                  : 0.6222
+    resid_pearson_lag1            : 0.2530
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: LSTM [mode=MIMO]
+#################################################################
+
+==================== LSTM MODEL (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_dl  (suffix: *_latency_loss_throughput_dl.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=105,906  val=20,025  test=25,838
+  Input dim   : 19 feature(s)
+  input_size  : 23  (features=19 + time_enc=4)
+  num_targets : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  seq_len     : 30
+  output_len  : 15   (forecast horizon)
+  Epoch  10 | train 0.263159 | val 0.774907
+  Epoch  20 | train 0.203101 | val 0.801076
+  Epoch  30 | train 0.189855 | val 0.825664
+  Epoch  40 | train 0.185266 | val 0.847797
+  Early stopping at epoch 41
+  LSTM training complete in 576.18s
+
+  [LSTM] (MIMO) Aggregate metrics:
+    MAE           : 8.8802
+    RMSE          : 16.5823
+    MAPE_pct      : 72.2677
+    sMAPE_pct     : 85.6481
+    R2            : 0.1459
+    PICP_95       : 0.9500
+    MIS           : 111.1978
+    relative_rmse                 : 0.7108
+    relative_mae                  : 0.6459
+    resid_pearson_lag1            : 0.3085
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: TRANSFORMER [mode=MIMO]
+#################################################################
+
+==================== TRANSFORMER MODEL (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_dl  (suffix: *_latency_loss_throughput_dl.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=105,906  val=20,025  test=25,838
+  Input dim   : 19 feature(s)
+  input_dim   : 23  (features=19 + time_enc=4)
+  num_targets : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len  : 15  (MIMO horizon)
+  seq_len     : 30
+  Epoch  10 | train 0.482038 | val 0.638353
+  Epoch  20 | train 0.433682 | val 0.698482
+  Epoch  30 | train 0.408257 | val 0.735460
+  Timeout after 35 epochs
+  Transformer training complete in 546.28s
+
+  [Transformer] (MIMO) Aggregate metrics:
+    MAE           : 9.9300
+    RMSE          : 16.7782
+    MAPE_pct      : 66.4199
+    sMAPE_pct     : 84.4324
+    R2            : 0.2411
+    PICP_95       : 0.9500
+    MIS           : 100.2254
+    relative_rmse                 : 0.7239
+    relative_mae                  : 0.7223
+    resid_pearson_lag1            : 0.2799
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_GRU [mode=MIMO]
+#################################################################
+
+==================== Satellite-GRU (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_dl  (suffix: *_latency_loss_throughput_dl.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=105,906  val=20,025  test=25,838
+  Input dim   : 19 feature(s)
+  feature_size : 19
+  num_targets  : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 17
+  Satellite-GRU complete in 225.0s
+
+  [Satellite-GRU] (MIMO) Aggregate metrics:
+    MAE           : 8.7106
+    RMSE          : 15.0531
+    MAPE_pct      : 58.1872
+    sMAPE_pct     : 80.1301
+    R2            : 0.3867
+    PICP_95       : 0.9500
+    MIS           : 94.9004
+    relative_rmse                 : 0.6737
+    relative_mae                  : 0.6556
+    resid_pearson_lag1            : 0.2731
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_ATTENTION [mode=MIMO]
+#################################################################
+
+==================== Satellite-ATTENTION (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_dl  (suffix: *_latency_loss_throughput_dl.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=105,906  val=20,025  test=25,838
+  Input dim   : 19 feature(s)
+  feature_size : 19
+  num_targets  : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 19
+  Satellite-ATTENTION complete in 441.3s
+
+  [Satellite-ATTENTION] (MIMO) Aggregate metrics:
+    MAE           : 8.5728
+    RMSE          : 14.7744
+    MAPE_pct      : 61.2208
+    sMAPE_pct     : 80.1928
+    R2            : 0.3901
+    PICP_95       : 0.9500
+    MIS           : 93.4327
+    relative_rmse                 : 0.6596
+    relative_mae                  : 0.6452
+    resid_pearson_lag1            : 0.2582
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_FNN [mode=MIMO]
+#################################################################
+
+==================== Satellite-FNN (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_dl  (suffix: *_latency_loss_throughput_dl.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=105,906  val=20,025  test=25,838
+  Input dim   : 19 feature(s)
+  feature_size : 19
+  num_targets  : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 33
+  Satellite-FNN complete in 144.8s
+
+  [Satellite-FNN] (MIMO) Aggregate metrics:
+    MAE           : 10.4878
+    RMSE          : 16.5242
+    MAPE_pct      : 75.5771
+    sMAPE_pct     : 93.0529
+    R2            : 0.2470
+    PICP_95       : 0.9500
+    MIS           : 101.7778
+    relative_rmse                 : 0.7374
+    relative_mae                  : 0.7894
+    resid_pearson_lag1            : 0.4007
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: GAUSSIAN_PROCESS [mode=MISO]
+#################################################################
+
+==================== GAUSSIAN PROCESS MODEL (MISO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_dl  (suffix: *_latency_loss_throughput_dl.csv)
+  Direction   : dl
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['ping_server_rtt_ms']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=105,906  val=20,025  test=25,838
+  Input dim   : 19 feature(s)
+  GP (MISO): 1000 train / 25838 test samples | input_dim=570 | output_len=15 | target=ping_server_rtt_ms
+
+  [GaussianProcess] (MISO) Aggregate metrics:
+    MAE           : 28.8161
+    RMSE          : 41.8597
+    MAPE_pct      : 40.0107
+    sMAPE_pct     : 31.0257
+    R2            : 0.5464
+    PICP_95       : 0.9500
+    MIS           : 232.9283
+    relative_rmse                 : 0.7389
+    relative_mae                  : 0.7354
+    resid_pearson_lag1            : 0.3241
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: AUTOENCODER [mode=MISO]
+#################################################################
+
+==================== AUTOENCODER (STANDARD) (MISO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_dl  (suffix: *_latency_loss_throughput_dl.csv)
+  Direction   : dl
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['ping_server_rtt_ms']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=105,906  val=20,025  test=25,838
+  Input dim   : 19 feature(s)
+  input_dim  : 570  (seq_len=30, feat_dim=19)
+  output_len : 15  (primary target: ping_server_rtt_ms)
+  Early stopping at epoch 54
+  Autoencoder (standard) complete in 543.85s
+
+  [Autoencoder-standard] (MISO) Aggregate metrics:
+    MAE           : 19.8157
+    RMSE          : 36.3906
+    MAPE_pct      : 27.4959
+    sMAPE_pct     : 19.8811
+    R2            : 0.6572
+    PICP_95       : 0.9500
+    MIS           : 245.0393
+    relative_rmse                 : 0.6424
+    relative_mae                  : 0.5057
+    resid_pearson_lag1            : 0.2380
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+=================================================================
+CROSS-MODEL COMPARISON
+=================================================================
+                      mode     MAE    RMSE     R2  PICP_95
+model                                                     
+Seq2Seq-GRU           MIMO  8.2673 14.8908 0.3778   0.9500
+LSTM                  MIMO  8.8802 16.5823 0.1459   0.9500
+Transformer           MIMO  9.9300 16.7782 0.2411   0.9500
+Satellite-GRU         MIMO  8.7106 15.0531 0.3867   0.9500
+Satellite-ATTENTION   MIMO  8.5728 14.7744 0.3901   0.9500
+Satellite-FNN         MIMO 10.4878 16.5242 0.2470   0.9500
+GaussianProcess       MISO 28.8161 41.8597 0.5464   0.9500
+Autoencoder-standard  MISO 19.8157 36.3906 0.6572   0.9500
+Comparison saved to results\starlink_llt_dl\comparison.csv
+Comparison plot  -> results\starlink_llt_dl\comparison.png
+
+All results in: results\starlink_llt_dl/
+
+
+
+============================================================
+ PHASE 1: DOWNLINK (DL)
+============================================================
+
+--- oneweb  dl ---
+
+=================================================================
+THROUGHPUT PREDICTION FRAMEWORK — TRAIN
+=================================================================
+  Provider        : oneweb
+  Experiment type : dl
+  Data root       : data/lsn-data
+  Targets         : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Features        : 9  ['throughput_mbps', 'packet_loss_percent', 'jitter_ms', 'rtt_mean', 'sinr_db', 'elevation_deg', 'azimuth_deg', 'satellite_change', 'time_since_handover']
+  Models          :
+    seq2seq                mode=MIMO
+    lstm                   mode=MIMO
+    transformer            mode=MIMO
+    satellite_gru          mode=MIMO
+    satellite_attention    mode=MIMO
+    satellite_fnn          mode=MIMO
+    gaussian_process       mode=MISO
+    autoencoder            mode=MISO
+  Out dir         : results\oneweb_llt_dl
+=================================================================
+
+#################################################################
+  MODEL: SEQ2SEQ [mode=MIMO]
+#################################################################
+
+==================== SEQ2SEQ MODEL (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : dl  (suffix: *_DL.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=117,558  val=22,655  test=27,492
+  Input dim   : 9 feature(s)
+  num_features : 9  (actual after column intersection)
+  num_targets  : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len   : 15
+
+Training on: cuda  |  mode: MIMO
+Checkpoint dir: results\oneweb_llt_dl\seq2seq\20260529_084146
+Epoch   1/100 | train=0.7098  val=1.3097  smooth=1.3097  lr=1.00e-03  [12.9s] <- best (1.3097)
+Epoch   2/100 | train=0.6417  val=1.3118  smooth=1.3103  lr=1.00e-03  [12.4s] (no improve 1/40)
+Epoch   3/100 | train=0.6343  val=1.2937  smooth=1.3053  lr=1.00e-03  [12.3s] <- best (1.3053)
+Epoch   4/100 | train=0.6172  val=1.3151  smooth=1.3083  lr=1.00e-03  [13.2s] (no improve 1/40)
+Epoch   5/100 | train=0.6104  val=1.2894  smooth=1.3026  lr=1.00e-03  [13.4s] <- best (1.3026)
+Epoch   6/100 | train=0.6026  val=1.2480  smooth=1.2862  lr=1.00e-03  [13.2s] <- best (1.2862)
+Epoch   7/100 | train=0.5873  val=1.2968  smooth=1.2894  lr=1.00e-03  [13.2s] (no improve 1/40)
+Epoch   8/100 | train=0.5747  val=1.3344  smooth=1.3029  lr=1.00e-03  [12.9s] (no improve 2/40)
+Epoch   9/100 | train=0.5660  val=1.3697  smooth=1.3230  lr=1.00e-03  [13.8s] (no improve 3/40)
+Epoch  10/100 | train=0.5706  val=1.2941  smooth=1.3143  lr=1.00e-03  [13.2s] (no improve 4/40)
+Epoch  11/100 | train=0.5460  val=1.3271  smooth=1.3182  lr=1.00e-03  [13.3s] (no improve 5/40)
+Epoch  12/100 | train=0.5419  val=1.3109  smooth=1.3160  lr=1.00e-03  [13.1s] (no improve 6/40)
+Epoch  13/100 | train=0.5476  val=1.2845  smooth=1.3065  lr=1.00e-03  [12.9s] (no improve 7/40)
+Epoch  14/100 | train=0.5147  val=1.3163  smooth=1.3095  lr=1.00e-03  [12.9s] (no improve 8/40)
+Epoch  15/100 | train=0.5491  val=1.2918  smooth=1.3042  lr=5.00e-04  [13.2s] (no improve 9/40)
+Epoch  16/100 | train=0.4802  val=1.3063  smooth=1.3048  lr=5.00e-04  [12.9s] (no improve 10/40)
+Epoch  17/100 | train=0.4793  val=1.3290  smooth=1.3121  lr=5.00e-04  [12.6s] (no improve 11/40)
+Epoch  18/100 | train=0.4549  val=1.3116  smooth=1.3119  lr=5.00e-04  [12.8s] (no improve 12/40)
+Epoch  19/100 | train=0.4542  val=1.3954  smooth=1.3370  lr=5.00e-04  [12.4s] (no improve 13/40)
+Epoch  20/100 | train=0.4716  val=1.4088  smooth=1.3585  lr=5.00e-04  [12.9s] (no improve 14/40)
+Epoch  21/100 | train=0.4559  val=1.3927  smooth=1.3688  lr=5.00e-04  [12.1s] (no improve 15/40)
+Epoch  22/100 | train=0.4647  val=1.4335  smooth=1.3882  lr=5.00e-04  [12.2s] (no improve 16/40)
+Epoch  23/100 | train=0.4632  val=1.3235  smooth=1.3688  lr=5.00e-04  [12.6s] (no improve 17/40)
+Epoch  24/100 | train=0.4416  val=1.3856  smooth=1.3738  lr=2.50e-04  [13.0s] (no improve 18/40)
+Epoch  25/100 | train=0.4350  val=1.3457  smooth=1.3654  lr=2.50e-04  [13.0s] (no improve 19/40)
+Epoch  26/100 | train=0.4306  val=1.3498  smooth=1.3607  lr=2.50e-04  [13.3s] (no improve 20/40)
+Epoch  27/100 | train=0.4249  val=1.4152  smooth=1.3771  lr=2.50e-04  [13.3s] (no improve 21/40)
+Epoch  28/100 | train=0.4289  val=1.3635  smooth=1.3730  lr=2.50e-04  [13.6s] (no improve 22/40)
+Epoch  29/100 | train=0.4222  val=1.3741  smooth=1.3733  lr=2.50e-04  [13.4s] (no improve 23/40)
+Epoch  30/100 | train=0.4211  val=1.3428  smooth=1.3642  lr=2.50e-04  [13.6s] (no improve 24/40)
+Epoch  31/100 | train=0.4234  val=1.4121  smooth=1.3785  lr=2.50e-04  [13.2s] (no improve 25/40)
+Epoch  32/100 | train=0.4283  val=1.4189  smooth=1.3907  lr=2.50e-04  [13.3s] (no improve 26/40)
+Epoch  33/100 | train=0.4191  val=1.3689  smooth=1.3841  lr=1.25e-04  [13.0s] (no improve 27/40)
+Epoch  34/100 | train=0.4078  val=1.3821  smooth=1.3835  lr=1.25e-04  [13.3s] (no improve 28/40)
+Epoch  35/100 | train=0.4061  val=1.3808  smooth=1.3827  lr=1.25e-04  [13.0s] (no improve 29/40)
+Epoch  36/100 | train=0.3943  val=1.3739  smooth=1.3800  lr=1.25e-04  [12.7s] (no improve 30/40)
+Epoch  37/100 | train=0.4101  val=1.3978  smooth=1.3854  lr=1.25e-04  [12.8s] (no improve 31/40)
+Epoch  38/100 | train=0.4071  val=1.3981  smooth=1.3892  lr=1.25e-04  [13.3s] (no improve 32/40)
+Epoch  39/100 | train=0.4019  val=1.4005  smooth=1.3926  lr=1.25e-04  [12.5s] (no improve 33/40)
+Epoch  40/100 | train=0.4076  val=1.3996  smooth=1.3947  lr=1.25e-04  [12.8s] (no improve 34/40)
+Epoch  41/100 | train=0.4044  val=1.3913  smooth=1.3937  lr=1.25e-04  [12.8s] (no improve 35/40)
+Epoch  42/100 | train=0.3977  val=1.4337  smooth=1.4057  lr=6.25e-05  [12.9s] (no improve 36/40)
+Epoch  43/100 | train=0.4036  val=1.4066  smooth=1.4060  lr=6.25e-05  [13.1s] (no improve 37/40)
+Epoch  44/100 | train=0.3968  val=1.3857  smooth=1.3999  lr=6.25e-05  [13.6s] (no improve 38/40)
+Epoch  45/100 | train=0.3970  val=1.4203  smooth=1.4060  lr=6.25e-05  [13.6s] (no improve 39/40)
+Epoch  46/100 | train=0.3912  val=1.4298  smooth=1.4131  lr=6.25e-05  [13.8s] (no improve 40/40)
+
+Early stopping after 46 epochs.
+
+Best val (smooth): 1.2862  ->  results\oneweb_llt_dl\seq2seq\20260529_084146\best_model.pt
+Test MSE (MIMO): 1.5317
+
+  [Seq2Seq-GRU] (MIMO) Aggregate metrics:
+    MAE           : 6.1218
+    RMSE          : 23.7312
+    MAPE_pct      : 43.6074
+    sMAPE_pct     : 85.2508
+    R2            : 0.2170
+    PICP_95       : 0.9499
+    MIS           : 108.6947
+    relative_rmse                 : 1.5058
+    relative_mae                  : 1.3065
+    resid_pearson_lag1            : 0.7604
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: LSTM [mode=MIMO]
+#################################################################
+
+==================== LSTM MODEL (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : dl  (suffix: *_DL.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=117,558  val=22,655  test=27,492
+  Input dim   : 9 feature(s)
+  input_size  : 13  (features=9 + time_enc=4)
+  num_targets : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  seq_len     : 30
+  output_len  : 15   (forecast horizon)
+  Epoch  10 | train 0.618997 | val 1.602980
+  Epoch  20 | train 0.492575 | val 1.682873
+  Epoch  30 | train 0.446294 | val 1.699488
+  Epoch  40 | train 0.433946 | val 1.769375
+  Early stopping at epoch 42
+  LSTM training complete in 191.65s
+
+  [LSTM] (MIMO) Aggregate metrics:
+    MAE           : 6.6857
+    RMSE          : 25.6332
+    MAPE_pct      : 47.6583
+    sMAPE_pct     : 87.0848
+    R2            : 0.1095
+    PICP_95       : 0.9500
+    MIS           : 129.5474
+    relative_rmse                 : 1.4168
+    relative_mae                  : 1.3607
+    resid_pearson_lag1            : 0.7660
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: TRANSFORMER [mode=MIMO]
+#################################################################
+
+==================== TRANSFORMER MODEL (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : dl  (suffix: *_DL.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=117,558  val=22,655  test=27,492
+  Input dim   : 9 feature(s)
+  input_dim   : 13  (features=9 + time_enc=4)
+  num_targets : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len  : 15  (MIMO horizon)
+  seq_len     : 30
+  Epoch  10 | train 0.780608 | val 1.562293
+  Epoch  20 | train 0.681877 | val 1.558364
+  Epoch  30 | train 0.651604 | val 1.566359
+  Epoch  40 | train 0.629031 | val 1.577336
+  Early stopping at epoch 46
+  Transformer training complete in 408.32s
+
+  [Transformer] (MIMO) Aggregate metrics:
+    MAE           : 6.2051
+    RMSE          : 25.1728
+    MAPE_pct      : 44.5937
+    sMAPE_pct     : 85.4652
+    R2            : 0.1875
+    PICP_95       : 0.9500
+    MIS           : 114.0774
+    relative_rmse                 : 1.3967
+    relative_mae                  : 1.2629
+    resid_pearson_lag1            : 0.7631
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_GRU [mode=MIMO]
+#################################################################
+
+==================== Satellite-GRU (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : dl  (suffix: *_DL.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=117,558  val=22,655  test=27,492
+  Input dim   : 9 feature(s)
+  feature_size : 9
+  num_targets  : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 18
+  Satellite-GRU complete in 190.9s
+
+  [Satellite-GRU] (MIMO) Aggregate metrics:
+    MAE           : 5.9649
+    RMSE          : 23.5946
+    MAPE_pct      : 43.1263
+    sMAPE_pct     : 85.6289
+    R2            : 0.2234
+    PICP_95       : 0.9499
+    MIS           : 103.9330
+    relative_rmse                 : 1.4986
+    relative_mae                  : 1.2730
+    resid_pearson_lag1            : 0.7624
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_ATTENTION [mode=MIMO]
+#################################################################
+
+==================== Satellite-ATTENTION (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : dl  (suffix: *_DL.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=117,558  val=22,655  test=27,492
+  Input dim   : 9 feature(s)
+  feature_size : 9
+  num_targets  : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 21
+  Satellite-ATTENTION complete in 397.1s
+
+  [Satellite-ATTENTION] (MIMO) Aggregate metrics:
+    MAE           : 6.8704
+    RMSE          : 23.7510
+    MAPE_pct      : 45.5709
+    sMAPE_pct     : 86.5990
+    R2            : 0.2211
+    PICP_95       : 0.9499
+    MIS           : 109.4517
+    relative_rmse                 : 1.5084
+    relative_mae                  : 1.4662
+    resid_pearson_lag1            : 0.7619
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_FNN [mode=MIMO]
+#################################################################
+
+==================== Satellite-FNN (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : dl  (suffix: *_DL.csv)
+  Direction   : dl
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=117,558  val=22,655  test=27,492
+  Input dim   : 9 feature(s)
+  feature_size : 9
+  num_targets  : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 26
+  Satellite-FNN complete in 55.9s
+
+  [Satellite-FNN] (MIMO) Aggregate metrics:
+    MAE           : 8.7030
+    RMSE          : 26.4644
+    MAPE_pct      : 49.8903
+    sMAPE_pct     : 90.0340
+    R2            : 0.1472
+    PICP_95       : 0.9499
+    MIS           : 114.8840
+    relative_rmse                 : 1.6671
+    relative_mae                  : 1.8573
+    resid_pearson_lag1            : 0.8161
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: GAUSSIAN_PROCESS [mode=MISO]
+#################################################################
+<string>:18: UserWarning: io_mode='MISO' uses only a single target. Retaining targets[0]='rtt_mean' and dropping ['jitter_ms', 'packet_loss_percent']. Pass targets=[single_col] to suppress this warning.
+
+==================== GAUSSIAN PROCESS MODEL (MISO) ====================
+
+  Provider    : oneweb
+  Exp type    : dl  (suffix: *_DL.csv)
+  Direction   : dl
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['rtt_mean']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=117,558  val=22,655  test=27,492
+  Input dim   : 9 feature(s)
+  GP (MISO): 1000 train / 27492 test samples | input_dim=270 → pca_components=50 (91.5% variance) | output_len=15 | target=rtt_mean
+
+  [GaussianProcess] (MISO) Aggregate metrics:
+    MAE           : 24.2624
+    RMSE          : 76.8600
+    MAPE_pct      : 30.3047
+    sMAPE_pct     : 28.1775
+    R2            : -0.0034
+    PICP_95       : 0.9503
+    MIS           : 324.4642
+    relative_rmse                 : 1.6859
+    relative_mae                  : 1.7878
+    resid_pearson_lag1            : 0.8234
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: AUTOENCODER [mode=MISO]
+#################################################################
+<string>:18: UserWarning: io_mode='MISO' uses only a single target. Retaining targets[0]='rtt_mean' and dropping ['jitter_ms', 'packet_loss_percent']. Pass targets=[single_col] to suppress this warning.
+
+==================== AUTOENCODER (STANDARD) (MISO) ====================
+
+  Provider    : oneweb
+  Exp type    : dl  (suffix: *_DL.csv)
+  Direction   : dl
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['rtt_mean']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=117,558  val=22,655  test=27,492
+  Input dim   : 9 feature(s)
+  input_dim  : 270  (seq_len=30, feat_dim=9)
+  output_len : 15  (primary target: rtt_mean)
+  Early stopping at epoch 53
+  Autoencoder (standard) complete in 226.92s
+
+  [Autoencoder-standard] (MISO) Aggregate metrics:
+    MAE           : 18.0632
+    RMSE          : 69.2339
+    MAPE_pct      : 20.0601
+    sMAPE_pct     : 18.9050
+    R2            : 0.1652
+    PICP_95       : 0.9499
+    MIS           : 334.3149
+    relative_rmse                 : 1.5376
+    relative_mae                  : 1.3310
+    resid_pearson_lag1            : 0.7655
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+=================================================================
+CROSS-MODEL COMPARISON
+=================================================================
+                      mode     MAE    RMSE      R2  PICP_95
+model
+Seq2Seq-GRU           MIMO  6.1218 23.7312  0.2170   0.9499
+LSTM                  MIMO  6.6857 25.6332  0.1095   0.9500
+Transformer           MIMO  6.2051 25.1728  0.1875   0.9500
+Satellite-GRU         MIMO  5.9649 23.5946  0.2234   0.9499
+Satellite-ATTENTION   MIMO  6.8704 23.7510  0.2211   0.9499
+Satellite-FNN         MIMO  8.7030 26.4644  0.1472   0.9499
+GaussianProcess       MISO 24.2624 76.8600 -0.0034   0.9503
+Autoencoder-standard  MISO 18.0632 69.2339  0.1652   0.9499
+Comparison saved to results\oneweb_llt_dl\comparison.csv
+Comparison plot  -> results\oneweb_llt_dl\comparison.png
+
+All results in: results\oneweb_llt_dl/
+  [exit 127] oneweb dl
+
+============================================================
+ PHASE 2: UPLINK (UL)
+============================================================
+
+--- starlink  latency_loss_throughput_ul ---
+
+=================================================================
+THROUGHPUT PREDICTION FRAMEWORK — TRAIN
+=================================================================
+  Provider        : starlink
+  Experiment type : latency_loss_throughput_ul
+  Data root       : data/lsn-data
+  Targets         : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Features        : 19  ['ping_server_rtt_ms', 'ping_dns_rtt_ms', 'iperf_throughput_mbps', 'iperf_jitter_ms', 'iperf_loss_pct', 'dish_pop_ping_ms', 'satellite_dtc', 'satellite_handoff', 'satellite_age_s', 'distance_km', 'elevation_deg', 'azimuth_deg', 'dish_obstruction_fraction', 'dish_snr', 'dish_boresight_azimuth_deg', 'dish_boresight_elevation_deg', 'weather_humidity', 'weather_pressure', 'weather_rain_rate']
+  Models          :
+    seq2seq                mode=MIMO
+    lstm                   mode=MIMO
+    transformer            mode=MIMO
+    satellite_gru          mode=MIMO
+    satellite_attention    mode=MIMO
+    satellite_fnn          mode=MIMO
+    gaussian_process       mode=MISO
+    autoencoder            mode=MISO
+  Out dir         : results\starlink_llt_ul
+=================================================================
+
+#################################################################
+  MODEL: SEQ2SEQ [mode=MIMO]
+#################################################################
+
+==================== SEQ2SEQ MODEL (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=106,165  val=20,090  test=25,666
+  Input dim   : 19 feature(s)
+  num_features : 19  (actual after column intersection)
+  num_targets  : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+
+Training on: cuda  |  mode: MIMO
+Checkpoint dir: results\starlink_llt_ul\seq2seq\20260529_091845
+Epoch   1/100 | train=0.5876  val=0.6629  smooth=0.6629  lr=1.00e-03  [11.9s] <- best (0.6629)
+Epoch   2/100 | train=0.5063  val=0.6420  smooth=0.6566  lr=1.00e-03  [12.0s] <- best (0.6566)
+Epoch   3/100 | train=0.5020  val=0.6870  smooth=0.6657  lr=1.00e-03  [12.0s] (no improve 1/40)
+Epoch   4/100 | train=0.4924  val=0.6468  smooth=0.6601  lr=1.00e-03  [12.2s] (no improve 2/40)
+Epoch   5/100 | train=0.4818  val=0.6437  smooth=0.6551  lr=1.00e-03  [12.2s] <- best (0.6551)
+Epoch   6/100 | train=0.4682  val=0.6514  smooth=0.6540  lr=1.00e-03  [12.4s] <- best (0.6540)
+Epoch   7/100 | train=0.4791  val=0.6456  smooth=0.6515  lr=1.00e-03  [12.7s] <- best (0.6515)
+Epoch   8/100 | train=0.4478  val=0.6382  smooth=0.6475  lr=1.00e-03  [12.0s] <- best (0.6475)
+Epoch   9/100 | train=0.4479  val=0.6417  smooth=0.6457  lr=1.00e-03  [11.8s] <- best (0.6457)
+Epoch  10/100 | train=0.4408  val=0.6445  smooth=0.6454  lr=1.00e-03  [12.2s] <- best (0.6454)
+Epoch  11/100 | train=0.4358  val=0.6389  smooth=0.6434  lr=1.00e-03  [12.0s] <- best (0.6434)
+Epoch  12/100 | train=0.4317  val=0.6478  smooth=0.6447  lr=1.00e-03  [11.9s] (no improve 1/40)
+Epoch  13/100 | train=0.4315  val=0.6481  smooth=0.6457  lr=1.00e-03  [12.1s] (no improve 2/40)
+Epoch  14/100 | train=0.4323  val=0.6603  smooth=0.6501  lr=1.00e-03  [13.6s] (no improve 3/40)
+Epoch  15/100 | train=0.4236  val=0.6648  smooth=0.6545  lr=1.00e-03  [12.0s] (no improve 4/40)
+Epoch  16/100 | train=0.4102  val=0.6504  smooth=0.6533  lr=1.00e-03  [11.9s] (no improve 5/40)
+Epoch  17/100 | train=0.4015  val=0.6522  smooth=0.6530  lr=1.00e-03  [13.1s] (no improve 6/40)
+Epoch  18/100 | train=0.3946  val=0.6816  smooth=0.6615  lr=1.00e-03  [13.5s] (no improve 7/40)
+Epoch  19/100 | train=0.3899  val=0.7031  smooth=0.6740  lr=1.00e-03  [12.2s] (no improve 8/40)
+Epoch  20/100 | train=0.3955  val=0.6884  smooth=0.6783  lr=5.00e-04  [11.9s] (no improve 9/40)
+Epoch  21/100 | train=0.3678  val=0.6669  smooth=0.6749  lr=5.00e-04  [12.2s] (no improve 10/40)
+Epoch  22/100 | train=0.3430  val=0.6972  smooth=0.6816  lr=5.00e-04  [12.2s] (no improve 11/40)
+Epoch  23/100 | train=0.3334  val=0.6699  smooth=0.6781  lr=5.00e-04  [12.0s] (no improve 12/40)
+Epoch  24/100 | train=0.3597  val=0.6736  smooth=0.6767  lr=5.00e-04  [12.2s] (no improve 13/40)
+Epoch  25/100 | train=0.3437  val=0.6640  smooth=0.6729  lr=5.00e-04  [12.2s] (no improve 14/40)
+Epoch  26/100 | train=0.3486  val=0.6766  smooth=0.6740  lr=5.00e-04  [12.2s] (no improve 15/40)
+Epoch  27/100 | train=0.3320  val=0.7027  smooth=0.6826  lr=5.00e-04  [12.1s] (no improve 16/40)
+Epoch  28/100 | train=0.3198  val=0.8051  smooth=0.7193  lr=5.00e-04  [12.2s] (no improve 17/40)
+Epoch  29/100 | train=0.3351  val=0.7063  smooth=0.7154  lr=2.50e-04  [11.8s] (no improve 18/40)
+Epoch  30/100 | train=0.3071  val=0.6795  smooth=0.7047  lr=2.50e-04  [12.0s] (no improve 19/40)
+Epoch  31/100 | train=0.3015  val=0.7351  smooth=0.7138  lr=2.50e-04  [12.1s] (no improve 20/40)
+Epoch  32/100 | train=0.3002  val=0.7382  smooth=0.7211  lr=2.50e-04  [11.9s] (no improve 21/40)
+Epoch  33/100 | train=0.2904  val=0.7122  smooth=0.7184  lr=2.50e-04  [11.8s] (no improve 22/40)
+Epoch  34/100 | train=0.2922  val=0.7431  smooth=0.7258  lr=2.50e-04  [11.1s] (no improve 23/40)
+Epoch  35/100 | train=0.2953  val=0.7372  smooth=0.7292  lr=2.50e-04  [11.5s] (no improve 24/40)
+Epoch  36/100 | train=0.2897  val=0.7408  smooth=0.7327  lr=2.50e-04  [11.9s] (no improve 25/40)
+Epoch  37/100 | train=0.2920  val=0.6817  smooth=0.7174  lr=2.50e-04  [11.1s] (no improve 26/40)
+Epoch  38/100 | train=0.3030  val=0.7325  smooth=0.7220  lr=1.25e-04  [10.9s] (no improve 27/40)
+Epoch  39/100 | train=0.2896  val=0.7520  smooth=0.7310  lr=1.25e-04  [10.8s] (no improve 28/40)
+Epoch  40/100 | train=0.2841  val=0.7220  smooth=0.7283  lr=1.25e-04  [11.2s] (no improve 29/40)
+Epoch  41/100 | train=0.2830  val=0.7451  smooth=0.7333  lr=1.25e-04  [11.8s] (no improve 30/40)
+Epoch  42/100 | train=0.2831  val=0.7311  smooth=0.7326  lr=1.25e-04  [11.9s] (no improve 31/40)
+Epoch  43/100 | train=0.2861  val=0.7268  smooth=0.7309  lr=1.25e-04  [12.1s] (no improve 32/40)
+Epoch  44/100 | train=0.2849  val=0.7458  smooth=0.7354  lr=1.25e-04  [12.3s] (no improve 33/40)
+Epoch  45/100 | train=0.2841  val=0.7469  smooth=0.7388  lr=1.25e-04  [12.1s] (no improve 34/40)
+Epoch  46/100 | train=0.2825  val=0.7436  smooth=0.7403  lr=1.25e-04  [12.4s] (no improve 35/40)
+Epoch  47/100 | train=0.2832  val=0.7570  smooth=0.7453  lr=6.25e-05  [12.4s] (no improve 36/40)
+Epoch  48/100 | train=0.2851  val=0.7377  smooth=0.7430  lr=6.25e-05  [12.0s] (no improve 37/40)
+Epoch  49/100 | train=0.2841  val=0.7389  smooth=0.7418  lr=6.25e-05  [12.4s] (no improve 38/40)
+Epoch  50/100 | train=0.2842  val=0.7409  smooth=0.7415  lr=6.25e-05  [12.4s] (no improve 39/40)
+Epoch  51/100 | train=0.2840  val=0.7528  smooth=0.7449  lr=6.25e-05  [12.0s] (no improve 40/40)
+
+Early stopping after 51 epochs.
+
+Best val (smooth): 0.6434  ->  results\starlink_llt_ul\seq2seq\20260529_091845\best_model.pt
+Test MSE (MIMO): 0.8251
+
+  [Seq2Seq-GRU] (MIMO) Aggregate metrics:
+    MAE           : 1.4770
+    RMSE          : 3.1832
+    MAPE_pct      : 34.9419
+    sMAPE_pct     : 66.3712
+    R2            : 0.1990
+    PICP_95       : 0.9500
+    MIS           : 15.2605
+    relative_rmse                 : 0.8214
+    relative_mae                  : 0.8846
+    resid_pearson_lag1            : 0.2486
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: LSTM [mode=MIMO]
+#################################################################
+
+==================== LSTM MODEL (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=106,165  val=20,090  test=25,666
+  Input dim   : 19 feature(s)
+  input_size  : 23  (features=19 + time_enc=4)
+  num_targets : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  seq_len     : 30
+  output_len  : 15   (forecast horizon)
+  Epoch  10 | train 0.431175 | val 0.826866
+  Epoch  20 | train 0.362652 | val 0.886357
+  Epoch  30 | train 0.332132 | val 0.928026
+  Epoch  40 | train 0.325329 | val 0.934486
+  Early stopping at epoch 42
+  LSTM training complete in 248.86s
+
+  [LSTM] (MIMO) Aggregate metrics:
+    MAE           : 1.5383
+    RMSE          : 3.3559
+    MAPE_pct      : 36.0329
+    sMAPE_pct     : 66.1163
+    R2            : 0.0916
+    PICP_95       : 0.9500
+    MIS           : 17.0331
+    relative_rmse                 : 0.8483
+    relative_mae                  : 0.9102
+    resid_pearson_lag1            : 0.3026
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: TRANSFORMER [mode=MIMO]
+#################################################################
+
+==================== TRANSFORMER MODEL (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=106,165  val=20,090  test=25,666
+  Input dim   : 19 feature(s)
+  input_dim   : 23  (features=19 + time_enc=4)
+  num_targets : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len  : 15  (MIMO horizon)
+  seq_len     : 30
+  Epoch  10 | train 0.627375 | val 0.853097
+  Epoch  20 | train 0.559153 | val 0.861328
+  Epoch  30 | train 0.497741 | val 0.853461
+  Epoch  40 | train 0.468188 | val 0.855144
+  Epoch  50 | train 0.456939 | val 0.856568
+  Timeout after 51 epochs
+  Transformer training complete in 564.39s
+
+  [Transformer] (MIMO) Aggregate metrics:
+    MAE           : 1.5013
+    RMSE          : 3.2654
+    MAPE_pct      : 36.3070
+    sMAPE_pct     : 68.9734
+    R2            : 0.1663
+    PICP_95       : 0.9500
+    MIS           : 15.7932
+    relative_rmse                 : 0.8304
+    relative_mae                  : 0.8883
+    resid_pearson_lag1            : 0.2753
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_GRU [mode=MIMO]
+#################################################################
+
+==================== Satellite-GRU (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=106,165  val=20,090  test=25,666
+  Input dim   : 19 feature(s)
+  feature_size : 19
+  num_targets  : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 21
+  Satellite-GRU complete in 204.8s
+
+  [Satellite-GRU] (MIMO) Aggregate metrics:
+    MAE           : 1.4847
+    RMSE          : 3.2424
+    MAPE_pct      : 42.3161
+    sMAPE_pct     : 65.3455
+    R2            : 0.1531
+    PICP_95       : 0.9500
+    MIS           : 15.9327
+    relative_rmse                 : 0.8255
+    relative_mae                  : 0.8892
+    resid_pearson_lag1            : 0.2539
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_ATTENTION [mode=MIMO]
+#################################################################
+
+==================== Satellite-ATTENTION (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=106,165  val=20,090  test=25,666
+  Input dim   : 19 feature(s)
+  feature_size : 19
+  num_targets  : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 24
+  Satellite-ATTENTION complete in 411.1s
+
+  [Satellite-ATTENTION] (MIMO) Aggregate metrics:
+    MAE           : 1.4967
+    RMSE          : 3.2969
+    MAPE_pct      : 41.1930
+    sMAPE_pct     : 66.5420
+    R2            : 0.0814
+    PICP_95       : 0.9500
+    MIS           : 16.4551
+    relative_rmse                 : 0.8310
+    relative_mae                  : 0.8964
+    resid_pearson_lag1            : 0.2584
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_FNN [mode=MIMO]
+#################################################################
+
+==================== Satellite-FNN (MIMO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=106,165  val=20,090  test=25,666
+  Input dim   : 19 feature(s)
+  feature_size : 19
+  num_targets  : 3  -> ['ping_server_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 31
+  Satellite-FNN complete in 61.2s
+
+  [Satellite-FNN] (MIMO) Aggregate metrics:
+    MAE           : 1.5099
+    RMSE          : 3.2748
+    MAPE_pct      : 34.3922
+    sMAPE_pct     : 65.7640
+    R2            : 0.1221
+    PICP_95       : 0.9500
+    MIS           : 15.5474
+    relative_rmse                 : 0.8329
+    relative_mae                  : 0.9042
+    resid_pearson_lag1            : 0.2749
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: GAUSSIAN_PROCESS [mode=MISO]
+#################################################################
+<string>:18: UserWarning: io_mode='MISO' uses only a single target. Retaining targets[0]='ping_server_rtt_ms' and dropping ['iperf_jitter_ms', 'iperf_loss_pct']. Pass targets=[single_col] to suppress this warning.
+
+==================== GAUSSIAN PROCESS MODEL (MISO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['ping_server_rtt_ms']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=106,165  val=20,090  test=25,666
+  Input dim   : 19 feature(s)
+  GP (MISO): 1000 train / 25666 test samples | input_dim=570 → pca_components=50 (86.9% variance) | output_len=15 | target=ping_server_rtt_ms
+C:\Users\egoss\modeling_and_data_collection\venv\Lib\site-packages\sklearn\gaussian_process\kernels.py:440: ConvergenceWarning: The optimal value found for dimension 0 of parameter k2__length_scale is close to the specified lower bound 1e-05. Decreasing the bound and calling fit again may find a better value.
+  warnings.warn(
+
+  [GaussianProcess] (MISO) Aggregate metrics:
+    MAE           : 5.1859
+    RMSE          : 8.2836
+    MAPE_pct      : 13.1884
+    sMAPE_pct     : 13.0825
+    R2            : 0.1096
+    PICP_95       : 0.9504
+    MIS           : 42.3234
+    relative_rmse                 : 0.9272
+    relative_mae                  : 1.0600
+    resid_pearson_lag1            : 0.4121
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: AUTOENCODER [mode=MISO]
+#################################################################
+<string>:18: UserWarning: io_mode='MISO' uses only a single target. Retaining targets[0]='ping_server_rtt_ms' and dropping ['iperf_jitter_ms', 'iperf_loss_pct']. Pass targets=[single_col] to suppress this warning.
+
+==================== AUTOENCODER (STANDARD) (MISO) ====================
+
+  Provider    : starlink
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['ping_server_rtt_ms']
+  Root        : data/lsn-data
+  Found       : 53 file(s)
+  Usable      : 53 file(s)
+  Split       : train=37  val=7  test=9
+  Windows     : train=106,165  val=20,090  test=25,666
+  Input dim   : 19 feature(s)
+  input_dim  : 570  (seq_len=30, feat_dim=19)
+  output_len : 15  (primary target: ping_server_rtt_ms)
+  Early stopping at epoch 48
+  Autoencoder (standard) complete in 269.05s
+
+  [Autoencoder-standard] (MISO) Aggregate metrics:
+    MAE           : 3.9627
+    RMSE          : 7.1942
+    MAPE_pct      : 9.7874
+    sMAPE_pct     : 9.8029
+    R2            : 0.3290
+    PICP_95       : 0.9500
+    MIS           : 38.6407
+    relative_rmse                 : 0.8049
+    relative_mae                  : 0.8099
+    resid_pearson_lag1            : 0.2078
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+=================================================================
+CROSS-MODEL COMPARISON
+=================================================================
+                      mode    MAE   RMSE     R2  PICP_95
+model
+Seq2Seq-GRU           MIMO 1.4770 3.1832 0.1990   0.9500
+LSTM                  MIMO 1.5383 3.3559 0.0916   0.9500
+Transformer           MIMO 1.5013 3.2654 0.1663   0.9500
+Satellite-GRU         MIMO 1.4847 3.2424 0.1531   0.9500
+Satellite-ATTENTION   MIMO 1.4967 3.2969 0.0814   0.9500
+Satellite-FNN         MIMO 1.5099 3.2748 0.1221   0.9500
+GaussianProcess       MISO 5.1859 8.2836 0.1096   0.9504
+Autoencoder-standard  MISO 3.9627 7.1942 0.3290   0.9500
+Comparison saved to results\starlink_llt_ul\comparison.csv
+Comparison plot  -> results\starlink_llt_ul\comparison.png
+
+All results in: results\starlink_llt_ul/
+  [exit 127] starlink latency_loss_throughput_ul
+
+--- quectel  latency_loss_throughput_ul ---
+
+=================================================================
+THROUGHPUT PREDICTION FRAMEWORK — TRAIN
+=================================================================
+  Provider        : quectel
+  Experiment type : latency_loss_throughput_ul
+  Data root       : data/lsn-data
+  Targets         : ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Features        : 10  ['iperf_throughput_mbps', 'iperf_jitter_ms', 'iperf_loss_pct', 'ping_rtt_ms', 'rsrp', 'rsrq', 'sinr', 'weather_humidity', 'weather_pressure', 'weather_rain_rate']
+  Models          :
+    seq2seq                mode=MIMO
+    lstm                   mode=MIMO
+    transformer            mode=MIMO
+    satellite_gru          mode=MIMO
+    satellite_attention    mode=MIMO
+    satellite_fnn          mode=MIMO
+    gaussian_process       mode=MISO
+    autoencoder            mode=MISO
+  Out dir         : results\quectel_llt_ul
+=================================================================
+
+#################################################################
+  MODEL: SEQ2SEQ [mode=MIMO]
+#################################################################
+
+==================== SEQ2SEQ MODEL (MIMO) ====================
+
+  Provider    : quectel
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 379 file(s)
+  Usable      : 379 file(s)
+  Split       : train=265  val=56  test=58
+  Windows     : train=774,006  val=162,894  test=168,519
+  Input dim   : 10 feature(s)
+  num_features : 10  (actual after column intersection)
+  num_targets  : 3  -> ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+
+Training on: cuda  |  mode: MIMO
+Checkpoint dir: results\quectel_llt_ul\seq2seq\20260529_100113
+Epoch   1/100 | train=0.6232  val=0.9601  smooth=0.9601  lr=1.00e-03  [83.8s] <- best (0.9601)
+Epoch   2/100 | train=0.5892  val=0.9561  smooth=0.9589  lr=1.00e-03  [87.5s] <- best (0.9589)
+Epoch   3/100 | train=0.5805  val=0.9518  smooth=0.9568  lr=1.00e-03  [87.2s] <- best (0.9568)
+Epoch   4/100 | train=0.5807  val=0.9521  smooth=0.9554  lr=1.00e-03  [82.2s] <- best (0.9554)
+Epoch   5/100 | train=0.5810  val=0.9517  smooth=0.9543  lr=1.00e-03  [90.4s] <- best (0.9543)
+Epoch   6/100 | train=0.5811  val=0.9546  smooth=0.9544  lr=1.00e-03  [87.0s] (no improve 1/40)
+Epoch   7/100 | train=0.5792  val=0.9526  smooth=0.9538  lr=1.00e-03  [86.4s] <- best (0.9538)
+Epoch   8/100 | train=0.5818  val=0.9563  smooth=0.9546  lr=1.00e-03  [89.3s] (no improve 1/40)
+Epoch   9/100 | train=0.5804  val=0.9541  smooth=0.9544  lr=1.00e-03  [87.0s] (no improve 2/40)
+Epoch  10/100 | train=0.5801  val=0.9563  smooth=0.9550  lr=1.00e-03  [84.8s] (no improve 3/40)
+Epoch  11/100 | train=0.5807  val=0.9565  smooth=0.9554  lr=1.00e-03  [88.1s] (no improve 4/40)
+Epoch  12/100 | train=0.5832  val=0.9581  smooth=0.9562  lr=1.00e-03  [85.7s] (no improve 5/40)
+Epoch  13/100 | train=0.5830  val=0.9583  smooth=0.9569  lr=1.00e-03  [87.8s] (no improve 6/40)
+Epoch  14/100 | train=0.5794  val=0.9641  smooth=0.9590  lr=1.00e-03  [88.0s] (no improve 7/40)
+Epoch  15/100 | train=0.5838  val=0.9635  smooth=0.9604  lr=1.00e-03  [82.2s] (no improve 8/40)
+Epoch  16/100 | train=0.5851  val=0.9651  smooth=0.9618  lr=5.00e-04  [88.4s] (no improve 9/40)
+Epoch  17/100 | train=0.5765  val=0.9660  smooth=0.9630  lr=5.00e-04  [87.4s] (no improve 10/40)
+Epoch  18/100 | train=0.5762  val=0.9662  smooth=0.9640  lr=5.00e-04  [84.9s] (no improve 11/40)
+Epoch  19/100 | train=0.5772  val=0.9674  smooth=0.9650  lr=5.00e-04  [90.1s] (no improve 12/40)
+Epoch  20/100 | train=0.5753  val=0.9710  smooth=0.9668  lr=5.00e-04  [85.5s] (no improve 13/40)
+Epoch  21/100 | train=0.5782  val=0.9713  smooth=0.9682  lr=5.00e-04  [84.5s] (no improve 14/40)
+Epoch  22/100 | train=0.5738  val=0.9755  smooth=0.9704  lr=5.00e-04  [88.8s] (no improve 15/40)
+Epoch  23/100 | train=0.5796  val=0.9804  smooth=0.9734  lr=5.00e-04  [85.3s] (no improve 16/40)
+Epoch  24/100 | train=0.5819  val=0.9859  smooth=0.9771  lr=5.00e-04  [88.2s] (no improve 17/40)
+Epoch  25/100 | train=0.5790  val=0.9738  smooth=0.9762  lr=2.50e-04  [87.8s] (no improve 18/40)
+Epoch  26/100 | train=0.5761  val=0.9849  smooth=0.9788  lr=2.50e-04  [82.8s] (no improve 19/40)
+Epoch  27/100 | train=0.5790  val=0.9772  smooth=0.9783  lr=2.50e-04  [87.0s] (no improve 20/40)
+Epoch  28/100 | train=0.5794  val=0.9882  smooth=0.9813  lr=2.50e-04  [87.1s] (no improve 21/40)
+Epoch  29/100 | train=0.5796  val=0.9832  smooth=0.9819  lr=2.50e-04  [85.7s] (no improve 22/40)
+Epoch  30/100 | train=0.5859  val=0.9845  smooth=0.9827  lr=2.50e-04  [88.8s] (no improve 23/40)
+Epoch  31/100 | train=0.5849  val=0.9847  smooth=0.9833  lr=2.50e-04  [86.5s] (no improve 24/40)
+Epoch  32/100 | train=0.5900  val=0.9872  smooth=0.9845  lr=2.50e-04  [84.4s] (no improve 25/40)
+Epoch  33/100 | train=0.5890  val=0.9969  smooth=0.9882  lr=2.50e-04  [88.7s] (no improve 26/40)
+Epoch  34/100 | train=0.5923  val=0.9884  smooth=0.9882  lr=1.25e-04  [85.4s] (no improve 27/40)
+Epoch  35/100 | train=0.5902  val=0.9936  smooth=0.9898  lr=1.25e-04  [88.6s] (no improve 28/40)
+Epoch  36/100 | train=0.5955  val=0.9908  smooth=0.9901  lr=1.25e-04  [88.9s] (no improve 29/40)
+Epoch  37/100 | train=0.5987  val=0.9925  smooth=0.9908  lr=1.25e-04  [84.2s] (no improve 30/40)
+Epoch  38/100 | train=0.6023  val=0.9886  smooth=0.9901  lr=1.25e-04  [88.3s] (no improve 31/40)
+Epoch  39/100 | train=0.6047  val=0.9943  smooth=0.9914  lr=1.25e-04  [87.1s] (no improve 32/40)
+Epoch  40/100 | train=0.6085  val=0.9952  smooth=0.9925  lr=1.25e-04  [85.5s] (no improve 33/40)
+Epoch  41/100 | train=0.6107  val=0.9963  smooth=0.9937  lr=1.25e-04  [88.6s] (no improve 34/40)
+Epoch  42/100 | train=0.6148  val=0.9962  smooth=0.9944  lr=1.25e-04  [85.8s] (no improve 35/40)
+Epoch  43/100 | train=0.6203  val=0.9914  smooth=0.9935  lr=6.25e-05  [84.4s] (no improve 36/40)
+Epoch  44/100 | train=0.6215  val=0.9895  smooth=0.9923  lr=6.25e-05  [88.5s] (no improve 37/40)
+Epoch  45/100 | train=0.6270  val=0.9905  smooth=0.9917  lr=6.25e-05  [86.1s] (no improve 38/40)
+Epoch  46/100 | train=0.6323  val=0.9919  smooth=0.9918  lr=6.25e-05  [88.2s] (no improve 39/40)
+Epoch  47/100 | train=0.6346  val=0.9964  smooth=0.9932  lr=6.25e-05  [88.9s] (no improve 40/40)
+
+Early stopping after 47 epochs.
+
+Best val (smooth): 0.9538  ->  results\quectel_llt_ul\seq2seq\20260529_100113\best_model.pt
+Test MSE (MIMO): 1.1223
+
+  [Seq2Seq-GRU] (MIMO) Aggregate metrics:
+    MAE           : 4.3961
+    RMSE          : 7.9079
+    MAPE_pct      : 61.4475
+    sMAPE_pct     : 90.5472
+    R2            : 0.1139
+    PICP_95       : 0.9500
+    MIS           : 39.3530
+    relative_rmse                 : 0.7167
+    relative_mae                  : 0.8077
+    resid_pearson_lag1            : 0.0255
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: LSTM [mode=MIMO]
+#################################################################
+
+==================== LSTM MODEL (MIMO) ====================
+
+  Provider    : quectel
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 379 file(s)
+  Usable      : 379 file(s)
+  Split       : train=265  val=56  test=58
+  Windows     : train=774,006  val=162,894  test=168,519
+  Input dim   : 10 feature(s)
+  input_size  : 14  (features=10 + time_enc=4)
+  num_targets : 3  -> ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  seq_len     : 30
+  output_len  : 15   (forecast horizon)
+  Epoch  10 | train 0.833808 | val 1.153045
+  Epoch  20 | train 0.725796 | val 1.216416
+  Epoch  30 | train 0.679954 | val 1.242048
+  Epoch  40 | train 0.663201 | val 1.263926
+  Early stopping at epoch 43
+  LSTM training complete in 1315.26s
+
+  [LSTM] (MIMO) Aggregate metrics:
+    MAE           : 4.4569
+    RMSE          : 8.0865
+    MAPE_pct      : 63.2092
+    sMAPE_pct     : 91.1709
+    R2            : 0.0152
+    PICP_95       : 0.9500
+    MIS           : 42.0933
+    relative_rmse                 : 0.7206
+    relative_mae                  : 0.8150
+    resid_pearson_lag1            : 0.0371
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: TRANSFORMER [mode=MIMO]
+#################################################################
+
+==================== TRANSFORMER MODEL (MIMO) ====================
+
+  Provider    : quectel
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 379 file(s)
+  Usable      : 379 file(s)
+  Split       : train=265  val=56  test=58
+  Windows     : train=774,006  val=162,894  test=168,519
+  Input dim   : 10 feature(s)
+  input_dim   : 14  (features=10 + time_enc=4)
+  num_targets : 3  -> ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len  : 15  (MIMO horizon)
+  seq_len     : 30
+  Epoch  10 | train 0.886104 | val 1.140254
+  Timeout after 10 epochs
+  Transformer training complete in 601.83s
+
+  [Transformer] (MIMO) Aggregate metrics:
+    MAE           : 4.4514
+    RMSE          : 7.9464
+    MAPE_pct      : 62.5658
+    sMAPE_pct     : 91.6068
+    R2            : 0.1006
+    PICP_95       : 0.9500
+    MIS           : 39.5221
+    relative_rmse                 : 0.7166
+    relative_mae                  : 0.8140
+    resid_pearson_lag1            : 0.0269
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_GRU [mode=MIMO]
+#################################################################
+
+==================== Satellite-GRU (MIMO) ====================
+
+  Provider    : quectel
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 379 file(s)
+  Usable      : 379 file(s)
+  Split       : train=265  val=56  test=58
+  Windows     : train=774,006  val=162,894  test=168,519
+  Input dim   : 10 feature(s)
+  feature_size : 10
+  num_targets  : 3  -> ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 21
+  Satellite-GRU complete in 1464.7s
+
+  [Satellite-GRU] (MIMO) Aggregate metrics:
+    MAE           : 4.4412
+    RMSE          : 7.9054
+    MAPE_pct      : 62.1175
+    sMAPE_pct     : 91.5641
+    R2            : 0.1154
+    PICP_95       : 0.9500
+    MIS           : 39.4993
+    relative_rmse                 : 0.7167
+    relative_mae                  : 0.8159
+    resid_pearson_lag1            : 0.0250
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_ATTENTION [mode=MIMO]
+#################################################################
+
+==================== Satellite-ATTENTION (MIMO) ====================
+
+  Provider    : quectel
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 379 file(s)
+  Usable      : 379 file(s)
+  Split       : train=265  val=56  test=58
+  Windows     : train=774,006  val=162,894  test=168,519
+  Input dim   : 10 feature(s)
+  feature_size : 10
+  num_targets  : 3  -> ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 18
+  Satellite-ATTENTION complete in 2236.6s
+
+  [Satellite-ATTENTION] (MIMO) Aggregate metrics:
+    MAE           : 4.4623
+    RMSE          : 7.9047
+    MAPE_pct      : 61.3620
+    sMAPE_pct     : 91.1460
+    R2            : 0.1177
+    PICP_95       : 0.9500
+    MIS           : 39.2666
+    relative_rmse                 : 0.7172
+    relative_mae                  : 0.8198
+    resid_pearson_lag1            : 0.0268
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_FNN [mode=MIMO]
+#################################################################
+
+==================== Satellite-FNN (MIMO) ====================
+
+  Provider    : quectel
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  Root        : data/lsn-data
+  Found       : 379 file(s)
+  Usable      : 379 file(s)
+  Split       : train=265  val=56  test=58
+  Windows     : train=774,006  val=162,894  test=168,519
+  Input dim   : 10 feature(s)
+  feature_size : 10
+  num_targets  : 3  -> ['ping_rtt_ms', 'iperf_jitter_ms', 'iperf_loss_pct']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 92
+  Satellite-FNN complete in 2546.1s
+
+  [Satellite-FNN] (MIMO) Aggregate metrics:
+    MAE           : 4.5978
+    RMSE          : 8.8759
+    MAPE_pct      : 67.2992
+    sMAPE_pct     : 92.5920
+    R2            : -1.0673
+    PICP_95       : 0.9500
+    MIS           : 41.1798
+    relative_rmse                 : 0.7589
+    relative_mae                  : 0.8447
+    resid_pearson_lag1            : 0.1193
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: GAUSSIAN_PROCESS [mode=MISO]
+#################################################################
+<string>:18: UserWarning: io_mode='MISO' uses only a single target. Retaining targets[0]='ping_rtt_ms' and dropping ['iperf_jitter_ms', 'iperf_loss_pct']. Pass targets=[single_col] to suppress this warning.
+
+==================== GAUSSIAN PROCESS MODEL (MISO) ====================
+
+  Provider    : quectel
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['ping_rtt_ms']
+  Root        : data/lsn-data
+  Found       : 379 file(s)
+  Usable      : 379 file(s)
+  Split       : train=265  val=56  test=58
+  Windows     : train=774,006  val=162,894  test=168,519
+  Input dim   : 10 feature(s)
+  GP (MISO): 1000 train / 168519 test samples | input_dim=300 → pca_components=50 (96.5% variance) | output_len=15 | target=ping_rtt_ms
+
+  [GaussianProcess] (MISO) Aggregate metrics:
+    MAE           : 12.3369
+    RMSE          : 20.1039
+    MAPE_pct      : 85.2940
+    sMAPE_pct     : 62.2945
+    R2            : -0.0044
+    PICP_95       : 0.9501
+    MIS           : 96.4821
+    relative_rmse                 : 0.7180
+    relative_mae                  : 0.7683
+    resid_pearson_lag1            : 0.0241
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: AUTOENCODER [mode=MISO]
+#################################################################
+<string>:18: UserWarning: io_mode='MISO' uses only a single target. Retaining targets[0]='ping_rtt_ms' and dropping ['iperf_jitter_ms', 'iperf_loss_pct']. Pass targets=[single_col] to suppress this warning.
+
+==================== AUTOENCODER (STANDARD) (MISO) ====================
+
+  Provider    : quectel
+  Exp type    : latency_loss_throughput_ul  (suffix: *_latency_loss_throughput_ul.csv)
+  Direction   : ul
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['ping_rtt_ms']
+  Root        : data/lsn-data
+  Found       : 379 file(s)
+  Usable      : 379 file(s)
+  Split       : train=265  val=56  test=58
+  Windows     : train=774,006  val=162,894  test=168,519
+  Input dim   : 10 feature(s)
+  input_dim  : 300  (seq_len=30, feat_dim=10)
+  output_len : 15  (primary target: ping_rtt_ms)
+  Early stopping at epoch 86
+  Autoencoder (standard) complete in 4390.06s
+
+  [Autoencoder-standard] (MISO) Aggregate metrics:
+    MAE           : 12.7716
+    RMSE          : 53.6477
+    MAPE_pct      : 91.4285
+    sMAPE_pct     : 61.6968
+    R2            : -6.1889
+    PICP_95       : 0.9500
+    MIS           : 114.8703
+    relative_rmse                 : 1.9209
+    relative_mae                  : 0.7954
+    resid_pearson_lag1            : 0.8317
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+=================================================================
+CROSS-MODEL COMPARISON
+=================================================================
+                      mode     MAE    RMSE      R2  PICP_95
+model
+Seq2Seq-GRU           MIMO  4.3961  7.9079  0.1139   0.9500
+LSTM                  MIMO  4.4569  8.0865  0.0152   0.9500
+Transformer           MIMO  4.4514  7.9464  0.1006   0.9500
+Satellite-GRU         MIMO  4.4412  7.9054  0.1154   0.9500
+Satellite-ATTENTION   MIMO  4.4623  7.9047  0.1177   0.9500
+Satellite-FNN         MIMO  4.5978  8.8759 -1.0673   0.9500
+GaussianProcess       MISO 12.3369 20.1039 -0.0044   0.9501
+Autoencoder-standard  MISO 12.7716 53.6477 -6.1889   0.9500
+Comparison saved to results\quectel_llt_ul\comparison.csv
+Comparison plot  -> results\quectel_llt_ul\comparison.png
+
+All results in: results\quectel_llt_ul/
+  [exit 127] quectel latency_loss_throughput_ul
+
+--- oneweb  ul ---
+
+=================================================================
+THROUGHPUT PREDICTION FRAMEWORK — TRAIN
+=================================================================
+  Provider        : oneweb
+  Experiment type : ul
+  Data root       : data/lsn-data
+  Targets         : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Features        : 9  ['throughput_mbps', 'packet_loss_percent', 'jitter_ms', 'rtt_mean', 'sinr_db', 'elevation_deg', 'azimuth_deg', 'satellite_change', 'time_since_handover']
+  Models          :
+    seq2seq                mode=MIMO
+    lstm                   mode=MIMO
+    transformer            mode=MIMO
+    satellite_gru          mode=MIMO
+    satellite_attention    mode=MIMO
+    satellite_fnn          mode=MIMO
+    gaussian_process       mode=MISO
+    autoencoder            mode=MISO
+  Out dir         : results\oneweb_llt_ul
+=================================================================
+
+#################################################################
+  MODEL: SEQ2SEQ [mode=MIMO]
+#################################################################
+
+==================== SEQ2SEQ MODEL (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : ul  (suffix: *_UL.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=115,847  val=22,751  test=28,125
+  Input dim   : 9 feature(s)
+  num_features : 9  (actual after column intersection)
+  num_targets  : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len   : 15
+
+Training on: cuda  |  mode: MIMO
+Checkpoint dir: results\oneweb_llt_ul\seq2seq\20260529_145438
+Epoch   1/100 | train=0.0559  val=0.1774  smooth=0.1774  lr=1.00e-03  [13.0s] <- best (0.1774)
+Epoch   2/100 | train=0.0395  val=0.1628  smooth=0.1730  lr=1.00e-03  [12.9s] <- best (0.1730)
+Epoch   3/100 | train=0.0388  val=0.1494  smooth=0.1659  lr=1.00e-03  [13.1s] <- best (0.1659)
+Epoch   4/100 | train=0.0377  val=0.1335  smooth=0.1562  lr=1.00e-03  [13.4s] <- best (0.1562)
+Epoch   5/100 | train=0.0371  val=0.1461  smooth=0.1532  lr=1.00e-03  [13.5s] <- best (0.1532)
+Epoch   6/100 | train=0.0363  val=0.1508  smooth=0.1524  lr=1.00e-03  [13.6s] <- best (0.1524)
+Epoch   7/100 | train=0.0356  val=0.1326  smooth=0.1465  lr=1.00e-03  [13.2s] <- best (0.1465)
+Epoch   8/100 | train=0.0359  val=0.1366  smooth=0.1435  lr=1.00e-03  [13.1s] <- best (0.1435)
+Epoch   9/100 | train=0.0355  val=0.1364  smooth=0.1414  lr=1.00e-03  [13.3s] <- best (0.1414)
+Epoch  10/100 | train=0.0344  val=0.1321  smooth=0.1386  lr=1.00e-03  [13.5s] <- best (0.1386)
+Epoch  11/100 | train=0.0339  val=0.1244  smooth=0.1343  lr=1.00e-03  [13.2s] <- best (0.1343)
+Epoch  12/100 | train=0.0340  val=0.1316  smooth=0.1335  lr=1.00e-03  [13.0s] <- best (0.1335)
+Epoch  13/100 | train=0.0354  val=0.1299  smooth=0.1324  lr=1.00e-03  [13.4s] <- best (0.1324)
+Epoch  14/100 | train=0.0352  val=0.1440  smooth=0.1359  lr=1.00e-03  [12.4s] (no improve 1/40)
+Epoch  15/100 | train=0.0338  val=0.1558  smooth=0.1419  lr=1.00e-03  [12.9s] (no improve 2/40)
+Epoch  16/100 | train=0.0337  val=0.1358  smooth=0.1400  lr=1.00e-03  [13.3s] (no improve 3/40)
+Epoch  17/100 | train=0.0328  val=0.1676  smooth=0.1483  lr=1.00e-03  [12.8s] (no improve 4/40)
+Epoch  18/100 | train=0.0346  val=0.1674  smooth=0.1540  lr=1.00e-03  [12.6s] (no improve 5/40)
+Epoch  19/100 | train=0.0328  val=0.1855  smooth=0.1635  lr=1.00e-03  [12.7s] (no improve 6/40)
+Epoch  20/100 | train=0.0328  val=0.1957  smooth=0.1731  lr=1.00e-03  [13.1s] (no improve 7/40)
+Epoch  21/100 | train=0.0321  val=0.1887  smooth=0.1778  lr=1.00e-03  [13.1s] (no improve 8/40)
+Epoch  22/100 | train=0.0318  val=0.2135  smooth=0.1885  lr=5.00e-04  [13.3s] (no improve 9/40)
+Epoch  23/100 | train=0.0295  val=0.2325  smooth=0.2017  lr=5.00e-04  [13.3s] (no improve 10/40)
+Epoch  24/100 | train=0.0296  val=0.1990  smooth=0.2009  lr=5.00e-04  [14.0s] (no improve 11/40)
+Epoch  25/100 | train=0.0281  val=0.1873  smooth=0.1968  lr=5.00e-04  [13.2s] (no improve 12/40)
+Epoch  26/100 | train=0.0280  val=0.2106  smooth=0.2009  lr=5.00e-04  [13.1s] (no improve 13/40)
+Epoch  27/100 | train=0.0291  val=0.2201  smooth=0.2067  lr=5.00e-04  [13.1s] (no improve 14/40)
+Epoch  28/100 | train=0.0280  val=0.2762  smooth=0.2275  lr=5.00e-04  [13.6s] (no improve 15/40)
+Epoch  29/100 | train=0.0292  val=0.2120  smooth=0.2229  lr=5.00e-04  [13.2s] (no improve 16/40)
+Epoch  30/100 | train=0.0273  val=0.2213  smooth=0.2224  lr=5.00e-04  [13.1s] (no improve 17/40)
+Epoch  31/100 | train=0.0279  val=0.2282  smooth=0.2242  lr=2.50e-04  [12.7s] (no improve 18/40)
+Epoch  32/100 | train=0.0252  val=0.2468  smooth=0.2310  lr=2.50e-04  [12.9s] (no improve 19/40)
+Epoch  33/100 | train=0.0251  val=0.2281  smooth=0.2301  lr=2.50e-04  [12.6s] (no improve 20/40)
+Epoch  34/100 | train=0.0254  val=0.2468  smooth=0.2351  lr=2.50e-04  [13.1s] (no improve 21/40)
+Epoch  35/100 | train=0.0256  val=0.2742  smooth=0.2468  lr=2.50e-04  [12.0s] (no improve 22/40)
+Epoch  36/100 | train=0.0258  val=0.2651  smooth=0.2523  lr=2.50e-04  [11.8s] (no improve 23/40)
+Epoch  37/100 | train=0.0250  val=0.2374  smooth=0.2479  lr=2.50e-04  [11.8s] (no improve 24/40)
+Epoch  38/100 | train=0.0250  val=0.2490  smooth=0.2482  lr=2.50e-04  [13.2s] (no improve 25/40)
+Epoch  39/100 | train=0.0255  val=0.2503  smooth=0.2488  lr=2.50e-04  [12.8s] (no improve 26/40)
+Epoch  40/100 | train=0.0249  val=0.2643  smooth=0.2534  lr=1.25e-04  [13.2s] (no improve 27/40)
+Epoch  41/100 | train=0.0239  val=0.2507  smooth=0.2526  lr=1.25e-04  [13.2s] (no improve 28/40)
+Epoch  42/100 | train=0.0239  val=0.2734  smooth=0.2589  lr=1.25e-04  [13.6s] (no improve 29/40)
+Epoch  43/100 | train=0.0239  val=0.2576  smooth=0.2585  lr=1.25e-04  [13.7s] (no improve 30/40)
+Epoch  44/100 | train=0.0242  val=0.2565  smooth=0.2579  lr=1.25e-04  [13.1s] (no improve 31/40)
+Epoch  45/100 | train=0.0246  val=0.2505  smooth=0.2557  lr=1.25e-04  [13.0s] (no improve 32/40)
+Epoch  46/100 | train=0.0246  val=0.2640  smooth=0.2582  lr=1.25e-04  [13.5s] (no improve 33/40)
+Epoch  47/100 | train=0.0245  val=0.2557  smooth=0.2574  lr=1.25e-04  [13.4s] (no improve 34/40)
+Epoch  48/100 | train=0.0247  val=0.2597  smooth=0.2581  lr=1.25e-04  [13.6s] (no improve 35/40)
+Epoch  49/100 | train=0.0251  val=0.2612  smooth=0.2590  lr=6.25e-05  [13.1s] (no improve 36/40)
+Epoch  50/100 | train=0.0243  val=0.2630  smooth=0.2602  lr=6.25e-05  [13.3s] (no improve 37/40)
+Epoch  51/100 | train=0.0240  val=0.2615  smooth=0.2606  lr=6.25e-05  [12.6s] (no improve 38/40)
+Epoch  52/100 | train=0.0237  val=0.2657  smooth=0.2621  lr=6.25e-05  [13.2s] (no improve 39/40)
+Epoch  53/100 | train=0.0237  val=0.2649  smooth=0.2629  lr=6.25e-05  [12.7s] (no improve 40/40)
+
+Early stopping after 53 epochs.
+
+Best val (smooth): 0.1324  ->  results\oneweb_llt_ul\seq2seq\20260529_145438\best_model.pt
+Test MSE (MIMO): 0.1195
+C:\Users\egoss\modeling_and_data_collection\modeling\evaluation\metrics.py:49: RuntimeWarning: Mean of empty slice
+  return np.nanmean(pct_err, axis=0)
+
+  [Seq2Seq-GRU] (MIMO) Aggregate metrics:
+    MAE           : 22.8133
+    RMSE          : 49.3953
+    MAPE_pct      : 28.1494
+    sMAPE_pct     : 8.4240
+    R2            : 0.9179
+    PICP_95       : 0.9499
+    MIS           : 337.1224
+    relative_rmse                 : 2.0067
+    relative_mae                  : 1.9301
+    resid_pearson_lag1            : 0.8413
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: LSTM [mode=MIMO]
+#################################################################
+
+==================== LSTM MODEL (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : ul  (suffix: *_UL.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=115,847  val=22,751  test=28,125
+  Input dim   : 9 feature(s)
+  input_size  : 13  (features=9 + time_enc=4)
+  num_targets : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  seq_len     : 30
+  output_len  : 15   (forecast horizon)
+  Epoch  10 | train 0.051816 | val 0.177190
+  Epoch  20 | train 0.032288 | val 0.195250
+  Epoch  30 | train 0.024875 | val 0.207385
+  Epoch  40 | train 0.022656 | val 0.216401
+  Early stopping at epoch 43
+  LSTM training complete in 197.32s
+C:\Users\egoss\modeling_and_data_collection\modeling\evaluation\metrics.py:49: RuntimeWarning: Mean of empty slice
+  return np.nanmean(pct_err, axis=0)
+
+  [LSTM] (MIMO) Aggregate metrics:
+    MAE           : 33.4161
+    RMSE          : 68.6572
+    MAPE_pct      : 46.6798
+    sMAPE_pct     : 10.9504
+    R2            : 0.8511
+    PICP_95       : 0.9500
+    MIS           : 487.7756
+    relative_rmse                 : 2.1410
+    relative_mae                  : 2.4569
+    resid_pearson_lag1            : 0.8844
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: TRANSFORMER [mode=MIMO]
+#################################################################
+
+==================== TRANSFORMER MODEL (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : ul  (suffix: *_UL.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=115,847  val=22,751  test=28,125
+  Input dim   : 9 feature(s)
+  input_dim   : 13  (features=9 + time_enc=4)
+  num_targets : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len  : 15  (MIMO horizon)
+  seq_len     : 30
+  Epoch  10 | train 0.084294 | val 0.156622
+  Epoch  20 | train 0.065423 | val 0.179498
+  Epoch  30 | train 0.058872 | val 0.201042
+  Epoch  40 | train 0.056988 | val 0.207584
+  Early stopping at epoch 44
+  Transformer training complete in 401.90s
+C:\Users\egoss\modeling_and_data_collection\modeling\evaluation\metrics.py:49: RuntimeWarning: Mean of empty slice
+  return np.nanmean(pct_err, axis=0)
+
+  [Transformer] (MIMO) Aggregate metrics:
+    MAE           : 32.8715
+    RMSE          : 67.8388
+    MAPE_pct      : 48.4160
+    sMAPE_pct     : 10.7091
+    R2            : 0.8546
+    PICP_95       : 0.9500
+    MIS           : 484.3410
+    relative_rmse                 : 2.1154
+    relative_mae                  : 2.4168
+    resid_pearson_lag1            : 0.8898
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_GRU [mode=MIMO]
+#################################################################
+
+==================== Satellite-GRU (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : ul  (suffix: *_UL.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=115,847  val=22,751  test=28,125
+  Input dim   : 9 feature(s)
+  feature_size : 9
+  num_targets  : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 21
+  Satellite-GRU complete in 216.1s
+C:\Users\egoss\modeling_and_data_collection\modeling\evaluation\metrics.py:49: RuntimeWarning: Mean of empty slice
+  return np.nanmean(pct_err, axis=0)
+
+  [Satellite-GRU] (MIMO) Aggregate metrics:
+    MAE           : 23.4083
+    RMSE          : 48.8918
+    MAPE_pct      : 31.2676
+    sMAPE_pct     : 9.5769
+    R2            : 0.9197
+    PICP_95       : 0.9499
+    MIS           : 334.4781
+    relative_rmse                 : 1.9848
+    relative_mae                  : 1.9804
+    resid_pearson_lag1            : 0.8337
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_ATTENTION [mode=MIMO]
+#################################################################
+
+==================== Satellite-ATTENTION (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : ul  (suffix: *_UL.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=115,847  val=22,751  test=28,125
+  Input dim   : 9 feature(s)
+  feature_size : 9
+  num_targets  : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 20
+  Satellite-ATTENTION complete in 370.8s
+C:\Users\egoss\modeling_and_data_collection\modeling\evaluation\metrics.py:49: RuntimeWarning: Mean of empty slice
+  return np.nanmean(pct_err, axis=0)
+
+  [Satellite-ATTENTION] (MIMO) Aggregate metrics:
+    MAE           : 24.3526
+    RMSE          : 49.0170
+    MAPE_pct      : 34.5772
+    sMAPE_pct     : 9.6596
+    R2            : 0.9192
+    PICP_95       : 0.9499
+    MIS           : 325.7966
+    relative_rmse                 : 1.9903
+    relative_mae                  : 2.0603
+    resid_pearson_lag1            : 0.8414
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: SATELLITE_FNN [mode=MIMO]
+#################################################################
+
+==================== Satellite-FNN (MIMO) ====================
+
+  Provider    : oneweb
+  Exp type    : ul  (suffix: *_UL.csv)
+  Direction   : ul
+  IO mode     : MIMO  (target shape: (15, 3))
+  Targets     : ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=115,847  val=22,751  test=28,125
+  Input dim   : 9 feature(s)
+  feature_size : 9
+  num_targets  : 3  -> ['rtt_mean', 'jitter_ms', 'packet_loss_percent']
+  output_len   : 15
+  seq_len      : 30
+  Early stopping at epoch 37
+  Satellite-FNN complete in 148.7s
+C:\Users\egoss\modeling_and_data_collection\modeling\evaluation\metrics.py:49: RuntimeWarning: Mean of empty slice
+  return np.nanmean(pct_err, axis=0)
+
+  [Satellite-FNN] (MIMO) Aggregate metrics:
+    MAE           : 32.3965
+    RMSE          : 56.7797
+    MAPE_pct      : 49.2922
+    sMAPE_pct     : 12.7267
+    R2            : 0.8925
+    PICP_95       : 0.9499
+    MIS           : 364.4780
+    relative_rmse                 : 2.2960
+    relative_mae                  : 2.7409
+    resid_pearson_lag1            : 0.8714
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: GAUSSIAN_PROCESS [mode=MISO]
+#################################################################
+<string>:18: UserWarning: io_mode='MISO' uses only a single target. Retaining targets[0]='rtt_mean' and dropping ['jitter_ms', 'packet_loss_percent']. Pass targets=[single_col] to suppress this warning.
+
+==================== GAUSSIAN PROCESS MODEL (MISO) ====================
+
+  Provider    : oneweb
+  Exp type    : ul  (suffix: *_UL.csv)
+  Direction   : ul
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['rtt_mean']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=115,847  val=22,751  test=28,125
+  Input dim   : 9 feature(s)
+  GP (MISO): 1000 train / 28125 test samples | input_dim=270 → pca_components=50 (99.6% variance) | output_len=15 | target=rtt_mean
+
+  [GaussianProcess] (MISO) Aggregate metrics:
+    MAE           : 171.1262
+    RMSE          : 284.6613
+    MAPE_pct      : 76.8200
+    sMAPE_pct     : 63.0277
+    R2            : 0.1356
+    PICP_95       : 0.9499
+    MIS           : 1612.8472
+    relative_rmse                 : 3.7581
+    relative_mae                  : 4.8260
+    resid_pearson_lag1            : 0.9604
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+#################################################################
+  MODEL: AUTOENCODER [mode=MISO]
+#################################################################
+<string>:18: UserWarning: io_mode='MISO' uses only a single target. Retaining targets[0]='rtt_mean' and dropping ['jitter_ms', 'packet_loss_percent']. Pass targets=[single_col] to suppress this warning.
+
+==================== AUTOENCODER (STANDARD) (MISO) ====================
+
+  Provider    : oneweb
+  Exp type    : ul  (suffix: *_UL.csv)
+  Direction   : ul
+  IO mode     : MISO  (target shape: (15,))
+  Targets     : ['rtt_mean']
+  Root        : data/lsn-data
+  Found       : 65 file(s)
+  Usable      : 65 file(s)
+  Split       : train=45  val=9  test=11
+  Windows     : train=115,847  val=22,751  test=28,125
+  Input dim   : 9 feature(s)
+  input_dim  : 270  (seq_len=30, feat_dim=9)
+  output_len : 15  (primary target: rtt_mean)
+  Early stopping at epoch 43
+  Autoencoder (standard) complete in 320.40s
+
+  [Autoencoder-standard] (MISO) Aggregate metrics:
+    MAE           : 88.8260
+    RMSE          : 181.1583
+    MAPE_pct      : 39.4288
+    sMAPE_pct     : 30.3668
+    R2            : 0.6279
+    PICP_95       : 0.9499
+    MIS           : 1268.2149
+    relative_rmse                 : 2.4666
+    relative_mae                  : 2.5050
+    resid_pearson_lag1            : 0.8808
+    resid_pearson_lag1_p          : 0.0000
+    resid_ljung_p_lag10           : nan
+
+=================================================================
+CROSS-MODEL COMPARISON
+=================================================================
+                      mode      MAE     RMSE     R2  PICP_95
+model
+Seq2Seq-GRU           MIMO  22.8133  49.3953 0.9179   0.9499
+LSTM                  MIMO  33.4161  68.6572 0.8511   0.9500
+Transformer           MIMO  32.8715  67.8388 0.8546   0.9500
+Satellite-GRU         MIMO  23.4083  48.8918 0.9197   0.9499
+Satellite-ATTENTION   MIMO  24.3526  49.0170 0.9192   0.9499
+Satellite-FNN         MIMO  32.3965  56.7797 0.8925   0.9499
+GaussianProcess       MISO 171.1262 284.6613 0.1356   0.9499
+Autoencoder-standard  MISO  88.8260 181.1583 0.6279   0.9499
+Comparison saved to results\oneweb_llt_ul\comparison.csv
+Comparison plot  -> results\oneweb_llt_ul\comparison.png
+
+All results in: results\oneweb_llt_ul/
+  [exit 127] oneweb ul
+
+============================================================
+ PHASE 3: CROSS-MODEL COMPARISONS
+============================================================
+
+  Comparing: results/starlink_llt_dl
+Comparison saved to results\starlink_llt_dl\comparison\comparison.csv
+Comparison plot  -> results\starlink_llt_dl\comparison\comparison.png
+               MAE    RMSE  MAPE_pct  sMAPE_pct      R2  PICP_95      MIS                              run_dir
+model
+Seq2Seq-GRU 8.5518 14.9462   60.7714    76.3271  0.4060   0.9500  98.3711      results/starlink_llt_dl/seq2seq
+LSTM        8.8969 16.7475   81.8706    85.0753 -0.0555   0.9500 112.5376         results/starlink_llt_dl/lstm
+Transformer 9.8853 16.4845   67.9231    82.6355  0.2489   0.9500  98.3675  results/starlink_llt_dl/transformer
+
+  Comparing: results/quectel_llt_dl
+Comparison saved to results\quectel_llt_dl\comparison\comparison.csv
+Comparison plot  -> results\quectel_llt_dl\comparison\comparison.png
+               MAE   RMSE  MAPE_pct  sMAPE_pct     R2  PICP_95    MIS                             run_dir
+model
+Seq2Seq-GRU 1.1022 1.6602   55.3096    78.4926 0.2734   0.9500 8.9351      results/quectel_llt_dl/seq2seq
+LSTM        1.1227 1.6963   59.7596    79.3156 0.1286   0.9500 9.2486         results/quectel_llt_dl/lstm
+Transformer 1.1807 1.7144   59.3111    79.7820 0.2273   0.9500 8.8909  results/quectel_llt_dl/transformer
+
+  Comparing: results/oneweb_llt_dl
+Comparison saved to results\oneweb_llt_dl\comparison\comparison.csv
+Comparison plot  -> results\oneweb_llt_dl\comparison\comparison.png
+               MAE    RMSE  MAPE_pct  sMAPE_pct     R2  PICP_95      MIS                            run_dir
+model
+Seq2Seq-GRU 6.1218 23.7312   43.6074    85.2508 0.2170   0.9499 108.6947      results/oneweb_llt_dl/seq2seq
+LSTM        6.6857 25.6332   47.6583    87.0848 0.1095   0.9500 129.5474         results/oneweb_llt_dl/lstm
+Transformer 6.2051 25.1728   44.5937    85.4652 0.1875   0.9500 114.0774  results/oneweb_llt_dl/transformer
+
+  Comparing: results/starlink_llt_ul
+Comparison saved to results\starlink_llt_ul\comparison\comparison.csv
+Comparison plot  -> results\starlink_llt_ul\comparison\comparison.png
+               MAE   RMSE  MAPE_pct  sMAPE_pct     R2  PICP_95     MIS                              run_dir
+model
+Seq2Seq-GRU 1.4770 3.1832   34.9419    66.3712 0.1990   0.9500 15.2605      results/starlink_llt_ul/seq2seq
+LSTM        1.5383 3.3559   36.0329    66.1163 0.0916   0.9500 17.0331         results/starlink_llt_ul/lstm
+Transformer 1.5013 3.2654   36.3070    68.9734 0.1663   0.9500 15.7932  results/starlink_llt_ul/transformer
+
+  Comparing: results/quectel_llt_ul
+Comparison saved to results\quectel_llt_ul\comparison\comparison.csv
+Comparison plot  -> results\quectel_llt_ul\comparison\comparison.png
+               MAE   RMSE  MAPE_pct  sMAPE_pct     R2  PICP_95     MIS                             run_dir
+model
+Seq2Seq-GRU 4.3961 7.9079   61.4475    90.5472 0.1139   0.9500 39.3530      results/quectel_llt_ul/seq2seq
+LSTM        4.4569 8.0865   63.2092    91.1709 0.0152   0.9500 42.0933         results/quectel_llt_ul/lstm
+Transformer 4.4514 7.9464   62.5658    91.6068 0.1006   0.9500 39.5221  results/quectel_llt_ul/transformer
+
+  Comparing: results/oneweb_llt_ul
+Comparison saved to results\oneweb_llt_ul\comparison\comparison.csv
+Comparison plot  -> results\oneweb_llt_ul\comparison\comparison.png
+                MAE    RMSE  MAPE_pct  sMAPE_pct     R2  PICP_95      MIS                            run_dir
+model
+Seq2Seq-GRU 22.8133 49.3953   28.1494     8.4240 0.9179   0.9499 337.1224      results/oneweb_llt_ul/seq2seq
+LSTM        33.4161 68.6572   46.6798    10.9504 0.8511   0.9500 487.7756         results/oneweb_llt_ul/lstm
+Transformer 32.8715 67.8388   48.4160    10.7091 0.8546   0.9500 484.3410  results/oneweb_llt_ul/transformer
+
+============================================================
+ ALL DONE
+============================================================
+
+
+seq2seq-gru

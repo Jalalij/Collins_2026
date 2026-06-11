@@ -1,4 +1,0 @@
-label,MAE,RMSE,R2
-hidden_size=64,,,
-hidden_size=128,,,
-hidden_size=256,,,

@@ -1,0 +1,37 @@
+{
+  "model_type": "Transformer",
+  "d_model": 64,
+  "nhead": 4,
+  "num_layers": 2,
+  "dim_feedforward": 256,
+  "num_targets": 3,
+  "output_len": 15,
+  "input_dim": 14,
+  "seq_len": 30,
+  "epochs_trained": 10,
+  "best_val_loss": 1.1402540541761015,
+  "training_time_sec": 601.8256723880768,
+  "parameters": 103853,
+  "model_key": "transformer",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_ul",
+  "targets": [
+    "ping_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_llt_ul\\transformer",
+  "mode": "MIMO"
+}

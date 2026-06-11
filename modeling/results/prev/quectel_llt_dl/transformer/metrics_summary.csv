@@ -1,0 +1,3 @@
+key,model,pred_mode,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS
+iperf_throughput_mbps,Transformer,MIMO,0.5297,0.8154,0.5314,0.5291,-0.8860,0.9500,3.9711
+AGGREGATE,Transformer,MIMO,0.5297,0.8154,0.5314,0.5291,-0.8860,0.9500,3.9711

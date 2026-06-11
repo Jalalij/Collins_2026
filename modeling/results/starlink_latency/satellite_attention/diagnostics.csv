@@ -1,2 +1,0 @@
-model,relative_rmse,relative_mae,resid_pearson_lag1,resid_pearson_lag1_p,resid_ljung_p_lag10
-Satellite-ATTENTION,0.9087,0.9143,0.3776,0.0000,

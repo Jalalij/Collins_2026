@@ -1,0 +1,4 @@
+model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
+Seq2Seq-GRU,1.4770,3.1832,34.9419,66.3712,0.1990,0.9500,15.2605,results/starlink_llt_ul/seq2seq
+LSTM,1.5383,3.3559,36.0329,66.1163,0.0916,0.9500,17.0331,results/starlink_llt_ul/lstm
+Transformer,1.5013,3.2654,36.3070,68.9734,0.1663,0.9500,15.7932,results/starlink_llt_ul/transformer

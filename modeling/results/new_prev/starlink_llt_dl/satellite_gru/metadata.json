@@ -1,0 +1,47 @@
+{
+  "model_type": "Satellite-GRU",
+  "strategy": "MIMO",
+  "arch": "gru",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 3,
+  "target_cols": [
+    "ping_server_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "output_len": 15,
+  "feature_size": 19,
+  "training_time_sec": 225.0341317653656,
+  "model_key": "satellite_gru",
+  "provider": "starlink",
+  "experiment_type": "latency_loss_throughput_dl",
+  "targets": [
+    "ping_server_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "features": [
+    "ping_server_rtt_ms",
+    "ping_dns_rtt_ms",
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "dish_pop_ping_ms",
+    "satellite_dtc",
+    "satellite_handoff",
+    "satellite_age_s",
+    "distance_km",
+    "elevation_deg",
+    "azimuth_deg",
+    "dish_obstruction_fraction",
+    "dish_snr",
+    "dish_boresight_azimuth_deg",
+    "dish_boresight_elevation_deg",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\starlink_llt_dl\\satellite_gru",
+  "mode": "MIMO"
+}

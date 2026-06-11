@@ -1,0 +1,34 @@
+{
+  "variant": "standard",
+  "strategy": "MISO",
+  "input_dim": 270,
+  "latent_dim": 32,
+  "output_len": 15,
+  "seq_len": 30,
+  "feat_dim": 9,
+  "primary_target": "rtt_mean",
+  "epochs_trained": 43,
+  "training_time_sec": 320.40467405319214,
+  "parameters": 84029,
+  "model_key": "autoencoder",
+  "provider": "oneweb",
+  "experiment_type": "ul",
+  "targets": [
+    "rtt_mean",
+    "jitter_ms",
+    "packet_loss_percent"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results\\oneweb_llt_ul\\autoencoder",
+  "mode": "MISO"
+}

@@ -1,0 +1,38 @@
+{
+  "model_type": "Satellite-ATTENTION",
+  "strategy": "MIMO",
+  "arch": "attention",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 3,
+  "target_cols": [
+    "ping_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "output_len": 15,
+  "feature_size": 10,
+  "training_time_sec": 2236.573254585266,
+  "model_key": "satellite_attention",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_ul",
+  "targets": [
+    "ping_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_llt_ul\\satellite_attention",
+  "mode": "MIMO"
+}

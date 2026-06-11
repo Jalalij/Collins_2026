@@ -1,0 +1,4 @@
+model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
+Seq2Seq-GRU,6.1218,23.7312,43.6074,85.2508,0.2170,0.9499,108.6947,results/oneweb_llt_dl/seq2seq
+LSTM,6.6857,25.6332,47.6583,87.0848,0.1095,0.9500,129.5474,results/oneweb_llt_dl/lstm
+Transformer,6.2051,25.1728,44.5937,85.4652,0.1875,0.9500,114.0774,results/oneweb_llt_dl/transformer

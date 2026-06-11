@@ -49,18 +49,24 @@ class GaussianProcessTrainer(BaseTrainer):
             dow  : (B, T)
             tgt  : (B, output_len)   ← primary target, full horizon
 
-        The feature window is flattened to (B, T*F) per sample.
+        The feature window is flattened to (B, T*F) per sample, then passed
+        through StandardScaler + PCA before fitting the GP. This reduces the
+        effective dimensionality (T*F can be 500+), stabilises the RBF kernel,
+        and suppresses the WhiteKernel lower-bound ConvergenceWarning.
         One GP is fit per horizon step.
         """
         print("\n" + "=" * 20 + " GAUSSIAN PROCESS MODEL (MISO) " + "=" * 20)
 
         try:
             from sklearn.gaussian_process import GaussianProcessRegressor
-            from sklearn.gaussian_process.kernels import RBF, WhiteKernel
+            from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+            from sklearn.preprocessing import StandardScaler
+            from sklearn.decomposition import PCA
         except ImportError:
             raise ImportError("scikit-learn is required for GaussianProcessTrainer.")
 
-        train_limit = config.get("train_limit", 1000)
+        train_limit  = config.get("train_limit", 1000)
+        n_components = config.get("pca_components", 50)   # reduce before GP
 
         # ------------------------------------------------------------------ data
         train_loader, _, test_loader, _, _, _ = build_dataloaders(cfg)
@@ -99,24 +105,43 @@ class GaussianProcessTrainer(BaseTrainer):
             X_train = X_train[idx]
             y_train = y_train[idx]
 
+        # ------------------------------------------------------------------ pre-processing
+        # 1. Standardise: RBF is scale-sensitive; raw features differ in magnitude.
+        # 2. PCA: reduces T*F (often 500+) to a tractable number of components,
+        #    giving the kernel meaningful geometry and faster optimisation.
+        actual_components = min(n_components, len(X_train) - 1, input_dim)
+
+        scaler = StandardScaler()
+        pca    = PCA(n_components=actual_components)
+
+        X_train_t = pca.fit_transform(scaler.fit_transform(X_train))
+        X_test_t  = pca.transform(scaler.transform(X_test))
+
+        variance_retained = pca.explained_variance_ratio_.sum()
+
         print(
             f"  GP (MISO): {len(X_train)} train / {len(X_test)} test samples | "
-            f"input_dim={input_dim} | output_len={output_len} | "
-            f"target={cfg.primary_target}"
+            f"input_dim={input_dim} → pca_components={actual_components} "
+            f"({variance_retained:.1%} variance) | "
+            f"output_len={output_len} | target={cfg.primary_target}"
         )
 
         # ------------------------------------------------------------------ fit one GP per horizon step
-        kernel = RBF() + WhiteKernel()
+        # No WhiteKernel: the GP consistently drives noise to its lower bound
+        # (the data is smooth enough that it wants to interpolate, not smooth).
+        # normalize_y=True centres and scales the targets, so a plain C()*RBF()
+        # kernel is sufficient and avoids all ConvergenceWarnings.
+        kernel = C() * RBF()
         y_pred = np.zeros_like(y_test)   # (N, output_len)
 
         for h in range(output_len):
             gp = GaussianProcessRegressor(
                 kernel=kernel,
                 normalize_y=True,
-                n_restarts_optimizer=1,
+                n_restarts_optimizer=2,
             )
-            gp.fit(X_train, y_train[:, h])
-            y_pred[:, h] = gp.predict(X_test)
+            gp.fit(X_train_t, y_train[:, h])
+            y_pred[:, h] = gp.predict(X_test_t)
 
         # ------------------------------------------------------------------ denormalise
         # Wrap in tensor for inverse_transform (single-target MISO: target_idx=0)
@@ -138,12 +163,14 @@ class GaussianProcessTrainer(BaseTrainer):
             "y_true_dict": y_true_dict,
             "y_pred_dict": y_pred_dict,
             "metadata": {
-                "model_type":     "GaussianProcess",
-                "strategy":       "MISO",
-                "output_len":     output_len,
-                "primary_target": cfg.primary_target,
-                "train_samples":  len(X_train),
-                "test_samples":   len(X_test),
-                "input_dim":      input_dim,
+                "model_type":        "GaussianProcess",
+                "strategy":          "MISO",
+                "output_len":        output_len,
+                "primary_target":    cfg.primary_target,
+                "train_samples":     len(X_train),
+                "test_samples":      len(X_test),
+                "input_dim":         input_dim,
+                "pca_components":    actual_components,
+                "variance_retained": float(variance_retained),
             },
         }

@@ -38,13 +38,14 @@ def rmse(pred, target):
     return np.sqrt(((pred - target) ** 2).mean(axis=0))
 
 def mape(pred, target, eps=1.0):
-    # Ensure at least 2-D with shape (N, H); a bare 1-D (N,) becomes (N, 1).
     pred   = np.asarray(pred);   pred   = pred.reshape(-1, 1)   if pred.ndim   == 1 else pred
     target = np.asarray(target); target = target.reshape(-1, 1) if target.ndim == 1 else target
-    mask   = np.abs(target) >= eps
-    # Use nan-mean: positions that don't pass the mask contribute NaN,
-    # which nanmean ignores — vectorised and consistent with other metrics.
-    pct_err = np.where(mask, np.abs(pred - target) / np.abs(target) * 100, np.nan)
+    mask = np.abs(target) >= eps
+    # Use a safe denominator everywhere so NumPy never divides by zero,
+    # then overwrite excluded positions with NaN before nanmean.
+    safe_denom = np.where(mask, np.abs(target), 1.0)   # 1.0 is a dummy; result overwritten
+    pct_err    = np.abs(pred - target) / safe_denom * 100
+    pct_err    = np.where(mask, pct_err, np.nan)
     return np.nanmean(pct_err, axis=0)
 
 def smape(pred, target, eps=1e-8):

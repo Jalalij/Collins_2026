@@ -1,4 +1,0 @@
-model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
-Seq2Seq-GRU,4.4447,8.1559,33.8749,28.1415,0.1174,0.9500,45.9469,results\quectel_latency\seq2seq
-LSTM,4.4381,8.2122,33.0757,27.9697,0.1052,0.9500,46.8989,results\quectel_latency\lstm
-Transformer,4.4587,8.1549,33.6802,28.1871,0.1176,0.9500,45.9722,results\quectel_latency\transformer

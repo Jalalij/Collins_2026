@@ -1,0 +1,35 @@
+{
+  "model_type": "LSTM",
+  "strategy": "MIMO",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 3,
+  "input_size": 13,
+  "seq_len": 30,
+  "output_len": 15,
+  "epochs_trained": 42,
+  "best_val_loss": 1.5302479809106782,
+  "training_time_sec": 191.64908909797668,
+  "parameters": 211117,
+  "model_key": "lstm",
+  "provider": "oneweb",
+  "experiment_type": "dl",
+  "targets": [
+    "rtt_mean",
+    "jitter_ms",
+    "packet_loss_percent"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results\\oneweb_llt_dl\\lstm",
+  "mode": "MIMO"
+}

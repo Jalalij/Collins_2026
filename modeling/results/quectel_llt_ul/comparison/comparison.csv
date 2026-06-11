@@ -1,0 +1,4 @@
+model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
+Seq2Seq-GRU,4.3961,7.9079,61.4475,90.5472,0.1139,0.9500,39.3530,results/quectel_llt_ul/seq2seq
+LSTM,4.4569,8.0865,63.2092,91.1709,0.0152,0.9500,42.0933,results/quectel_llt_ul/lstm
+Transformer,4.4514,7.9464,62.5658,91.6068,0.1006,0.9500,39.5221,results/quectel_llt_ul/transformer

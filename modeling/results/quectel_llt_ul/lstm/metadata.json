@@ -1,0 +1,36 @@
+{
+  "model_type": "LSTM",
+  "strategy": "MIMO",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 3,
+  "input_size": 14,
+  "seq_len": 30,
+  "output_len": 15,
+  "epochs_trained": 43,
+  "best_val_loss": 1.1247091303758419,
+  "training_time_sec": 1315.2559320926666,
+  "parameters": 211629,
+  "model_key": "lstm",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_ul",
+  "targets": [
+    "ping_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_llt_ul\\lstm",
+  "mode": "MIMO"
+}

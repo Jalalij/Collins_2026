@@ -1,0 +1,35 @@
+{
+  "model_type": "Seq2Seq-GRU",
+  "strategy": "MIMO",
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "num_features": 10,
+  "num_targets": 1,
+  "target_cols": [
+    "iperf_throughput_mbps"
+  ],
+  "output_len": 15,
+  "epochs_trained": 92,
+  "checkpoint": "results\\quectel_llt_dl\\seq2seq\\20260526_230715\\best_model.pt",
+  "parameters": 417030,
+  "model_key": "seq2seq",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_dl",
+  "targets": [
+    "iperf_throughput_mbps"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_llt_dl\\seq2seq",
+  "mode": "MIMO"
+}

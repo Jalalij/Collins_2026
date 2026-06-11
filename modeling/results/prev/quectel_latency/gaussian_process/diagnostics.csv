@@ -1,0 +1,2 @@
+model,relative_rmse,relative_mae,resid_pearson_lag1,resid_pearson_lag1_p,resid_ljung_p_lag10
+GaussianProcess,0.7440,0.7569,0.0775,0.0000,

@@ -1,0 +1,37 @@
+{
+  "model_type": "Satellite-ATTENTION",
+  "strategy": "MIMO",
+  "arch": "attention",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 3,
+  "target_cols": [
+    "rtt_mean",
+    "jitter_ms",
+    "packet_loss_percent"
+  ],
+  "output_len": 15,
+  "feature_size": 9,
+  "training_time_sec": 370.8161540031433,
+  "model_key": "satellite_attention",
+  "provider": "oneweb",
+  "experiment_type": "ul",
+  "targets": [
+    "rtt_mean",
+    "jitter_ms",
+    "packet_loss_percent"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results\\oneweb_llt_ul\\satellite_attention",
+  "mode": "MIMO"
+}

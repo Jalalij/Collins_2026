@@ -1,0 +1,32 @@
+{
+  "model_type": "GaussianProcess",
+  "strategy": "MISO",
+  "output_len": 15,
+  "primary_target": "rtt_mean",
+  "train_samples": 1000,
+  "test_samples": 28125,
+  "input_dim": 270,
+  "pca_components": 50,
+  "variance_retained": 0.9963833689689636,
+  "model_key": "gaussian_process",
+  "provider": "oneweb",
+  "experiment_type": "ul",
+  "targets": [
+    "rtt_mean",
+    "jitter_ms",
+    "packet_loss_percent"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results\\oneweb_llt_ul\\gaussian_process",
+  "mode": "MISO"
+}

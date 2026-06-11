@@ -1,0 +1,62 @@
+{
+  "list_models": false,
+  "list_features": false,
+  "list_targets": false,
+  "provider": "quectel",
+  "subcommand": "train",
+  "models": [
+    "all"
+  ],
+  "experiment_type": "latency_loss_throughput_ul",
+  "data_root": "data/lsn-data",
+  "targets": [
+    "rtt",
+    "jitter",
+    "loss"
+  ],
+  "input_len": 30,
+  "output_len": 15,
+  "normalise": "zscore",
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "batch_size": null,
+  "seed": 42,
+  "features": [
+    "default"
+  ],
+  "feature_group": null,
+  "feature_groups": null,
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "dropout": null,
+  "epochs": 100,
+  "lr": 0.001,
+  "out_dir": "results/quectel_llt_ul",
+  "resolved_features": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "resolved_targets": [
+    "ping_rtt_ms",
+    "iperf_jitter_ms",
+    "iperf_loss_pct"
+  ],
+  "resolved_models": [
+    "seq2seq",
+    "lstm",
+    "transformer",
+    "satellite_gru",
+    "satellite_attention",
+    "satellite_fnn",
+    "gaussian_process",
+    "autoencoder"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "model_type": "Satellite-FNN",
+  "strategy": "MIMO",
+  "arch": "fnn",
+  "hidden_size": 128,
+  "num_layers": 2,
+  "num_targets": 1,
+  "target_cols": [
+    "ping_rtt_ms"
+  ],
+  "output_len": 15,
+  "feature_size": 7,
+  "training_time_sec": 378.5693883895874,
+  "model_key": "satellite_fnn",
+  "provider": "quectel",
+  "experiment_type": "latency",
+  "targets": [
+    "ping_rtt_ms"
+  ],
+  "features": [
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_latency\\satellite_fnn",
+  "mode": "MIMO"
+}

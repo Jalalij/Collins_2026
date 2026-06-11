@@ -1,0 +1,2 @@
+model,relative_rmse,relative_mae,resid_pearson_lag1,resid_pearson_lag1_p,resid_ljung_p_lag10
+Autoencoder-standard,1.5724,2.9399,0.7549,0.0000,

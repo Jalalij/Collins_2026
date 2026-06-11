@@ -1,0 +1,9 @@
+model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
+Seq2Seq-GRU,1.1022,1.6602,55.3096,78.4926,0.2734,0.9500,8.9351,results\quectel_llt_dl\seq2seq
+LSTM,1.1227,1.6963,59.7596,79.3156,0.1286,0.9500,9.2486,results\quectel_llt_dl\lstm
+Transformer,1.1807,1.7144,59.3111,79.7820,0.2273,0.9500,8.8909,results\quectel_llt_dl\transformer
+Satellite-GRU,1.1094,1.6579,56.2322,78.5446,0.2699,0.9500,8.9283,results\quectel_llt_dl\satellite_gru
+Satellite-ATTENTION,1.1117,1.6592,55.8505,78.9017,0.2744,0.9500,8.8791,results\quectel_llt_dl\satellite_attention
+Satellite-FNN,1.3446,1.8956,67.5435,81.0192,0.0868,0.9500,9.1459,results\quectel_llt_dl\satellite_fnn
+GaussianProcess,3.6694,5.1056,28.4239,25.9904,0.0683,0.9501,25.3167,results\quectel_llt_dl\gaussian_process
+Autoencoder-standard,3.2273,4.6312,25.3890,22.8883,0.2331,0.9500,24.6803,results\quectel_llt_dl\autoencoder

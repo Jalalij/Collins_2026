@@ -17,6 +17,18 @@ Batch format from ThroughputFileDataset (io_mode="MIMO"):
     hour : (B, input_len)                        float32  raw 0-23
     dow  : (B, input_len)                        float32  raw 0-6
     tgt  : (B, output_len, num_targets)          float32  normalised  ← always 3-D
+
+CHECKPOINT STATS
+----------------
+train.py's train() saves only model.state_dict() — no normalisation stats.
+Live inference (serve.py) needs the *training-time* feature_stats/target_stats
+to normalise/denormalise consistently, not stats recomputed from whatever data
+happens to be at hand (that's what inference.py does today, with a
+UserWarning — fine for a one-off script, wrong for a live sidecar). So
+train_and_evaluate below captures feature_stats (previously discarded) and
+writes both feature_stats and target_stats into the returned metadata dict,
+which run.py's run_one_model() already persists to metadata.json. serve.py
+reads them from there — see its module doc for the full contract.
 """
 
 from __future__ import annotations
@@ -284,6 +296,20 @@ def _unwrap(ds):
     return ds
 
 
+def _serialize_feature_stats(feature_stats: dict | None) -> dict | None:
+    """
+    Convert feature_stats' numpy arrays into plain lists so the result is
+    JSON-serialisable for metadata.json. target_stats is already plain
+    python floats (see dataset.py) and needs no conversion.
+    """
+    if feature_stats is None:
+        return None
+    return {
+        k: (v.tolist() if hasattr(v, "tolist") else v)
+        for k, v in feature_stats.items()
+    }
+
+
 class Seq2SeqTrainer(BaseTrainer):
     """
     MIMO trainer for ThroughputSeq2Seq.
@@ -326,7 +352,12 @@ class Seq2SeqTrainer(BaseTrainer):
         ema_alpha    = config.get("ema_alpha",            0.3)
 
         # ------------------------------------------------------------------ data
-        train_loader, val_loader, test_loader, _, target_stats, actual_feature_cols = (
+        # NOTE: feature_stats was previously discarded here (bound to `_`).
+        # It's now captured and persisted below — serve.py needs it to
+        # normalise live tunnel data the same way training data was
+        # normalised; without it, live inference silently uses garbage
+        # (or per-request-recomputed, distribution-mismatched) stats.
+        train_loader, val_loader, test_loader, feature_stats, target_stats, actual_feature_cols = (
             build_dataloaders(cfg)
         )
 
@@ -436,8 +467,18 @@ class Seq2SeqTrainer(BaseTrainer):
                 "num_targets":    num_targets,
                 "target_cols":    target_cols,
                 "output_len":     output_len,
+                "input_len":      feat_b.shape[1],
                 "epochs_trained": len(history["train_loss"]),
                 "checkpoint":     history.get("checkpoint", ""),
                 "parameters":     sum(p.numel() for p in model.parameters()),
+
+                # --- persisted for live inference (serve.py) --------------
+                # Distinctly-named so run.py's run_one_model() meta.update()
+                # (which overwrites the "features" key with the pre-
+                # intersection requested list) doesn't clobber this.
+                "actual_feature_cols": actual_feature_cols,
+                "feature_stats":       _serialize_feature_stats(feature_stats),
+                "target_stats":        target_stats,
+                "normalise":           cfg.normalise,
             },
         }

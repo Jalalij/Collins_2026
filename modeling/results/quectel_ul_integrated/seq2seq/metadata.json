@@ -1,0 +1,89 @@
+{
+  "model_type": "Seq2Seq-GRU",
+  "strategy": "MIMO",
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "num_features": 9,
+  "num_targets": 3,
+  "target_cols": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_rtt_ms"
+  ],
+  "output_len": 15,
+  "input_len": 30,
+  "epochs_trained": 46,
+  "checkpoint": "results\\quectel_ul_integrated\\seq2seq\\20260724_142507\\best_model.pt",
+  "parameters": 449592,
+  "actual_feature_cols": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "feature_stats": {
+    "mean": [
+      10.45105266571045,
+      0.3046317994594574,
+      17.750478744506836,
+      -78.89925384521484,
+      -11.52346420288086,
+      12.267839431762695,
+      63.856571197509766,
+      29.833324432373047,
+      0.0028956958558410406
+    ],
+    "std": [
+      5.990139007568359,
+      2.655177354812622,
+      19.435009002685547,
+      5.898584842681885,
+      0.862423300743103,
+      4.706560134887695,
+      18.289169311523438,
+      0.20898593962192535,
+      0.034974806010723114
+    ]
+  },
+  "target_stats": {
+    "iperf_throughput_mbps": {
+      "mean": 10.45105266571045,
+      "std": 5.990139017568359
+    },
+    "iperf_loss_pct": {
+      "mean": 0.3046317994594574,
+      "std": 2.655177364812622
+    },
+    "ping_rtt_ms": {
+      "mean": 17.750478744506836,
+      "std": 19.435009012685548
+    }
+  },
+  "normalise": "zscore",
+  "model_key": "seq2seq",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_ul",
+  "targets": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_rtt_ms"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_ul_integrated\\seq2seq",
+  "mode": "MIMO"
+}

@@ -1,0 +1,121 @@
+{
+  "model_type": "Seq2Seq-GRU",
+  "strategy": "MIMO",
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "num_features": 17,
+  "num_targets": 3,
+  "target_cols": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_server_rtt_ms"
+  ],
+  "output_len": 15,
+  "input_len": 30,
+  "epochs_trained": 49,
+  "checkpoint": "results\\starlink_dl_integrated\\seq2seq\\20260724_120752\\best_model.pt",
+  "parameters": 455768,
+  "actual_feature_cols": [
+    "dish_pop_ping_ms",
+    "distance_km",
+    "elevation_deg",
+    "azimuth_deg",
+    "dish_obstruction_fraction",
+    "dish_snr",
+    "dish_boresight_azimuth_deg",
+    "dish_boresight_elevation_deg",
+    "satellite_dtc",
+    "satellite_handoff",
+    "satellite_age_s",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate",
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_server_rtt_ms"
+  ],
+  "feature_stats": {
+    "mean": [
+      20.813535690307617,
+      548.5831909179688,
+      0.0,
+      0.0,
+      0.0001268901105504483,
+      1.0,
+      -12.975326538085938,
+      61.01169967651367,
+      0.007978871464729309,
+      0.009150594472885132,
+      7.979736804962158,
+      69.42152404785156,
+      29.646678924560547,
+      0.013274033553898335,
+      87.78194427490234,
+      4.484118938446045,
+      100.35570526123047
+    ],
+    "std": [
+      3.059091567993164,
+      81.36852264404297,
+      9.99999993922529e-09,
+      9.99999993922529e-09,
+      0.004726465791463852,
+      9.99999993922529e-09,
+      0.6992027759552002,
+      0.3270544707775116,
+      0.0889674723148346,
+      0.09522007405757904,
+      4.326592922210693,
+      18.314891815185547,
+      0.1060781180858612,
+      0.0479731410741806,
+      13.56676197052002,
+      8.170364379882812,
+      63.50545883178711
+    ]
+  },
+  "target_stats": {
+    "iperf_throughput_mbps": {
+      "mean": 87.78194427490234,
+      "std": 13.56676198052002
+    },
+    "iperf_loss_pct": {
+      "mean": 4.484118938446045,
+      "std": 8.170364389882813
+    },
+    "ping_server_rtt_ms": {
+      "mean": 100.35570526123047,
+      "std": 63.50545884178711
+    }
+  },
+  "normalise": "zscore",
+  "model_key": "seq2seq",
+  "provider": "starlink",
+  "experiment_type": "latency_loss_throughput_dl",
+  "targets": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_server_rtt_ms"
+  ],
+  "features": [
+    "dish_pop_ping_ms",
+    "distance_km",
+    "elevation_deg",
+    "azimuth_deg",
+    "dish_obstruction_fraction",
+    "dish_snr",
+    "dish_boresight_azimuth_deg",
+    "dish_boresight_elevation_deg",
+    "satellite_dtc",
+    "satellite_handoff",
+    "satellite_age_s",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate",
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_server_rtt_ms"
+  ],
+  "out_dir": "results\\starlink_dl_integrated\\seq2seq",
+  "mode": "MIMO"
+}

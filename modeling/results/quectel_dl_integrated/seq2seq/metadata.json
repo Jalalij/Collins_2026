@@ -1,0 +1,89 @@
+{
+  "model_type": "Seq2Seq-GRU",
+  "strategy": "MIMO",
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "num_features": 9,
+  "num_targets": 3,
+  "target_cols": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_rtt_ms"
+  ],
+  "output_len": 15,
+  "input_len": 30,
+  "epochs_trained": 54,
+  "checkpoint": "results\\quectel_dl_integrated\\seq2seq\\20260724_125121\\best_model.pt",
+  "parameters": 449592,
+  "actual_feature_cols": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "feature_stats": {
+    "mean": [
+      101.85810852050781,
+      0.07990876585245132,
+      13.966435432434082,
+      -78.9576416015625,
+      -11.582879066467285,
+      12.142480850219727,
+      64.11756134033203,
+      29.82976531982422,
+      0.004302050918340683
+    ],
+    "std": [
+      24.537187576293945,
+      0.3839928209781647,
+      5.563975811004639,
+      5.983850955963135,
+      1.053728461265564,
+      5.121532440185547,
+      18.607955932617188,
+      0.20972655713558197,
+      0.025854384526610374
+    ]
+  },
+  "target_stats": {
+    "iperf_throughput_mbps": {
+      "mean": 101.85810852050781,
+      "std": 24.537187586293946
+    },
+    "iperf_loss_pct": {
+      "mean": 0.07990876585245132,
+      "std": 0.38399283097816467
+    },
+    "ping_rtt_ms": {
+      "mean": 13.966435432434082,
+      "std": 5.563975821004639
+    }
+  },
+  "normalise": "zscore",
+  "model_key": "seq2seq",
+  "provider": "quectel",
+  "experiment_type": "latency_loss_throughput_dl",
+  "targets": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_rtt_ms"
+  ],
+  "features": [
+    "iperf_throughput_mbps",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "out_dir": "results\\quectel_dl_integrated\\seq2seq",
+  "mode": "MIMO"
+}

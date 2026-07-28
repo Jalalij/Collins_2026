@@ -1,0 +1,180 @@
+// grpcurl -plaintext -d {\"get_status\":{}} 192.168.100.1:9200 SpaceX.API.Device.Device/Handle
+{
+  "apiVersion": "42",
+  "dishGetStatus": {
+    "deviceInfo": {
+      "id": "ut01708d9d-0112791c-592da1b7",
+      "hardwareVersion": "rev4_panda_prod2",
+      "softwareVersion": "2026.03.27.mr76839.2",
+      "countryCode": "US",
+      "utcOffsetS": -21600,
+      "bootcount": 36,
+      "generationNumber": "1775077393",
+      "buildId": "a2d5a7b6-04d8-4f3d-b80f-5f522cc6f725.uterm_catapult_manifest.release"
+    },
+    "deviceState": {
+      "uptimeS": "326207"
+    },
+    "secondsToFirstNonemptySlot": 1.7753809e+09,
+    "obstructionStats": {
+      "fractionObstructed": 0.0036127167,
+      "validS": 101155,
+      "avgProlongedObstructionDurationS": 1.4680505,
+      "avgProlongedObstructionIntervalS": 8640,
+      "timeObstructed": 0.00011546538,
+      "patchesValid": 4152
+    },
+    "alerts": {},
+    "downlinkThroughputBps": 11324.621,
+    "uplinkThroughputBps": 30383.54,
+    "popPingLatencyMs": 25.511898,
+    "boresightAzimuthDeg": -5.0956936,
+    "boresightElevationDeg": 24.277613,
+    "gpsStats": {
+      "gpsValid": true,
+      "gpsSats": 18
+    },
+    "ethSpeedMbps": 1000,
+    "isSnrAboveNoiseFloor": true,
+    "readyStates": {
+      "scp": true,
+      "l1l2": true,
+      "xphy": true,
+      "aap": true,
+      "rf": true
+    },
+    "classOfService": "CONSUMER",
+    "softwareUpdateState": "IDLE",
+    "hasActuators": "HAS_ACTUATORS_NO",
+    "disablementCode": "OKAY",
+    "hasSignedCals": true,
+    "softwareUpdateStats": {
+      "softwareUpdateState": "IDLE",
+      "softwareUpdateProgress": 1
+    },
+    "alignmentStats": {
+      "hasActuators": "HAS_ACTUATORS_NO",
+      "tiltAngleDeg": 64.823616,
+      "boresightAzimuthDeg": -5.0956936,
+      "boresightElevationDeg": 24.277613,
+      "attitudeEstimationState": "FILTER_CONVERGED",
+      "attitudeUncertaintyDeg": 0.74199533,
+      "desiredBoresightAzimuthDeg": -21.991,
+      "desiredBoresightElevationDeg": 66.987526
+    },
+    "initializationDurationSeconds": {
+      "attitudeInitialization": 180,
+      "burstDetected": 45,
+      "ekfConverged": 239,
+      "firstCplane": 53,
+      "firstPopPing": 102,
+      "gpsValid": 17,
+      "initialNetworkEntry": 46,
+      "networkSchedule": 81,
+      "rfReady": 26,
+      "stableConnection": 1037
+    },
+    "secondsUntilSwupdateRebootPossible": -1,
+    "connectedRouters": [
+      "Router-0100000000000000015F5D6C"
+    ],
+    "plcStats": {
+      "port1Stats": {},
+      "port2Stats": {},
+      "port3Stats": {}
+    },
+    "upsuStats": {},
+    "dlBandwidthRestrictedReason": "NO_LIMIT",
+    "ulBandwidthRestrictedReason": "NO_LIMIT",
+    "apsStats": {},
+    "ned2dishQuaternion": {
+      "qScalar": 0.42927223,
+      "qX": -0.45272082,
+      "qY": 0.7075471,
+      "qZ": -0.33188286
+    },
+    "downstreamRouters": {
+      "Router-0100000000000000015F5D6C": {
+        "role": "CONTROLLER",
+        "lastSeen": "1775706942472023240"
+      }
+    },
+    "accountShard": "ACCOUNT_SHARD_DEFAULT",
+    "config": {
+      "locationRequestMode": "LOCAL",
+      "swupdateRebootHour": 3,
+      "applySnowMeltMode": true,
+      "applyLocationRequestMode": true,
+      "applyLevelDishMode": true,
+      "applyPowerSaveStartMinutes": true,
+      "applyPowerSaveDurationMinutes": true,
+      "applyPowerSaveMode": true,
+      "applySwupdateThreeDayDeferralEnabled": true,
+      "applyAssetClass": true,
+      "applySwupdateRebootHour": true
+    }
+  }
+}
+
+
+// grpcurl -plaintext -d {\"get_diagnostics\":{}} 192.168.100.1:9200 SpaceX.API.Device.Device/Handle
+{
+  "apiVersion": "42",
+  "dishGetDiagnostics": {
+    "id": "ut01708d9d-0112791c-592da1b7",
+    "hardwareVersion": "rev4_panda_prod2",
+    "softwareVersion": "2026.03.27.mr76839.2",
+    "utcOffsetS": -21600,
+    "alerts": {},
+    "disablementCode": "OKAY",
+    "hardwareSelfTest": "PASSED",
+    "location": {
+      "enabled": true,
+      "latitude": 42.01363843617565,
+      "longitude": -93.65103999493155,
+      "altitudeMeters": 298.94420434191306,
+      "uncertaintyMetersValid": true,
+      "uncertaintyMeters": 0.39837102010157116,
+      "gpsTimeS": 1.4597422422402544e+09
+    },
+    "alignmentStats": {
+      "boresightAzimuthDeg": -5.1866584,
+      "boresightElevationDeg": 24.219296,
+      "desiredBoresightAzimuthDeg": -21.990997,
+      "desiredBoresightElevationDeg": 66.987526
+    }
+  }
+}
+
+// grpcurl -plaintext -d {\"get_location\":{}} 192.168.100.1:9200 SpaceX.API.Device.Device/Handle
+{
+  "status": {},
+  "apiVersion": "42",
+  "getLocation": {
+    "lla": {
+      "lat": 42.01363891012485,
+      "lon": -93.6510403981122,
+      "alt": 299.04404104767076
+    },
+    "source": "STARLINK",
+    "sigmaM": 0.39862304336153703
+  }
+}
+
+// grpcurl -plaintext -d {\"get_device_info\":{}} 192.168.100.1:9200 SpaceX.API.Device.Device/Handle
+{
+  "apiVersion": "42",
+  "getDeviceInfo": {
+    "deviceInfo": {
+      "id": "ut01708d9d-0112791c-592da1b7",
+      "hardwareVersion": "rev4_panda_prod2",
+      "softwareVersion": "2026.03.27.mr76839.2",
+      "countryCode": "US",
+      "utcOffsetS": -21600,
+      "bootcount": 36,
+      "generationNumber": "1775077393",
+      "buildId": "a2d5a7b6-04d8-4f3d-b80f-5f522cc6f725.uterm_catapult_manifest.release"
+    }
+  }
+}
+

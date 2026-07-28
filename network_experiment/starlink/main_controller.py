@@ -13,13 +13,13 @@ from network_experiment.starlink.config import (
 DURATION      = 600
 PROTOCOLS     = [
     {"name": "udp",   "protocol": "udp", "congestion": None},
-    # {"name": "bbr",   "protocol": "tcp", "congestion": "bbr"},
-    # {"name": "cubic", "protocol": "tcp", "congestion": "cubic"},
 ]
+# {"name": "bbr",   "protocol": "tcp", "congestion": "bbr"},
+# {"name": "cubic", "protocol": "tcp", "congestion": "cubic"},
 BANDWIDTH_CONFIGS = [
     {"dl": 100, "ul": 10},
-    # {"dl": 200,  "ul": 20},
 ]
+# {"dl": 200,  "ul": 20},
 
 GRACE_PERIOD = 10
 

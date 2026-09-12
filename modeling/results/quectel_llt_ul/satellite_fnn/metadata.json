@@ -12,7 +12,7 @@
   ],
   "output_len": 15,
   "feature_size": 10,
-  "training_time_sec": 2546.1109602451324,
+  "training_time_sec": 515.9049639701843,
   "model_key": "satellite_fnn",
   "provider": "quectel",
   "experiment_type": "latency_loss_throughput_ul",
@@ -33,6 +33,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\quectel_llt_ul\\satellite_fnn",
+  "out_dir": "results/quectel_llt_ul/satellite_fnn",
   "mode": "MIMO"
 }

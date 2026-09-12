@@ -12,7 +12,7 @@
   ],
   "output_len": 15,
   "feature_size": 9,
-  "training_time_sec": 55.9185528755188,
+  "training_time_sec": 22.94857406616211,
   "model_key": "satellite_fnn",
   "provider": "oneweb",
   "experiment_type": "dl",
@@ -32,6 +32,6 @@
     "satellite_change",
     "time_since_handover"
   ],
-  "out_dir": "results\\oneweb_llt_dl\\satellite_fnn",
+  "out_dir": "results/oneweb_llt_dl/satellite_fnn",
   "mode": "MIMO"
 }

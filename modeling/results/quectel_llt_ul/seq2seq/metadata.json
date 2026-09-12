@@ -11,9 +11,63 @@
     "iperf_loss_pct"
   ],
   "output_len": 15,
-  "epochs_trained": 47,
-  "checkpoint": "results\\quectel_llt_ul\\seq2seq\\20260529_100113\\best_model.pt",
+  "input_len": 30,
+  "epochs_trained": 51,
+  "checkpoint": "results/quectel_llt_ul/seq2seq/20260807_170213/best_model.pt",
   "parameters": 450364,
+  "actual_feature_cols": [
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "ping_rtt_ms",
+    "rsrp",
+    "rsrq",
+    "sinr",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "feature_stats": {
+    "mean": [
+      10.45105266571045,
+      1.8384952545166016,
+      0.3046317994594574,
+      17.750478744506836,
+      -78.89925384521484,
+      -11.52346420288086,
+      12.267839431762695,
+      63.856571197509766,
+      29.833324432373047,
+      0.0028956958558410406
+    ],
+    "std": [
+      5.990139007568359,
+      0.9798482656478882,
+      2.655177354812622,
+      19.435009002685547,
+      5.898584842681885,
+      0.862423300743103,
+      4.706560134887695,
+      18.289169311523438,
+      0.20898593962192535,
+      0.034974806010723114
+    ]
+  },
+  "target_stats": {
+    "ping_rtt_ms": {
+      "mean": 17.750478744506836,
+      "std": 19.435009012685548
+    },
+    "iperf_jitter_ms": {
+      "mean": 1.8384952545166016,
+      "std": 0.9798482756478882
+    },
+    "iperf_loss_pct": {
+      "mean": 0.3046317994594574,
+      "std": 2.655177364812622
+    }
+  },
+  "normalise": "zscore",
   "model_key": "seq2seq",
   "provider": "quectel",
   "experiment_type": "latency_loss_throughput_ul",
@@ -34,6 +88,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\quectel_llt_ul\\seq2seq",
+  "out_dir": "results/quectel_llt_ul/seq2seq",
   "mode": "MIMO"
 }

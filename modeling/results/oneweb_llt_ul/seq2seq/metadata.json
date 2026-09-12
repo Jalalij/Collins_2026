@@ -11,9 +11,60 @@
     "packet_loss_percent"
   ],
   "output_len": 15,
-  "epochs_trained": 53,
-  "checkpoint": "results\\oneweb_llt_ul\\seq2seq\\20260529_145438\\best_model.pt",
+  "input_len": 30,
+  "epochs_trained": 49,
+  "checkpoint": "results/oneweb_llt_ul/seq2seq/20260808_183102/best_model.pt",
   "parameters": 449592,
+  "actual_feature_cols": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "feature_stats": {
+    "mean": [
+      10.039825439453125,
+      0.0,
+      0.0,
+      194.8337860107422,
+      6.656063556671143,
+      20.849590301513672,
+      180.28770446777344,
+      0.0011627216590568423,
+      65.2994613647461
+    ],
+    "std": [
+      4.0660400390625,
+      9.99999993922529e-09,
+      9.99999993922529e-09,
+      255.51573181152344,
+      2.0405685901641846,
+      9.387285232543945,
+      85.1927490234375,
+      0.03432702645659447,
+      40.694725036621094
+    ]
+  },
+  "target_stats": {
+    "rtt_mean": {
+      "mean": 194.8337860107422,
+      "std": 255.51573182152345
+    },
+    "jitter_ms": {
+      "mean": 0.0,
+      "std": 1e-08
+    },
+    "packet_loss_percent": {
+      "mean": 0.0,
+      "std": 1e-08
+    }
+  },
+  "normalise": "zscore",
   "model_key": "seq2seq",
   "provider": "oneweb",
   "experiment_type": "ul",
@@ -33,6 +84,6 @@
     "satellite_change",
     "time_since_handover"
   ],
-  "out_dir": "results\\oneweb_llt_ul\\seq2seq",
+  "out_dir": "results/oneweb_llt_ul/seq2seq",
   "mode": "MIMO"
 }

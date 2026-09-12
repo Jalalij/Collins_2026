@@ -8,9 +8,9 @@
   "output_len": 15,
   "input_dim": 23,
   "seq_len": 30,
-  "epochs_trained": 51,
-  "best_val_loss": 0.8321189665193878,
-  "training_time_sec": 564.3924577236176,
+  "epochs_trained": 13,
+  "best_val_loss": 0.8307432259307869,
+  "training_time_sec": 602.0176782608032,
   "parameters": 104429,
   "model_key": "transformer",
   "provider": "starlink",
@@ -41,6 +41,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_llt_ul\\transformer",
+  "out_dir": "results/starlink_llt_ul/transformer",
   "mode": "MIMO"
 }

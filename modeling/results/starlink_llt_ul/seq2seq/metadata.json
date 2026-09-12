@@ -11,9 +11,90 @@
     "iperf_loss_pct"
   ],
   "output_len": 15,
-  "epochs_trained": 51,
-  "checkpoint": "results\\starlink_llt_ul\\seq2seq\\20260529_091845\\best_model.pt",
+  "input_len": 30,
+  "epochs_trained": 50,
+  "checkpoint": "results/starlink_llt_ul/seq2seq/20260807_132808/best_model.pt",
   "parameters": 457312,
+  "actual_feature_cols": [
+    "ping_server_rtt_ms",
+    "ping_dns_rtt_ms",
+    "iperf_throughput_mbps",
+    "iperf_jitter_ms",
+    "iperf_loss_pct",
+    "dish_pop_ping_ms",
+    "satellite_dtc",
+    "satellite_handoff",
+    "satellite_age_s",
+    "distance_km",
+    "elevation_deg",
+    "azimuth_deg",
+    "dish_obstruction_fraction",
+    "dish_snr",
+    "dish_boresight_azimuth_deg",
+    "dish_boresight_elevation_deg",
+    "weather_humidity",
+    "weather_pressure",
+    "weather_rain_rate"
+  ],
+  "feature_stats": {
+    "mean": [
+      38.183345794677734,
+      22.019264221191406,
+      9.974413871765137,
+      1.627243161201477,
+      0.24229738116264343,
+      20.150209426879883,
+      0.0074309092015028,
+      0.008720417506992817,
+      8.004536628723145,
+      543.9008178710938,
+      0.0,
+      0.0,
+      9.200967906508595e-05,
+      1.0,
+      -12.958559036254883,
+      61.01155090332031,
+      68.10033416748047,
+      29.644174575805664,
+      0.01627424731850624
+    ],
+    "std": [
+      8.959775924682617,
+      7.153109073638916,
+      0.3138711750507355,
+      0.3546657860279083,
+      2.2227585315704346,
+      2.5497186183929443,
+      0.08588184416294098,
+      0.09297513216733932,
+      4.324979782104492,
+      75.04183959960938,
+      9.99999993922529e-09,
+      9.99999993922529e-09,
+      0.0023847271222621202,
+      9.99999993922529e-09,
+      0.5813624858856201,
+      0.26406022906303406,
+      17.63310432434082,
+      0.104463130235672,
+      0.06590837240219116
+    ]
+  },
+  "target_stats": {
+    "ping_server_rtt_ms": {
+      "mean": 38.183345794677734,
+      "std": 8.959775934682618
+    },
+    "iperf_jitter_ms": {
+      "mean": 1.627243161201477,
+      "std": 0.3546657960279083
+    },
+    "iperf_loss_pct": {
+      "mean": 0.24229738116264343,
+      "std": 2.2227585415704345
+    }
+  },
+  "normalise": "zscore",
   "model_key": "seq2seq",
   "provider": "starlink",
   "experiment_type": "latency_loss_throughput_ul",
@@ -43,6 +124,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_llt_ul\\seq2seq",
+  "out_dir": "results/starlink_llt_ul/seq2seq",
   "mode": "MIMO"
 }

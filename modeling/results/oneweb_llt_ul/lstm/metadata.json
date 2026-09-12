@@ -7,9 +7,9 @@
   "input_size": 13,
   "seq_len": 30,
   "output_len": 15,
-  "epochs_trained": 43,
-  "best_val_loss": 0.13254895693283866,
-  "training_time_sec": 197.31885361671448,
+  "epochs_trained": 42,
+  "best_val_loss": 0.1283759599959012,
+  "training_time_sec": 2573.239790916443,
   "parameters": 211117,
   "model_key": "lstm",
   "provider": "oneweb",
@@ -30,6 +30,6 @@
     "satellite_change",
     "time_since_handover"
   ],
-  "out_dir": "results\\oneweb_llt_ul\\lstm",
+  "out_dir": "results/oneweb_llt_ul/lstm",
   "mode": "MIMO"
 }

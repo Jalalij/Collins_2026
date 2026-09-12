@@ -8,9 +8,9 @@
   "output_len": 15,
   "input_dim": 13,
   "seq_len": 30,
-  "epochs_trained": 46,
-  "best_val_loss": 1.5385250117023324,
-  "training_time_sec": 408.32090187072754,
+  "epochs_trained": 11,
+  "best_val_loss": 1.542759558982974,
+  "training_time_sec": 614.0895736217499,
   "parameters": 103789,
   "model_key": "transformer",
   "provider": "oneweb",
@@ -31,6 +31,6 @@
     "satellite_change",
     "time_since_handover"
   ],
-  "out_dir": "results\\oneweb_llt_dl\\transformer",
+  "out_dir": "results/oneweb_llt_dl/transformer",
   "mode": "MIMO"
 }

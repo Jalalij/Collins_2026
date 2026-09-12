@@ -8,9 +8,9 @@
   "output_len": 15,
   "input_dim": 14,
   "seq_len": 30,
-  "epochs_trained": 10,
-  "best_val_loss": 1.1402540541761015,
-  "training_time_sec": 601.8256723880768,
+  "epochs_trained": 2,
+  "best_val_loss": 1.1450844203435229,
+  "training_time_sec": 609.9800698757172,
   "parameters": 103853,
   "model_key": "transformer",
   "provider": "quectel",
@@ -32,6 +32,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\quectel_llt_ul\\transformer",
+  "out_dir": "results/quectel_llt_ul/transformer",
   "mode": "MIMO"
 }

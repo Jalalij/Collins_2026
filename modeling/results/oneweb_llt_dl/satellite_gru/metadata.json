@@ -12,7 +12,7 @@
   ],
   "output_len": 15,
   "feature_size": 9,
-  "training_time_sec": 190.85457611083984,
+  "training_time_sec": 1139.65225815773,
   "model_key": "satellite_gru",
   "provider": "oneweb",
   "experiment_type": "dl",
@@ -32,6 +32,6 @@
     "satellite_change",
     "time_since_handover"
   ],
-  "out_dir": "results\\oneweb_llt_dl\\satellite_gru",
+  "out_dir": "results/oneweb_llt_dl/satellite_gru",
   "mode": "MIMO"
 }

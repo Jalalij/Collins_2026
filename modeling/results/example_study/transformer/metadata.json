@@ -1,0 +1,36 @@
+{
+  "model_type": "Transformer",
+  "d_model": 64,
+  "nhead": 4,
+  "num_layers": 2,
+  "dim_feedforward": 256,
+  "num_targets": 3,
+  "output_len": 15,
+  "input_dim": 13,
+  "seq_len": 30,
+  "epochs_trained": 6,
+  "best_val_loss": 1.5418851995883986,
+  "training_time_sec": 587.0933220386505,
+  "parameters": 103789,
+  "model_key": "transformer",
+  "provider": "oneweb",
+  "experiment_type": "dl",
+  "targets": [
+    "rtt_mean",
+    "jitter_ms",
+    "packet_loss_percent"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results/example_study/transformer",
+  "mode": "MIMO"
+}

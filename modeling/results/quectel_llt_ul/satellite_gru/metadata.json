@@ -12,7 +12,7 @@
   ],
   "output_len": 15,
   "feature_size": 10,
-  "training_time_sec": 1464.6710534095764,
+  "training_time_sec": 7273.169214010239,
   "model_key": "satellite_gru",
   "provider": "quectel",
   "experiment_type": "latency_loss_throughput_ul",
@@ -33,6 +33,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\quectel_llt_ul\\satellite_gru",
+  "out_dir": "results/quectel_llt_ul/satellite_gru",
   "mode": "MIMO"
 }

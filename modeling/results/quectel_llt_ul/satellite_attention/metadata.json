@@ -12,7 +12,7 @@
   ],
   "output_len": 15,
   "feature_size": 10,
-  "training_time_sec": 2236.573254585266,
+  "training_time_sec": 15940.03375506401,
   "model_key": "satellite_attention",
   "provider": "quectel",
   "experiment_type": "latency_loss_throughput_ul",
@@ -33,6 +33,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\quectel_llt_ul\\satellite_attention",
+  "out_dir": "results/quectel_llt_ul/satellite_attention",
   "mode": "MIMO"
 }

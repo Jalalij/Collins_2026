@@ -1,9 +1,8 @@
 model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
-Seq2Seq-GRU,1.4770,3.1832,34.9419,66.3712,0.1990,0.9500,15.2605,results\starlink_llt_ul\seq2seq
-LSTM,1.5383,3.3559,36.0329,66.1163,0.0916,0.9500,17.0331,results\starlink_llt_ul\lstm
-Transformer,1.5013,3.2654,36.3070,68.9734,0.1663,0.9500,15.7932,results\starlink_llt_ul\transformer
-Satellite-GRU,1.4847,3.2424,42.3161,65.3455,0.1531,0.9500,15.9327,results\starlink_llt_ul\satellite_gru
-Satellite-ATTENTION,1.4967,3.2969,41.1930,66.5420,0.0814,0.9500,16.4551,results\starlink_llt_ul\satellite_attention
-Satellite-FNN,1.5099,3.2748,34.3922,65.7640,0.1221,0.9500,15.5474,results\starlink_llt_ul\satellite_fnn
-GaussianProcess,5.1859,8.2836,13.1884,13.0825,0.1096,0.9504,42.3234,results\starlink_llt_ul\gaussian_process
-Autoencoder-standard,3.9627,7.1942,9.7874,9.8029,0.3290,0.9500,38.6407,results\starlink_llt_ul\autoencoder
+Seq2Seq-GRU,1.4510,3.2183,39.0282,66.8950,0.1775,0.9500,15.6425,results/starlink_llt_ul/seq2seq
+LSTM,1.4983,3.3139,32.9330,65.5322,0.0764,0.9500,16.3601,results/starlink_llt_ul/lstm
+Transformer,1.4742,3.2526,34.9154,66.5474,0.1718,0.9500,15.7392,results/starlink_llt_ul/transformer
+Satellite-GRU,1.4636,3.1603,35.7846,65.9058,0.2185,0.9500,15.1935,results/starlink_llt_ul/satellite_gru
+Satellite-ATTENTION,1.4802,3.2611,40.8453,65.5627,0.1446,0.9500,16.2011,results/starlink_llt_ul/satellite_attention
+Satellite-FNN,1.5712,3.2955,35.3640,66.2024,0.1225,0.9500,16.2787,results/starlink_llt_ul/satellite_fnn
+Autoencoder-standard,3.9548,7.1277,9.7671,9.8061,0.3414,0.9500,37.9016,results/starlink_llt_ul/autoencoder

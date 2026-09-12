@@ -12,7 +12,7 @@
   ],
   "output_len": 15,
   "feature_size": 19,
-  "training_time_sec": 61.21186017990112,
+  "training_time_sec": 22.910608053207397,
   "model_key": "satellite_fnn",
   "provider": "starlink",
   "experiment_type": "latency_loss_throughput_ul",
@@ -42,6 +42,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_llt_ul\\satellite_fnn",
+  "out_dir": "results/starlink_llt_ul/satellite_fnn",
   "mode": "MIMO"
 }

@@ -8,7 +8,7 @@ run_train() {
   local out_dir="$3"
   echo ""
   echo "--- ${provider}  ${exp_type} ---"
-  python run.py train \
+  python3 run.py train \
     --provider "$provider" \
     --experiment_type "$exp_type" \
     --targets $TARGETS \

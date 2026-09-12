@@ -7,8 +7,8 @@
   "seq_len": 30,
   "feat_dim": 10,
   "primary_target": "ping_rtt_ms",
-  "epochs_trained": 86,
-  "training_time_sec": 4390.064142942429,
+  "epochs_trained": 76,
+  "training_time_sec": 2240.122502565384,
   "parameters": 91739,
   "model_key": "autoencoder",
   "provider": "quectel",
@@ -30,6 +30,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\quectel_llt_ul\\autoencoder",
+  "out_dir": "results/quectel_llt_ul/autoencoder",
   "mode": "MISO"
 }

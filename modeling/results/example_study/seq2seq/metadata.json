@@ -1,0 +1,89 @@
+{
+  "model_type": "Seq2Seq-GRU",
+  "strategy": "MIMO",
+  "hidden_size": 128,
+  "embed_dim": 16,
+  "num_features": 9,
+  "num_targets": 3,
+  "target_cols": [
+    "rtt_mean",
+    "jitter_ms",
+    "packet_loss_percent"
+  ],
+  "output_len": 15,
+  "input_len": 30,
+  "epochs_trained": 47,
+  "checkpoint": "results/example_study/seq2seq/20260911_081330/best_model.pt",
+  "parameters": 449592,
+  "actual_feature_cols": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "feature_stats": {
+    "mean": [
+      49.7102165222168,
+      0.3429126739501953,
+      0.13401922583580017,
+      71.87799835205078,
+      6.29155158996582,
+      21.937578201293945,
+      191.58181762695312,
+      0.0018487845081835985,
+      63.742401123046875
+    ],
+    "std": [
+      24.404037475585938,
+      2.443045139312744,
+      0.2714241147041321,
+      56.85972595214844,
+      2.1400578022003174,
+      9.526144027709961,
+      84.18528747558594,
+      0.04295773804187775,
+      40.372528076171875
+    ]
+  },
+  "target_stats": {
+    "rtt_mean": {
+      "mean": 71.87799835205078,
+      "std": 56.85972596214844
+    },
+    "jitter_ms": {
+      "mean": 0.13401922583580017,
+      "std": 0.2714241247041321
+    },
+    "packet_loss_percent": {
+      "mean": 0.3429126739501953,
+      "std": 2.443045149312744
+    }
+  },
+  "normalise": "zscore",
+  "model_key": "seq2seq",
+  "provider": "oneweb",
+  "experiment_type": "dl",
+  "targets": [
+    "rtt_mean",
+    "jitter_ms",
+    "packet_loss_percent"
+  ],
+  "features": [
+    "throughput_mbps",
+    "packet_loss_percent",
+    "jitter_ms",
+    "rtt_mean",
+    "sinr_db",
+    "elevation_deg",
+    "azimuth_deg",
+    "satellite_change",
+    "time_since_handover"
+  ],
+  "out_dir": "results/example_study/seq2seq",
+  "mode": "MIMO"
+}

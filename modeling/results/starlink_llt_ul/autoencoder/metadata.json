@@ -7,8 +7,8 @@
   "seq_len": 30,
   "feat_dim": 19,
   "primary_target": "ping_server_rtt_ms",
-  "epochs_trained": 48,
-  "training_time_sec": 269.0508735179901,
+  "epochs_trained": 43,
+  "training_time_sec": 227.8845818042755,
   "parameters": 161129,
   "model_key": "autoencoder",
   "provider": "starlink",
@@ -39,6 +39,6 @@
     "weather_pressure",
     "weather_rain_rate"
   ],
-  "out_dir": "results\\starlink_llt_ul\\autoencoder",
+  "out_dir": "results/starlink_llt_ul/autoencoder",
   "mode": "MISO"
 }

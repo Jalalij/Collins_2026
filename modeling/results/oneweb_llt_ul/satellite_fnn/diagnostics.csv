@@ -1,2 +1,2 @@
 model,relative_rmse,relative_mae,resid_pearson_lag1,resid_pearson_lag1_p,resid_ljung_p_lag10
-Satellite-FNN,2.2960,2.7409,0.8714,0.0000,
+Satellite-FNN,2.2969,2.7318,0.8655,0.0000,

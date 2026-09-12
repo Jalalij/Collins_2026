@@ -1,9 +1,8 @@
 model,MAE,RMSE,MAPE_pct,sMAPE_pct,R2,PICP_95,MIS,run_dir
-Seq2Seq-GRU,22.8133,49.3953,28.1494,8.4240,0.9179,0.9499,337.1224,results\oneweb_llt_ul\seq2seq
-LSTM,33.4161,68.6572,46.6798,10.9504,0.8511,0.9500,487.7756,results\oneweb_llt_ul\lstm
-Transformer,32.8715,67.8388,48.4160,10.7091,0.8546,0.9500,484.3410,results\oneweb_llt_ul\transformer
-Satellite-GRU,23.4083,48.8918,31.2676,9.5769,0.9197,0.9499,334.4781,results\oneweb_llt_ul\satellite_gru
-Satellite-ATTENTION,24.3526,49.0170,34.5772,9.6596,0.9192,0.9499,325.7966,results\oneweb_llt_ul\satellite_attention
-Satellite-FNN,32.3965,56.7797,49.2922,12.7267,0.8925,0.9499,364.4780,results\oneweb_llt_ul\satellite_fnn
-GaussianProcess,171.1262,284.6613,76.8200,63.0277,0.1356,0.9499,1612.8472,results\oneweb_llt_ul\gaussian_process
-Autoencoder-standard,88.8260,181.1583,39.4288,30.3668,0.6279,0.9499,1268.2149,results\oneweb_llt_ul\autoencoder
+Seq2Seq-GRU,23.9348,49.8760,33.0348,9.0131,0.9159,0.9499,344.8227,results/oneweb_llt_ul/seq2seq
+LSTM,36.6130,76.1506,52.6475,11.2362,0.8168,0.9500,544.9695,results/oneweb_llt_ul/lstm
+Transformer,27.7893,56.0310,38.9119,10.2962,0.9008,0.9500,383.0601,results/oneweb_llt_ul/transformer
+Satellite-GRU,24.8978,50.1269,34.6839,10.4089,0.9156,0.9499,325.7301,results/oneweb_llt_ul/satellite_gru
+Satellite-ATTENTION,24.9735,49.5717,34.0690,10.0835,0.9179,0.9499,324.4043,results/oneweb_llt_ul/satellite_attention
+Satellite-FNN,32.2901,56.7442,48.3719,12.6973,0.8924,0.9499,364.2662,results/oneweb_llt_ul/satellite_fnn
+Autoencoder-standard,85.6776,174.7359,36.1486,29.9150,0.6537,0.9499,1179.3414,results/oneweb_llt_ul/autoencoder

@@ -12,9 +12,18 @@
   ],
   "output_len": 15,
   "input_len": 30,
-  "epochs_trained": 47,
-  "checkpoint": "results/example_study/seq2seq/20260911_081330/best_model.pt",
+  "epochs_trained": 43,
+  "checkpoint": "results/example_study/seq2seq/20260911_211832/best_model.pt",
   "parameters": 449592,
+  "decoder_initialization": "last_observed",
+  "residual_prediction": true,
+  "per_sample_teacher_forcing": true,
+  "autoregressive_gradient_detach": false,
+  "target_feature_indices": [
+    3,
+    2,
+    1
+  ],
   "actual_feature_cols": [
     "throughput_mbps",
     "packet_loss_percent",

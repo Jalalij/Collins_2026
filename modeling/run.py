@@ -157,7 +157,7 @@ from dataset import (
     FEATURE_GROUPS, ALL_FEATURE_NAMES,
 
     # Config + builders
-    DataConfig, build_dataloaders,
+    DataConfig, build_dataloaders, get_device,
 
     # IO mode constants
     IO_MODE_MIMO, IO_MODE_MISO, IO_MODE_SISO,
@@ -405,7 +405,7 @@ def _eval_from_checkpoint(
     # Local import — ThroughputSeq2Seq is private to models/seq2seq.py.
     from models.seq2seq import ThroughputSeq2Seq
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_device()
 
     cfg = DataConfig(
         data_root       = data_root,

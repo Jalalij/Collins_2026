@@ -27,9 +27,9 @@ from torch.utils.data import DataLoader
 from .base import BaseTrainer
 
 try:
-    from ..dataset import DataConfig, build_dataloaders
+    from ..dataset import DataConfig, build_dataloaders, get_device
 except ImportError:
-    from dataset import DataConfig, build_dataloaders
+    from dataset import DataConfig, build_dataloaders, get_device
 
 
 # ---------------------------------------------------------------------------
@@ -192,7 +192,7 @@ class PredictiveAutoencoderTrainer(BaseTrainer):
         print(f"  output_len : {output_len}  (primary target: {cfg.primary_target})")
 
         # ------------------------------------------------------------------ model
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = get_device()
 
         if variant == "sparse":
             model = SparseAutoencoder(

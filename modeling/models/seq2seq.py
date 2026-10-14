@@ -120,9 +120,9 @@ from .base import BaseTrainer
 from train import train as run_training
 
 try:
-    from ..dataset import DataConfig, build_dataloaders
+    from ..dataset import DataConfig, build_dataloaders, get_device
 except ImportError:
-    from dataset import DataConfig, build_dataloaders
+    from dataset import DataConfig, build_dataloaders, get_device
 
 
 # ===========================================================================
@@ -246,6 +246,7 @@ class BahdanauAttention(nn.Module):
         self,
         decoder_hidden: torch.Tensor,
         encoder_outputs: torch.Tensor,
+        keys: torch.Tensor | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
 
         # Decoder state becomes the attention query.
@@ -258,8 +259,16 @@ class BahdanauAttention(nn.Module):
         # Encoder states become attention keys.
         #
         # (B, T, H) -> (B, T, H)
-        k = self.key_proj(
-            encoder_outputs
+        #
+        # The keys depend only on the encoder outputs, so the decoder
+        # projects them once per forecast and passes them in via `keys`
+        # instead of recomputing them at every decoding step.
+        k = (
+            keys
+            if keys is not None
+            else self.key_proj(
+                encoder_outputs
+            )
         )
 
         # Additive/Bahdanau energy.
@@ -292,10 +301,10 @@ class BahdanauAttention(nn.Module):
         #
         # result:
         #   (B, H)
-        context = torch.bmm(
-            weights.unsqueeze(1),
-            encoder_outputs,
-        ).squeeze(1)
+        context = (
+            weights.unsqueeze(-1)
+            * encoder_outputs
+        ).sum(dim=1)
 
         return context, weights
 
@@ -512,6 +521,7 @@ class Decoder(nn.Module):
         last_out: torch.Tensor,
         hidden: torch.Tensor,
         enc_out: torch.Tensor,
+        enc_keys: torch.Tensor | None = None,
     ) -> tuple[
         torch.Tensor,
         torch.Tensor,
@@ -539,6 +549,12 @@ class Decoder(nn.Module):
 
             Shape:
                 (B, input_len, hidden_size)
+
+        enc_keys:
+            Optional precomputed attention keys, key_proj(enc_out).
+
+            Shape:
+                (B, input_len, hidden_size)
         """
 
         # -------------------------------------------------------------------
@@ -551,6 +567,7 @@ class Decoder(nn.Module):
         context, attn = self.attention(
             hidden[-1],
             enc_out,
+            enc_keys,
         )
 
         # Convert previous target values into a decoder feature embedding.
@@ -616,9 +633,11 @@ class Decoder(nn.Module):
         # to their latest observed state.
         # ================================================================
 
+        top = h.squeeze(1)
+
         delta = torch.cat(
             [
-                head(h.squeeze(1))
+                head(top)
                 for head in self.heads
             ],
             dim=-1,
@@ -731,6 +750,12 @@ class Decoder(nn.Module):
         # ================================================================
         last_out = last_observed
 
+        # The attention keys are a function of the encoder outputs only,
+        # so project them once here rather than once per decoding step.
+        enc_keys = self.attention.key_proj(
+            enc_out
+        )
+
         preds = []
         attns = []
 
@@ -741,6 +766,7 @@ class Decoder(nn.Module):
                 last_out,
                 hidden,
                 enc_out,
+                enc_keys,
             )
 
             preds.append(pred)
@@ -1401,11 +1427,7 @@ class Seq2SeqTrainer(BaseTrainer):
         # Model
         # ===================================================================
 
-        device = torch.device(
-            "cuda"
-            if torch.cuda.is_available()
-            else "cpu"
-        )
+        device = get_device()
 
         model = ThroughputSeq2Seq(
             num_features=num_features,

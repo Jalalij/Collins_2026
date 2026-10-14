@@ -32,9 +32,9 @@ from torch.utils.data import DataLoader
 from .base import BaseTrainer
 
 try:
-    from ..dataset import DataConfig, build_dataloaders
+    from ..dataset import DataConfig, build_dataloaders, get_device
 except ImportError:
-    from dataset import DataConfig, build_dataloaders
+    from dataset import DataConfig, build_dataloaders, get_device
 
 
 # ---------------------------------------------------------------------------
@@ -256,7 +256,7 @@ class _SatelliteTrainerBase(BaseTrainer):
         print(f"  seq_len      : {seq_len}")
 
         # ------------------------------------------------------------------ model
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = get_device()
         model  = _build_model(arch, seq_len, output_len, feature_size,
                               num_targets, hidden_size, num_layers, device)
 

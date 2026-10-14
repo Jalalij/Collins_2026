@@ -50,6 +50,7 @@ Multi-target notes:
 
 from __future__ import annotations
 
+import os
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -59,6 +60,26 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import ConcatDataset, DataLoader, Dataset
+
+
+# ---------------------------------------------------------------------------
+# Device selection
+# ---------------------------------------------------------------------------
+
+def get_device() -> torch.device:
+    """
+    Pick the fastest available device: CUDA, then Apple-silicon MPS, then CPU.
+
+    Set the LSN_DEVICE environment variable (e.g. LSN_DEVICE=cpu) to override.
+    """
+    override = os.environ.get("LSN_DEVICE")
+    if override:
+        return torch.device(override)
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
 
 
 # ---------------------------------------------------------------------------

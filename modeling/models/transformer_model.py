@@ -39,9 +39,9 @@ from torch.utils.data import DataLoader
 
 from .base import BaseTrainer
 try:
-    from ..dataset import DataConfig, build_dataloaders          # package import
+    from ..dataset import DataConfig, build_dataloaders, get_device          # package import
 except ImportError:
-    from dataset import DataConfig, build_dataloaders             # script/direct import
+    from dataset import DataConfig, build_dataloaders, get_device             # script/direct import
 
 
 # ---------------------------------------------------------------------------
@@ -256,7 +256,7 @@ class TransformerTrainer(BaseTrainer):
         base_ds = _unwrap(train_loader.dataset)
 
         # ------------------------------------------------------------------ model
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = get_device()
         model = SimpleTransformer(
             input_dim=input_dim,
             num_targets=num_targets,

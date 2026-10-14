@@ -50,7 +50,7 @@ from dataset import (
     # ADD THESE
     DEFAULT_FEATURES_BY_EXP,
 
-    DataConfig, ThroughputFileDataset, load_csv,
+    DataConfig, ThroughputFileDataset, load_csv, get_device,
 )
 from model import ThroughputSeq2Seq
 
@@ -181,7 +181,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main():
     args   = _build_parser().parse_args()
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_device()
 
     # ------------------------------------------------------------------ meta
     meta      = {}

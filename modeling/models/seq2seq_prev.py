@@ -31,9 +31,9 @@ from .base import BaseTrainer
 from train import train as run_training
 
 try:
-    from ..dataset import DataConfig, build_dataloaders
+    from ..dataset import DataConfig, build_dataloaders, get_device
 except ImportError:
-    from dataset import DataConfig, build_dataloaders
+    from dataset import DataConfig, build_dataloaders, get_device
 
 
 # ---------------------------------------------------------------------------
@@ -348,7 +348,7 @@ class Seq2SeqTrainer(BaseTrainer):
         )
 
         # ------------------------------------------------------------------ model
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = get_device()
         model  = ThroughputSeq2Seq(
             num_features = num_features,
             embed_dim    = embed_dim,

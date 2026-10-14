@@ -30,6 +30,8 @@ import torch.nn as nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
+from dataset import get_device
+
 
 # ---------------------------------------------------------------------------
 # Loss helpers – each asserts the exact shape contract for its mode
@@ -146,7 +148,8 @@ def train_one_epoch(
 ) -> float:
     model.train()
     loss_fn = _LOSS_FN[mode]
-    total = 0.0
+    # Accumulated on-device so each batch doesn't force a GPU sync via .item().
+    total = torch.zeros((), device=device)
 
     for batch in loader:
         features, hour, dow, target = [t.to(device) for t in batch]
@@ -163,9 +166,9 @@ def train_one_epoch(
         loss.backward()
         nn.utils.clip_grad_norm_(model.parameters(), max_norm=5.0)
         optimizer.step()
-        total += loss.item() * features.size(0)
+        total += loss.detach() * features.size(0)
 
-    return total / len(loader.dataset)
+    return total.item() / len(loader.dataset)
 
 
 @torch.no_grad()
@@ -180,7 +183,7 @@ def evaluate(
         return float("nan")
     model.eval()
     loss_fn = _LOSS_FN[mode]
-    total = 0.0
+    total = torch.zeros((), device=device)
 
     for batch in loader:
         features, hour, dow, target = [t.to(device) for t in batch]
@@ -192,9 +195,9 @@ def evaluate(
         else:
             preds, _ = _forward_siso(model, features, hour, dow)
 
-        total += loss_fn(preds, target, criterion).item() * features.size(0)
+        total += loss_fn(preds, target, criterion) * features.size(0)
 
-    return total / len(loader.dataset)
+    return total.item() / len(loader.dataset)
 
 
 # ---------------------------------------------------------------------------
@@ -238,7 +241,7 @@ def train(
         raise ValueError(f"mode must be one of {list(_LOSS_FN)}; got {mode!r}")
 
     if device is None:
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        device = get_device()
     print(f"\nTraining on: {device}  |  mode: {mode.upper()}")
     model = model.to(device)
 

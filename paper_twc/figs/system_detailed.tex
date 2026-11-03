@@ -1,0 +1,92 @@
+% Detailed system model: network and measurement plane, data and forecasting plane, scheduling plane.
+\begin{tikzpicture}[
+  font=\scriptsize, >={Latex[length=1.6mm]},
+  sat/.pic={\fill[gray!60] (-0.32,-0.07) rectangle (-0.12,0.07); \fill[gray!60] (0.12,-0.07) rectangle (0.32,0.07);
+            \filldraw[fill=white, draw=black] (-0.11,-0.1) rectangle (0.11,0.1);},
+  box/.style={draw, rounded corners=2pt, align=center, inner sep=2.5pt},
+  gnd/.style={box, fill=gray!12, minimum height=6mm},
+  ue/.style={box, fill=orange!20, minimum width=13mm, minimum height=7mm},
+  pstep/.style={box, fill=blue!8, text width=37mm, minimum height=7mm},
+  fstep/.style={box, fill=green!12, text width=37mm, minimum height=7mm},
+  sch/.style={box, fill=violet!12, text width=30mm, minimum height=7mm},
+  panel/.style={draw=gray!70, dashed, rounded corners=4pt, inner sep=5pt},
+  ptitle/.style={font=\footnotesize\bfseries},
+  ul/.style={dashed, thick, blue!60!black},
+  fl/.style={densely dotted, very thick, blue!60!black},
+  wl/.style={thick, ->}
+]
+% ===================== (a) network and measurement plane =====================
+\node[ptitle, anchor=west] (ta) at (-0.5,8.75) {(a) Network and measurement plane};
+\draw[gray!60, thick] (-0.3,6.3) .. controls (2.5,6.75) and (4.5,6.75) .. (7.6,6.3);
+\draw[gray!60, thick] (-0.3,7.5) .. controls (2.5,8.0) and (4.5,8.0) .. (7.6,7.5);
+\node[gray!60!black, anchor=west, align=left] at (6.0,6.15) {Starlink\\$\approx$550\,km};
+\node[gray!60!black, anchor=west, align=left] at (6.0,7.35) {OneWeb\\$\approx$1200\,km};
+\pic at (0.7,6.5) {sat}; \pic at (2.1,6.63) {sat}; \pic at (3.5,6.66) {sat};
+\pic at (3.3,7.82) {sat}; \pic at (5.0,7.82) {sat};
+\node at (0.7,6.83) {S$_1$}; \node at (2.1,6.96) {S$_2$}; \node at (3.5,6.99) {S$_3$};
+\node at (3.3,8.15) {O$_1$}; \node at (5.0,8.15) {O$_2$};
+\draw[<->, red!70!black] (1.05,6.56) -- (1.75,6.61);
+\node[red!70!black, font=\tiny, align=center] at (1.4,7.2) {handover\\(15\,s reallocation)};
+\draw[<->, red!70!black] (3.65,7.86) -- (4.65,7.88) node[midway, above, font=\tiny] {handover};
+% ground segment
+\node[gnd] (gs) at (1.7,4.4) {Starlink\\GS + PoP};
+\node[gnd] (gw) at (4.6,4.4) {OneWeb\\gateway};
+\node[gnd] (core) at (5.25,3.55) {5G core};
+\node[box, fill=gray!25, minimum width=14mm] (inet) at (7.0,5.0) {Internet};
+\node[box, fill=yellow!20] (srv) at (7.0,4.0) {server:\\ping echo,\\iperf3};
+\draw[fl] (gs) -- (2.1,6.5);
+\draw[fl] (gw) -- (5.0,7.7);
+\draw (gs) -- (inet); \draw (gw) -- (inet); \draw (core) -- (inet); \draw (inet) -- (srv);
+% user side
+\node[ue] (sut) at (0.45,1.75) {Starlink\\UT};
+\node[ue] (out) at (3.05,1.75) {OneWeb\\UT};
+\node[ue] (qe) at (5.95,1.75) {Quectel\\5G UE};
+\node[gnd] (gnb) at (5.95,2.7) {gNB};
+\draw[ul] (sut) -- (0.7,6.38);
+\draw[ul] (out) -- (3.3,7.7);
+\draw[ul] (qe) -- (gnb); \draw (gnb) -- (core);
+\node[box, fill=orange!8, minimum width=70mm, minimum height=8mm] (cn) at (3.1,0.55) {ARA client node: MPQUIC client, collectors, forecaster};
+\draw[thick] (sut) -- (sut |- cn.north); \draw[thick] (out) -- (out |- cn.north); \draw[thick] (qe) -- (qe |- cn.north);
+\draw[ul] (1.05,3.15) -- (1.5,3.15) node[right] {user link};
+\draw[fl] (1.05,2.8) -- (1.5,2.8) node[right] {feeder link};
+\node[panel, fit={(ta)(cn)(srv)(sut)(7.9,8.2)}] {};
+
+% ===================== (b) data and forecasting plane =====================
+\node[ptitle, anchor=west] (tb) at (8.45,8.75) {(b) Data and forecasting plane};
+\node[pstep] (col) at (10.6,7.75) {\textbf{Collectors per link $p$}: ping RTT (5\,Hz), iperf3 jitter, loss, rate (1\,Hz), terminal telemetry, weather};
+\node[pstep] (ali) at (10.6,6.6) {\textbf{Causal alignment} on a 200\,ms grid: interpolated pings $\rightarrow$ last real ping (Prop.~\ref{prop:leak})};
+\node[pstep] (feat) at (10.6,5.45) {\textbf{Features} $\mathbf{x}_t\in\mathbb{R}^F$ + causal context statistics, $z$-scored, clipped};
+\begin{scope}[shift={(8.7,3.45)}]
+  \draw[->] (0,0) -- (3.9,0);
+  \foreach \x in {0.1,0.25,...,2.0} \fill[black] (\x,{0.35+0.18*sin(220*\x)+0.1*(\x>1.3)}) circle (0.6pt);
+  \draw[decorate, decoration={brace, amplitude=3pt, mirror}] (0.05,-0.08) -- (2.0,-0.08) node[midway, below=2pt, font=\tiny] {$\mathbf{X}_t$: $L=30$ rows (6\,s)};
+  \draw[dashed, gray] (2.05,-0.1) -- (2.05,1.05) node[above, font=\tiny, black] {$t$};
+  \fill[green!30, opacity=0.7] (2.1,0.48) -- (3.8,0.2) -- (3.8,1.15) -- (2.1,0.62) -- cycle;
+  \fill[green!55, opacity=0.7] (2.1,0.52) -- (3.8,0.42) -- (3.8,0.85) -- (2.1,0.58) -- cycle;
+  \draw[green!40!black, thick] (2.1,0.55) -- (3.8,0.6);
+  \draw[decorate, decoration={brace, amplitude=3pt, mirror}] (2.1,-0.08) -- (3.8,-0.08) node[midway, below=2pt, font=\tiny] {$h=1..15$ (0.2--3\,s)};
+\end{scope}
+\node[fstep] (enc) at (10.6,2.45) {\textbf{DS2S}: GRU encoder $\rightarrow$ attention $\rightarrow$ decoder anchored on $\mathbf{y}_t$};
+\node[fstep] (head) at (10.6,1.3) {\textbf{Heads}: $\hat\mu_{h,k}$, $\hat q_{\tau,h,k}$, $\tau\in\{.025,.25,.5,.75,.975\}$, loss MSE + pinball};
+\node[fstep] (cqr) at (10.6,0.15) {\textbf{CQR}: $[\hat q_{.025}-c_{h,k},\,\hat q_{.975}+c_{h,k}]$, $c_{h,k}$ from calibration sessions};
+\draw[wl] (col) -- (ali); \draw[wl] (ali) -- (feat); \draw[wl] (feat) -- (10.6,4.72); \draw[wl] (10.6,3.05) -- (enc);
+\draw[wl] (enc) -- (head); \draw[wl] (head) -- (cqr);
+\node[panel, fit={(tb)(col)(cqr)(8.55,3.0)(12.65,3.0)}] {};
+\draw[wl, orange!70!black] (cn.east) to[out=0, in=180] node[pos=0.12, below right, font=\tiny, black] {measurements} (col.west);
+
+% ===================== (c) scheduling plane =====================
+\node[ptitle, anchor=west] (tc) at (13.55,8.75) {(c) Scheduling plane};
+\node[sch] (fc) at (15.45,7.5) {per path $p$, step $h$: median $\hat q_{.5}$, mean $\hat\mu$, bound $u_{p,h}=\hat q_{.975}+c$};
+\node[sch] (app) at (15.45,6.1) {real-time application packets with deadline $D$};
+\node[sch] (dec) at (15.45,4.6) {\textbf{Prediction-aware MPQUIC scheduler}: send on $p$ with $u_{p,h}\le D$, else duplicate on two paths};
+\node[box, fill=orange!20, minimum width=8mm] (p1) at (14.25,2.9) {SL};
+\node[box, fill=orange!20, minimum width=8mm] (p2) at (15.45,2.9) {OW};
+\node[box, fill=orange!20, minimum width=8mm] (p3) at (16.65,2.9) {5G};
+\draw[wl] (fc) -- (app); \draw[wl] (app) -- (dec);
+\draw[wl] (dec) -- (p1); \draw[wl] (dec) -- (p2); \draw[wl] (dec) -- (p3);
+\node[align=center, font=\tiny] (sf) at (15.45,2.2) {QUIC subflows on the three\\access links of (a)};
+\node[sch, fill=gray!10] (fb) at (15.45,0.95) {ACKs and new measurements update $\mathbf{X}_{t+1}$ every 200\,ms};
+\draw[wl, dashed] (sf) -- (fb);
+\node[panel, fit={(tc)(fc)(fb)(p1)(p3)(cqr.south -| fb.south)}] {};
+\draw[wl, green!40!black] (cqr.east) to[out=0, in=180] node[pos=0.1, below right, font=\tiny, black, align=left] {forecasts +\\intervals} (fc.west);
+\end{tikzpicture}

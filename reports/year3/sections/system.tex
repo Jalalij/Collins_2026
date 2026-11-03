@@ -8,6 +8,15 @@ The data were collected on the ARA wireless living lab~\cite{islam2025design}. A
   \label{fig:system}
 \end{figure}
 
+Figure~\ref{fig:sysdetail} gives a more detailed view of the three planes of the system: the network and measurement plane, the data and forecasting plane developed in this report, and the scheduling plane that consumes the forecasts.
+
+\begin{figure}[p]
+  \centering
+  \rotatebox{90}{\resizebox{0.95\textheight}{!}{\input{tikz/system_detailed.tex}}}
+  \caption{Detailed system model. (a) Network and measurement plane: Starlink (about 550\,km, user reallocation every 15\,s), OneWeb (about 1200\,km, bent pipe), and 5G paths from the ARA client node to the measurement server. (b) Data and forecasting plane: causal alignment, feature window, distributional forecaster, and CQR calibration. (c) Scheduling plane: per-path forecasts and calibrated bounds drive the prediction-aware MPQUIC scheduler, and new measurements update the window every 200\,ms.}
+  \label{fig:sysdetail}
+\end{figure}
+
 \subsection{Forecasting problem}
 For a link, let $\mathbf{x}_t\in\mathbb{R}^{F}$ be the feature vector at row $t$ and $\mathbf{y}_t\in\mathbb{R}^{K}$ the $K=3$ targets (RTT in ms, iperf jitter in ms, iperf loss in \%). Given the window $\mathbf{X}_t=(\mathbf{x}_{t-L+1},\dots,\mathbf{x}_t)$ with $L=30$ rows, the model predicts $\mathbf{y}_{t+h}$ for $h=1,\dots,H$ with $H=15$. Because rows are 200\,ms apart, the input covers 6\,s of history and the horizon spans 0.2\,s to 3\,s. The Year 2 report labeled the horizon steps as seconds (\texttt{t+1s} to \texttt{t+15s}). They are steps of 200\,ms, which matters when the forecasts are matched to scheduler time constants.
 

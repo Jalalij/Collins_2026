@@ -1,0 +1,148 @@
+% Required packages:
+% \usepackage{tikz}
+% \usetikzlibrary{positioning,arrows.meta,calc}
+
+\begin{tikzpicture}[
+    font=\small,
+    >=Latex,
+    box/.style={
+        draw=black,
+        dashed,
+        dash pattern=on 8pt off 5pt,
+        line width=0.9pt,
+        minimum height=2.0cm,
+        align=center,
+        inner sep=3pt
+    },
+    app/.style={
+        box,
+        fill=orange!55,
+        minimum width=2.55cm
+    },
+    tunnel/.style={
+        box,
+        fill=blue!18,
+        minimum width=2.55cm
+    },
+    mpquic/.style={
+        box,
+        fill=violet!18,
+        minimum width=2.55cm
+    },
+    iface/.style={
+        box,
+        fill=green!16,
+        minimum width=2.55cm
+    },
+    link/.style={
+        -{Latex[length=3.5mm,width=2.5mm]},
+        line width=1.5pt
+    }
+]
+
+% -------------------------------------------------------------------------
+% CLIENT TITLE
+% -------------------------------------------------------------------------
+\node[font=\bfseries\Large] at (2.45,1.75) {Client};
+
+% -------------------------------------------------------------------------
+% CLIENT SIDE
+% -------------------------------------------------------------------------
+\node[app] (capp) at (0,0) {
+    {\large Application}\\[7mm]
+    Transmit stream to\\
+    10.0.0.1
+};
+
+\node[tunnel, right=0pt of capp] (ctun) {
+    {\large Virtual Tunnel}\\
+    {\large Interface}\\[5mm]
+    \textbf{IP: 10.0.0.2}
+};
+
+\node[mpquic, right=0pt of ctun] (cmp) {
+    {\large MPQUIC}\\[7mm]
+    Schedule packets on\\
+    physical interfaces
+};
+
+% Client interfaces
+\node[
+    iface,
+    minimum height=1.95cm,
+    anchor=south west
+] (ci1) at ([xshift=0pt,yshift=0.10cm]cmp.north east) {
+    {\large Interface 1}\\[6mm]
+    \textbf{IP: 10.189.55.160}
+};
+
+\node[
+    iface,
+    minimum height=1.95cm,
+    anchor=north west
+] (ci2) at ([xshift=0pt,yshift=-0.10cm]cmp.south east) {
+    {\large Interface 2}\\[6mm]
+    \textbf{IP: 192.168.1.241}
+};
+
+% -------------------------------------------------------------------------
+% SERVER INTERFACE
+% -------------------------------------------------------------------------
+\node[
+    iface,
+    minimum width=2.55cm,
+    minimum height=2.0cm,
+    anchor=west
+] (sif) at ([xshift=0.4cm]$(ci1.east)!0.5!(ci2.east)$) {
+    {\large Interface}\\[6mm]
+    \textbf{IP: 136.64.133.110}
+};
+
+% -------------------------------------------------------% -------------------------------------------------------------------------
+% PATH ARROWS
+% -------------------------------------------------------------------------
+
+% Interface 1 <-> Server Interface
+\draw[
+    <->,
+    >=Latex,
+    line width=1.5pt
+]
+(ci1.east) -- ([yshift=0.45cm]sif.west);
+
+% Interface 2 <-> Server Interface
+\draw[
+    <->,
+    >=Latex,
+    line width=1.5pt
+]
+(ci2.east) -- ([yshift=-0.45cm]sif.west);
+% -------------------------------------------------------------------------
+% SERVER SIDE
+% -------------------------------------------------------------------------
+\node[mpquic, right=0pt of sif] (smp) {
+    {\large MPQUIC}\\[7mm]
+    Receive packets from\\
+    physical interface
+};
+
+\node[tunnel, right=0pt of smp] (stun) {
+    {\large Virtual Tunnel}\\
+    {\large Interface}\\[5mm]
+    \textbf{IP: 10.0.0.1}
+};
+
+\node[app, right=0pt of stun] (sapp) {
+    {\large Application}\\[7mm]
+    Receive stream from\\
+    10.0.0.2
+};
+
+% -------------------------------------------------------------------------
+% SERVER TITLE
+% -------------------------------------------------------------------------
+\node[
+    font=\bfseries\Large
+] at ($(stun.north)!0.5!(sapp.north)+(-2,0.75)$) {Server};
+
+\end{tikzpicture}

@@ -1,0 +1,8 @@
+\begin{itemize}[leftmargin=*]
+  \item \textbf{RMSE did not improve.} No Year 3 change lowers the RTT RMSE by more than 7\% on any link (the largest drop is the Starlink DL ensemble). Longer input windows, cross-link features (for example the state of the other paths), and explicit models of the Starlink 15\,s reconfiguration~\cite{tanveer2023making} are the next candidates.
+  \item \textbf{Coverage under shift.} Conformal coverage holds exactly only for exchangeable data. Validation sessions are also used for early stopping, and sessions differ in time of day and load. The measured RTT coverage of \PICPMin--\PICPMax{} is close to the target but not guaranteed. Online adaptive conformal methods~\cite{gibbs2021adaptive} can correct the offset during operation.
+  \item \textbf{iperf alignment.} The iperf3 reports are stamped at the start of each one-second interval (Section~\ref{sec:audit}). Re-stamping them at the end of the interval in the parsers is the clean fix.
+  \item \textbf{One split, three seeds.} As in Year 2, a single session split is used. Differences of one or two percent (for example most RMSE changes) are within the seed spread and should not be read as real effects.
+  \item \textbf{5G subsampling.} For the 5G links every fourth training window is used for all methods. The full set may help the 5G models slightly.
+  \item \textbf{Scheduler evaluation.} The benefit for the multipath scheduler is argued from the forecast quality. An end-to-end test of the Year 3 model inside the liquid tunnel is the main item for the next period.
+\end{itemize}

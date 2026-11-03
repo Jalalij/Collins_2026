@@ -1,0 +1,150 @@
+All results are on the test sessions, which were not used for training, model selection, or calibration. ``Y2'' is the Year 2 Seq2Seq-GRU retrained on the corrected data with the same protocol as the Year 3 model. Unless stated otherwise, numbers are means over three seeds and changes are relative to the Y2 seed mean. All \NRuns{} neural runs stopped early after \EpochsMin{} to \EpochsMax{} epochs (median \EpochsMedian{}). The selected checkpoints therefore lie at or before epoch \BestEpochMax{}, well inside the 60-epoch budget.
+
+\subsection{Headline: RTT}
+Table~\ref{tab:main} gives the RTT results per link and Figures~\ref{fig:mae}--\ref{fig:mis} show them per horizon step. Against the retrained Year 2 model, the Year 3 model:
+\begin{itemize}[leftmargin=*]
+  \item lowers the RTT MAE on all six links, by \ChgMAEWorst\% to \ChgMAEBest\% (mean \ChgMAEMean\%). The largest gains are on 5G UL (\ChgMAEQUL\%), Starlink DL (\ChgMAESLDL\%), and OneWeb DL (\ChgMAEOWDL\%).
+  \item lowers the calibrated 95\% interval score on all six links, by \ChgMISWorst\% to \ChgMISBest\% (mean \ChgMISMean\%), at the same coverage. Measured test coverage is \PICPMin{} to \PICPMax{} for Y3 and similar for Y2. Both intervals are calibrated, and the Y3 intervals are narrower because their width follows the input (Figure~\ref{fig:trace}).
+  \item leaves RMSE and $R^2$ nearly unchanged: the RMSE changes by \ChgRMSEBest\% to $+$\ChgRMSEWorst\% (mean \ChgRMSEMean\%).
+\end{itemize}
+With three-seed ensembles on both sides, the MAE changes by \ChgEnsMAEWorst\% to \ChgEnsMAEBest\%, the RMSE by \ChgEnsRMSEWorst\% to \ChgEnsRMSEBest\%, and the interval score by \ChgEnsMISWorst\% to \ChgEnsMISBest\%. 
+\begin{table}[t]
+\centering
+\caption{RTT results on the test sessions, averaged over the 15 steps (0.2--3\,s). Mean $\pm$ standard deviation over 3 seeds, and 3-seed ensembles. MAE, RMSE and MIS in ms. MIS is the 95\% interval score with intervals calibrated on the validation sessions (split conformal for Y2, CQR for Y3). PICP is the measured coverage of those intervals.}
+\label{tab:main}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llccccc}
+\toprule
+Link & Model & MAE & RMSE & $R^2$ & MIS & PICP \\
+\midrule
+\tabinput{data/tab_main.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[p]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_rtt_mae.tex}}
+  \caption{RTT MAE per horizon step. Y3 uses its median output. Lower is better.}
+  \label{fig:mae}
+\end{figure}
+
+\begin{figure}[p]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_rtt_rmse.tex}}
+  \caption{RTT RMSE per horizon step. Y3 uses its mean output.}
+  \label{fig:rmse}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_rtt_mis.tex}}
+  \caption{RTT 95\% interval score per horizon step, with intervals calibrated on the validation sessions. Lower is better.}
+  \label{fig:mis}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_trace.tex}}
+  \caption{One minute of a Starlink DL test session, forecast 1\,s ahead ($h=5$). The Y3 interval widens before and during the RTT bursts and narrows in quiet periods. A constant-width interval (Y2) has to be as wide as the bursts everywhere to reach the same coverage.}
+  \label{fig:trace}
+\end{figure}
+
+\subsection{Comparison with the Year 2 report}
+Table~\ref{tab:y2} puts the Year 3 results next to the numbers printed in the Year 2 report, using the Year 2 ``aggregate'' (the mean over the three targets and 15 steps). The retrained Y2 model matches the MAE and RMSE of the Year 2 report closely. The $R^2$ differs on OneWeb UL, where the report averaged the two constant targets with $R^2=1$ into the aggregate (audit item A4), and on Starlink DL, where two of the three Y2 seeds have a negative jitter $R^2$ and the causal ping inputs remove the leaked part of the signal (A3). With the Year 2 interval method, which takes the quantiles of the test residuals, the Year 2 and Year 3 models have almost the same interval score (within about 5\%). With intervals calibrated on held-out sessions, Y3 is much better. The Year 3 advantage is therefore the input-dependent interval width, which the Year 2 evaluation could not show.
+
+\begin{table}[t]
+\centering
+\caption{Year 2 style aggregate (mean over RTT, jitter, and loss and over the 15 steps). MIS (Y2 method) uses quantiles of the test residuals, as in the Year 2 report. MIS (calibrated) uses intervals calibrated on validation sessions.}
+\label{tab:y2}
+\scriptsize
+\begin{tabular}{llccccc}
+\toprule
+Link & Source & MAE & RMSE & $R^2$ & MIS (Y2 method) & MIS (calibrated) \\
+\midrule
+\tabinput{data/tab_y2compare.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:isproto} shows the same effect for RTT alone. With intervals taken from the test residuals around the mean, the two models are within about 2\% of each other on every link. With calibrated intervals the Year 3 model is \ChgMISWorst\% to \ChgMISBest\% better.
+
+\begin{table}[t]
+\centering
+\caption{RTT interval score (ms, seed means) with the Year 2 method (test-residual quantiles around the mean) and with intervals calibrated on validation sessions.}
+\label{tab:isproto}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+ & \multicolumn{3}{c}{Year 2 method} & \multicolumn{3}{c}{Calibrated} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Link & Y2 & Y3 & $\Delta$\% & Y2 & Y3 & $\Delta$\% \\
+\midrule
+\tabinput{data/tab_isproto.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Which step helps?}
+Table~\ref{tab:ablation} adds the Year 3 steps one at a time. The residual decoder alone (Step 1) and the causal pipeline with context features (Step 2) do not improve the MAE. On OneWeb DL they make it worse (by 9.8\% and 19.0\%), because a squared-error model anchored on a spiky last value follows the spikes. Step 2 reduces the RMSE slightly on most links (up to 4.5\% on Starlink DL), which shows that the context features carry information about the conditional mean. The gains in MAE and in the interval score come from Step 3, the distributional heads. The ensemble (Step 4) adds up to 6.4 further points (Starlink DL MAE) and less than one point on the 5G links.
+
+\begin{table}[t]
+\centering
+\caption{Ablation: change (\%) of RTT MAE, RMSE, and calibrated interval score (MIS) relative to the retrained Y2 model (seed means, with the last row comparing the Y3 ensemble with the Y2 seed mean). Negative is better.}
+\label{tab:ablation}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{l*{18}{r}}
+\toprule
+ & \multicolumn{3}{c}{OneWeb DL} & \multicolumn{3}{c}{OneWeb UL} & \multicolumn{3}{c}{Starlink DL} & \multicolumn{3}{c}{Starlink UL} & \multicolumn{3}{c}{5G DL} & \multicolumn{3}{c}{5G UL} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}\cmidrule(lr){14-16}\cmidrule(lr){17-19}
+Steps & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS \\
+\midrule
+\tabinput{data/tab_ablation.tex}
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Simple references}
+Table~\ref{tab:baselines} compares the neural models with the four references. Two facts were not visible in Year 2, which had no linear or naive baseline. First, persistence is a poor forecast for RTT at 5\,Hz: its RMSE is higher than that of the neural models and of Ridge-Y3 on every link, because single pings are noisy. Second, a tuned linear model on the Year 3 features (Ridge-Y3) is close to the Year 2 network on RMSE skill, within one point on four links. On Starlink DL a repeat of the value one second earlier already has 28\% skill, which reflects a one-second pattern in the downlink RTT under the 1\,Hz iperf load. The Year 3 ensemble has the lowest MAE on every link and the highest skill on every link, tied with Ridge-Y3 and the single Y3 models on 5G UL. The plain ridge model on Year 2 features fails on 5G UL ($-43\%$ skill) because of unclipped logger sentinels, which the Year 3 pipeline removes.
+
+\begin{table}[t]
+\centering
+\caption{RTT MAE (ms) and RMSE skill against persistence (\%, higher is better) for the reference methods and the neural models (seed means).}
+\label{tab:baselines}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{l*{12}{r}}
+\toprule
+ & \multicolumn{2}{c}{OneWeb DL} & \multicolumn{2}{c}{OneWeb UL} & \multicolumn{2}{c}{Starlink DL} & \multicolumn{2}{c}{Starlink UL} & \multicolumn{2}{c}{5G DL} & \multicolumn{2}{c}{5G UL} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}\cmidrule(lr){12-13}
+Method & MAE & skill & MAE & skill & MAE & skill & MAE & skill & MAE & skill & MAE & skill \\
+\midrule
+\tabinput{data/tab_baselines.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Jitter and loss}
+Table~\ref{tab:targets} gives the jitter and loss results. The point accuracy is similar for both models, with a few exceptions in both directions: Y3 has a higher loss MAE on OneWeb DL and Starlink UL (seed mean) and a lower one on Starlink DL and on both 5G links. The calibrated interval scores of Y3 are lower on every link and target, often by a large factor (for example Starlink DL jitter: 2.8 against 8.5). Jitter and loss are one-second iperf reports with long runs of zeros and rare large values, which is the case where input-dependent intervals help most.
+
+\begin{table}[t]
+\centering
+\caption{Jitter (ms) and loss (\%) on the test sessions (seed means, OneWeb UL omitted because both are zero in every row).}
+\label{tab:targets}
+\scriptsize
+\begin{tabular}{llcccccc}
+\toprule
+ & & \multicolumn{3}{c}{Jitter} & \multicolumn{3}{c}{Loss} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+Link & Model & MAE & RMSE & MIS & MAE & RMSE & MIS \\
+\midrule
+\tabinput{data/tab_targets.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Effect of the interpolated Starlink targets}
+About \InterpFracSLDL\% of the Starlink DL test targets are interpolated (audit item A3). Restricted to measured targets, the ensemble RTT MAE is \RealMAEYthreeSLDL\,ms for Y3 and \RealMAEYtwoSLDL\,ms for Y2 (\AllMAEYthreeSLDL\ and \AllMAEYtwoSLDL\,ms on all targets). The conclusions do not depend on the interpolated targets.

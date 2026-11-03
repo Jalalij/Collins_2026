@@ -1,0 +1,30 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 2, horizontal sep=1.3cm, vertical sep=1.6cm}, y3base, width=5.3cm, height=4.0cm]
+\nextgroupplot[title={OneWeb DL}, xmin=0.2, xmax=3, xtick={0.2,1,2,3}, xlabel={horizon (s)}, ylabel={loss MAE}, legend to name=leglossMAE, legend columns=4]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_oneweb_dl_loss_MAE.dat}; \addlegendentry{Ridge-Y3}
+\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_oneweb_dl_loss_MAE.dat}; \addlegendentry{Y2 ensemble}
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_oneweb_dl_loss_MAE.dat}; \addlegendentry{Y3 (seed mean)}
+\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_oneweb_dl_loss_MAE.dat}; \addlegendentry{Y3 ensemble}
+\nextgroupplot[title={Starlink DL}, xmin=0.2, xmax=3, xtick={0.2,1,2,3}, xlabel={horizon (s)}]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_starlink_dl_loss_MAE.dat};
+\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_starlink_dl_loss_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_starlink_dl_loss_MAE.dat};
+\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_starlink_dl_loss_MAE.dat};
+\nextgroupplot[title={5G DL}, xmin=0.2, xmax=3, xtick={0.2,1,2,3}, xlabel={horizon (s)}]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_quectel_dl_loss_MAE.dat};
+\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_quectel_dl_loss_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_quectel_dl_loss_MAE.dat};
+\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_quectel_dl_loss_MAE.dat};
+\nextgroupplot[title={Starlink UL}, xmin=0.2, xmax=3, xtick={0.2,1,2,3}, xlabel={horizon (s)}, ylabel={loss MAE}]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_starlink_ul_loss_MAE.dat};
+\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_starlink_ul_loss_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_starlink_ul_loss_MAE.dat};
+\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_starlink_ul_loss_MAE.dat};
+\nextgroupplot[title={5G UL}, xmin=0.2, xmax=3, xtick={0.2,1,2,3}, xlabel={horizon (s)}]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_quectel_ul_loss_MAE.dat};
+\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_quectel_ul_loss_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_quectel_ul_loss_MAE.dat};
+\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_quectel_ul_loss_MAE.dat};
+\end{groupplot}
+\node at ($(group c2r2.south)+(0,-1.3cm)$) {\pgfplotslegendfromname{leglossMAE}};
+\end{tikzpicture}

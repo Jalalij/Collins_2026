@@ -1,0 +1,67 @@
+{
+ "ridge_lambda": 1000.0,
+ "settings": {
+  "provider": "oneweb",
+  "direction": "ul",
+  "methods": [
+   "persistence",
+   "snaive",
+   "ridge",
+   "ridge_y3"
+  ],
+  "seeds": [
+   0
+  ],
+  "epochs": 60,
+  "patience": 15,
+  "batch_size": 512,
+  "input_len": 30,
+  "output_len": 15,
+  "data_root": "/Users/josh/Desktop/Collins/modeling/data/lsn-data",
+  "out_dir": "results_y3/main",
+  "save_models": true,
+  "legacy_data": false,
+  "train_stride": 1
+ },
+ "causal_ping": true,
+ "seconds": 0.4,
+ "n_test": 28125,
+ "features": [
+  "throughput_mbps",
+  "packet_loss_percent",
+  "jitter_ms",
+  "rtt_mean",
+  "sinr_db",
+  "elevation_deg",
+  "azimuth_deg",
+  "satellite_change",
+  "time_since_handover",
+  "row_dt",
+  "rtt_mean__rsc",
+  "rtt_mean__mean5",
+  "rtt_mean__max5",
+  "rtt_mean__mean150",
+  "rtt_mean__mean300",
+  "rtt_mean__std300",
+  "rtt_mean__xmean",
+  "jitter_ms__rsc",
+  "jitter_ms__mean5",
+  "jitter_ms__max5",
+  "jitter_ms__mean150",
+  "jitter_ms__mean300",
+  "jitter_ms__std300",
+  "jitter_ms__xmean",
+  "packet_loss_percent__rsc",
+  "packet_loss_percent__mean5",
+  "packet_loss_percent__max5",
+  "packet_loss_percent__mean150",
+  "packet_loss_percent__mean300",
+  "packet_loss_percent__std300",
+  "packet_loss_percent__xmean"
+ ],
+ "n_sessions": {
+  "train": 45,
+  "val": 9,
+  "test": 11
+ }
+}

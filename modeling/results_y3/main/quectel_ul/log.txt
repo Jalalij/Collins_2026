@@ -1,0 +1,568 @@
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (3s)
+
+=== quectel ul | persistence | seed 0 ===
+           MAE    RMSE      R2  RMSE_persist   PICP
+target                                             
+jitter  0.5358  1.4476 -0.6526        1.4476 0.9477
+loss    0.6863  3.9610 -0.6416        3.9610 0.9435
+rtt    15.8290 27.9692 -0.9441       27.9692 0.9489
+  AGG MAE=5.6837 RMSE=11.1260 R2=-0.7461 (1s)
+
+=== quectel ul | snaive | seed 0 ===
+           MAE    RMSE      R2  RMSE_persist   PICP
+target                                             
+jitter  0.6177  1.5797 -0.9016        1.4476 0.9467
+loss    0.7919  4.3269 -0.8935        3.9610 0.9376
+rtt    15.9281 28.0204 -0.9512       27.9692 0.9488
+  AGG MAE=5.7792 RMSE=11.3090 R2=-0.9154 (1s)
+
+=== quectel ul | ridge | seed 0 ===
+           MAE    RMSE      R2  RMSE_persist   PICP
+target                                             
+jitter  0.4158  1.3313 -0.3894        1.4476 0.9507
+loss    0.7274  3.8514 -0.5609        3.9610 0.9263
+rtt    12.5888 40.0791 -2.9994       27.9692 0.9483
+  AGG MAE=4.5773 RMSE=15.0873 R2=-1.3165 (3s)
+[data y3] 32 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (6s)
+
+=== quectel ul | ridge_y3 | seed 0 ===
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.4152  1.0628 0.1230        1.4476 0.9508
+loss    0.7414  2.8621 0.1535        3.9610 0.9281
+rtt    12.3584 19.8328 0.0225       27.9692 0.9481
+  AGG MAE=4.5050 RMSE=7.9193 R2=0.0997 (4s)
+[data y3] 32 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (6s)
+
+=== quectel ul | y3_dist | seed 0 ===
+    ep   1 train=0.7508 val=1.0790 ema=1.0790 lr=1.0e-03 [98.0s]
+    ep   2 train=0.7071 val=1.0762 ema=1.0781 lr=1.0e-03 [93.8s]
+    ep   3 train=0.7023 val=1.0633 ema=1.0737 lr=1.0e-03 [93.6s]
+    ep   4 train=0.6850 val=1.0531 ema=1.0675 lr=1.0e-03 [92.9s]
+    ep   5 train=0.6861 val=1.0476 ema=1.0615 lr=1.0e-03 [94.9s]
+    ep   6 train=0.6905 val=1.0508 ema=1.0583 lr=1.0e-03 [94.0s]
+    ep   7 train=0.6987 val=1.0484 ema=1.0553 lr=1.0e-03 [93.8s]
+    ep   8 train=0.7004 val=1.0449 ema=1.0522 lr=1.0e-03 [95.7s]
+    ep   9 train=0.7081 val=1.0437 ema=1.0497 lr=1.0e-03 [95.3s]
+    ep  10 train=0.7174 val=1.0450 ema=1.0483 lr=1.0e-03 [98.2s]
+    ep  11 train=0.7215 val=1.0450 ema=1.0473 lr=1.0e-03 [98.1s]
+    ep  12 train=0.7271 val=1.0492 ema=1.0479 lr=1.0e-03 [98.4s]
+    ep  13 train=0.7384 val=1.0485 ema=1.0480 lr=1.0e-03 [236.2s]
+    ep  14 train=0.7462 val=1.0413 ema=1.0460 lr=1.0e-03 [95.3s]
+    ep  15 train=0.7543 val=1.0427 ema=1.0450 lr=1.0e-03 [96.3s]
+    ep  16 train=0.7665 val=1.0400 ema=1.0435 lr=1.0e-03 [98.8s]
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (4s)
+
+=== quectel ul | y2_seq2seq | seed 0 ===
+    ep  17 train=0.7689 val=1.0426 ema=1.0432 lr=1.0e-03 [102.9s]
+    ep  18 train=0.7813 val=1.0512 ema=1.0456 lr=1.0e-03 [129.1s]
+    ep  19 train=0.7914 val=1.0415 ema=1.0444 lr=1.0e-03 [96.3s]
+    ep  20 train=0.8048 val=1.0432 ema=1.0440 lr=1.0e-03 [96.1s]
+    ep  21 train=0.8127 val=1.0465 ema=1.0448 lr=1.0e-03 [98.9s]
+    ep  22 train=0.8238 val=1.0438 ema=1.0445 lr=1.0e-03 [100.8s]
+    ep  23 train=0.8364 val=1.0463 ema=1.0450 lr=1.0e-03 [102.9s]
+    ep  24 train=0.8404 val=1.0503 ema=1.0466 lr=1.0e-03 [101.9s]
+    ep  25 train=0.8564 val=1.0466 ema=1.0466 lr=1.0e-03 [102.8s]
+    ep  26 train=0.8662 val=1.0538 ema=1.0487 lr=5.0e-04 [99.6s]
+[data y3] 32 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (7s)
+
+=== quectel ul | y3_full | seed 0 ===
+    ep  27 train=0.8639 val=1.0537 ema=1.0502 lr=5.0e-04 [100.6s]
+    ep   1 train=0.6470 val=0.9523 ema=0.9523 lr=1.0e-03 [101.2s]
+    ep  28 train=0.8743 val=1.0578 ema=1.0525 lr=5.0e-04 [99.9s]
+    ep   2 train=0.6151 val=0.9481 ema=0.9510 lr=1.0e-03 [96.5s]
+    ep  29 train=0.8831 val=1.0523 ema=1.0524 lr=5.0e-04 [99.5s]
+    ep   3 train=0.6123 val=0.9416 ema=0.9482 lr=1.0e-03 [96.4s]
+    ep  30 train=0.8942 val=1.0515 ema=1.0522 lr=5.0e-04 [99.1s]
+    ep   4 train=0.5971 val=0.9376 ema=0.9450 lr=1.0e-03 [97.1s]
+    ep  31 train=0.8879 val=1.0598 ema=1.0545 lr=5.0e-04 [100.3s]
+    ep   5 train=0.5979 val=0.9338 ema=0.9417 lr=1.0e-03 [98.6s]
+    ep  32 train=0.8835 val=1.0562 ema=1.0550 lr=5.0e-04 [99.6s]
+    ep   6 train=0.6032 val=0.9343 ema=0.9394 lr=1.0e-03 [102.5s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.3975  1.0449 0.1455        1.4476 0.9511
+loss    0.5155  2.6557 0.2482        3.9610 0.9363
+rtt    12.3396 19.8430 0.0215       27.9692 0.9484
+  AGG MAE=4.4175 RMSE=7.8478 R2=0.1384 (3345s)
+    ep   7 train=0.6098 val=0.9347 ema=0.9380 lr=1.0e-03 [92.5s]
+    ep   8 train=0.6121 val=0.9323 ema=0.9363 lr=1.0e-03 [94.5s]
+    ep   9 train=0.6200 val=0.9315 ema=0.9349 lr=1.0e-03 [96.2s]
+    ep  10 train=0.6285 val=0.9339 ema=0.9346 lr=1.0e-03 [96.7s]
+    ep  11 train=0.6320 val=0.9322 ema=0.9339 lr=1.0e-03 [96.6s]
+    ep  12 train=0.6375 val=0.9347 ema=0.9341 lr=1.0e-03 [97.5s]
+    ep  13 train=0.6456 val=0.9331 ema=0.9338 lr=1.0e-03 [96.9s]
+    ep  14 train=0.6548 val=0.9286 ema=0.9323 lr=1.0e-03 [96.5s]
+    ep  15 train=0.6615 val=0.9353 ema=0.9332 lr=1.0e-03 [97.3s]
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (4s)
+
+=== quectel ul | y3_resid | seed 0 ===
+    ep  16 train=0.6724 val=0.9292 ema=0.9320 lr=1.0e-03 [96.7s]
+    ep   1 train=0.6530 val=0.9769 ema=0.9769 lr=1.0e-03 [99.2s]
+    ep  17 train=0.6764 val=0.9348 ema=0.9328 lr=1.0e-03 [99.3s]
+    ep   2 train=0.6234 val=0.9710 ema=0.9752 lr=1.0e-03 [98.2s]
+    ep  18 train=0.6866 val=0.9395 ema=0.9348 lr=1.0e-03 [98.8s]
+    ep   3 train=0.6232 val=1.2813 ema=1.0670 lr=1.0e-03 [98.8s]
+    ep  19 train=0.6979 val=0.9305 ema=0.9335 lr=1.0e-03 [98.6s]
+    ep   4 train=0.6222 val=0.9635 ema=1.0360 lr=1.0e-03 [98.2s]
+    ep  20 train=0.7077 val=0.9315 ema=0.9329 lr=1.0e-03 [99.3s]
+    ep   5 train=0.6231 val=0.9663 ema=1.0150 lr=1.0e-03 [99.2s]
+    ep  21 train=0.7152 val=0.9363 ema=0.9339 lr=1.0e-03 [99.3s]
+    ep   6 train=0.6203 val=0.9586 ema=0.9981 lr=1.0e-03 [99.5s]
+    ep  22 train=0.7222 val=0.9350 ema=0.9342 lr=1.0e-03 [99.2s]
+    ep   7 train=0.6245 val=0.9564 ema=0.9856 lr=1.0e-03 [99.0s]
+    ep  23 train=0.7338 val=0.9392 ema=0.9357 lr=1.0e-03 [99.3s]
+    ep   8 train=0.6256 val=0.9540 ema=0.9761 lr=1.0e-03 [99.6s]
+    ep  24 train=0.7377 val=0.9451 ema=0.9385 lr=1.0e-03 [98.9s]
+    ep   9 train=0.6322 val=0.9522 ema=0.9689 lr=1.0e-03 [98.3s]
+    ep  25 train=0.7509 val=0.9395 ema=0.9388 lr=5.0e-04 [99.1s]
+    ep  10 train=0.6410 val=0.9544 ema=0.9646 lr=1.0e-03 [98.1s]
+    ep  26 train=0.7529 val=0.9512 ema=0.9425 lr=5.0e-04 [98.9s]
+    ep  11 train=0.6447 val=0.9533 ema=0.9612 lr=1.0e-03 [99.0s]
+    ep  27 train=0.7552 val=0.9411 ema=0.9421 lr=5.0e-04 [99.1s]
+    ep  12 train=0.6500 val=0.9528 ema=0.9587 lr=1.0e-03 [98.5s]
+    ep  28 train=0.7655 val=0.9486 ema=0.9441 lr=5.0e-04 [98.8s]
+    ep  13 train=0.6590 val=0.9552 ema=0.9576 lr=1.0e-03 [99.2s]
+    ep  29 train=0.7723 val=0.9602 ema=0.9489 lr=5.0e-04 [98.7s]
+    ep  14 train=0.6695 val=0.9554 ema=0.9570 lr=1.0e-03 [98.7s]
+    ep  30 train=0.7801 val=0.9444 ema=0.9476 lr=5.0e-04 [96.9s]
+    ep  15 train=0.6778 val=0.9538 ema=0.9560 lr=1.0e-03 [99.0s]
+    ep  31 train=0.7751 val=0.9503 ema=0.9484 lr=5.0e-04 [100.0s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.3884  1.0464 0.1429        1.4476 0.9512
+loss    0.5939  2.6554 0.2490        3.9610 0.9385
+rtt    12.4957 19.8424 0.0216       27.9692 0.9482
+  AGG MAE=4.4927 RMSE=7.8481 R2=0.1378 (3065s)
+    ep  16 train=0.6886 val=0.9530 ema=0.9551 lr=1.0e-03 [104.3s]
+    ep  17 train=0.6912 val=0.9521 ema=0.9542 lr=1.0e-03 [97.9s]
+    ep  18 train=0.7021 val=0.9507 ema=0.9531 lr=1.0e-03 [98.6s]
+    ep  19 train=0.7157 val=0.9508 ema=0.9524 lr=1.0e-03 [97.8s]
+    ep  20 train=0.7279 val=0.9504 ema=0.9518 lr=1.0e-03 [98.1s]
+    ep  21 train=0.7354 val=0.9493 ema=0.9511 lr=1.0e-03 [98.7s]
+    ep  22 train=0.7456 val=0.9506 ema=0.9509 lr=1.0e-03 [98.5s]
+    ep  23 train=0.7588 val=0.9572 ema=0.9528 lr=1.0e-03 [96.8s]
+    ep  24 train=0.7672 val=0.9533 ema=0.9529 lr=1.0e-03 [96.9s]
+[data y3] 32 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (9s)
+
+=== quectel ul | y3_dist | seed 1 ===
+    ep  25 train=0.7876 val=0.9562 ema=0.9539 lr=1.0e-03 [95.8s]
+    ep   1 train=0.7459 val=1.0788 ema=1.0788 lr=1.0e-03 [102.7s]
+    ep  26 train=0.7983 val=0.9531 ema=0.9537 lr=1.0e-03 [99.3s]
+    ep   2 train=0.7061 val=1.0658 ema=1.0749 lr=1.0e-03 [101.9s]
+    ep  27 train=0.8043 val=0.9556 ema=0.9543 lr=1.0e-03 [98.9s]
+    ep   3 train=0.6983 val=1.0595 ema=1.0703 lr=1.0e-03 [102.2s]
+    ep  28 train=0.8171 val=0.9537 ema=0.9541 lr=1.0e-03 [99.5s]
+    ep   4 train=0.6842 val=1.0518 ema=1.0647 lr=1.0e-03 [102.0s]
+    ep  29 train=0.8306 val=0.9550 ema=0.9544 lr=1.0e-03 [98.5s]
+    ep   5 train=0.6849 val=1.0563 ema=1.0622 lr=1.0e-03 [101.7s]
+    ep  30 train=0.8432 val=0.9542 ema=0.9543 lr=1.0e-03 [96.3s]
+    ep   6 train=0.6871 val=1.0503 ema=1.0586 lr=1.0e-03 [101.8s]
+    ep  31 train=0.8425 val=0.9555 ema=0.9547 lr=5.0e-04 [95.0s]
+    ep   7 train=0.6983 val=1.0481 ema=1.0555 lr=1.0e-03 [102.8s]
+    ep  32 train=0.8346 val=0.9559 ema=0.9550 lr=5.0e-04 [95.2s]
+    ep   8 train=0.6979 val=1.0441 ema=1.0521 lr=1.0e-03 [104.6s]
+    ep  33 train=0.8322 val=0.9565 ema=0.9555 lr=5.0e-04 [95.9s]
+    ep  34 train=0.8295 val=0.9592 ema=0.9566 lr=5.0e-04 [94.7s]
+    ep   9 train=0.7089 val=1.0491 ema=1.0512 lr=1.0e-03 [103.4s]
+    ep  35 train=0.8275 val=0.9555 ema=0.9563 lr=5.0e-04 [100.6s]
+    ep  10 train=0.7145 val=1.0430 ema=1.0487 lr=1.0e-03 [107.7s]
+    ep  36 train=0.8260 val=0.9599 ema=0.9574 lr=5.0e-04 [110.1s]
+    ep  11 train=0.7226 val=1.0495 ema=1.0489 lr=1.0e-03 [132.3s]
+    ep  37 train=0.8255 val=0.9576 ema=0.9574 lr=5.0e-04 [106.3s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.3951  1.0506 0.1361        1.4476 0.9511
+loss    0.5885  2.7598 0.2023        3.9610 0.9342
+rtt    12.2826 19.9231 0.0136       27.9692 0.9487
+  AGG MAE=4.4220 RMSE=7.9111 R2=0.1173 (3685s)
+    ep  12 train=0.7294 val=1.0466 ema=1.0482 lr=1.0e-03 [108.0s]
+    ep  13 train=0.7394 val=1.0455 ema=1.0474 lr=1.0e-03 [104.0s]
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (6s)
+
+=== quectel ul | y2_seq2seq | seed 1 ===
+    ep  14 train=0.7460 val=1.0396 ema=1.0451 lr=1.0e-03 [106.6s]
+    ep  15 train=0.7521 val=1.0403 ema=1.0436 lr=1.0e-03 [135.9s]
+    ep  16 train=0.7660 val=1.0397 ema=1.0425 lr=1.0e-03 [108.1s]
+    ep  17 train=0.7791 val=1.0454 ema=1.0433 lr=1.0e-03 [105.0s]
+    ep  18 train=0.7835 val=1.0409 ema=1.0426 lr=1.0e-03 [105.5s]
+    ep  19 train=0.7916 val=1.0424 ema=1.0425 lr=1.0e-03 [105.7s]
+    ep  20 train=0.8030 val=1.0413 ema=1.0422 lr=1.0e-03 [105.3s]
+    ep  21 train=0.8101 val=1.0449 ema=1.0430 lr=1.0e-03 [105.9s]
+    ep  22 train=0.8275 val=1.0428 ema=1.0429 lr=1.0e-03 [102.5s]
+    ep  23 train=0.8371 val=1.0438 ema=1.0432 lr=1.0e-03 [105.6s]
+    ep  24 train=0.8468 val=1.0491 ema=1.0450 lr=1.0e-03 [104.8s]
+    ep  25 train=0.8571 val=1.0467 ema=1.0455 lr=1.0e-03 [104.0s]
+[data y3] 32 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (11s)
+
+=== quectel ul | y3_full | seed 1 ===
+    ep  26 train=0.8699 val=1.0478 ema=1.0462 lr=1.0e-03 [102.4s]
+    ep   1 train=0.6426 val=0.9598 ema=0.9598 lr=1.0e-03 [103.9s]
+    ep  27 train=0.8852 val=1.0486 ema=1.0469 lr=1.0e-03 [106.9s]
+    ep   2 train=0.6150 val=0.9468 ema=0.9559 lr=1.0e-03 [100.0s]
+    ep  28 train=0.8916 val=1.0659 ema=1.0526 lr=1.0e-03 [103.4s]
+    ep   3 train=0.6092 val=0.9451 ema=0.9526 lr=1.0e-03 [100.4s]
+    ep  29 train=0.9016 val=1.0597 ema=1.0547 lr=5.0e-04 [103.8s]
+    ep   4 train=0.5974 val=0.9385 ema=0.9484 lr=1.0e-03 [100.1s]
+    ep  30 train=0.8976 val=1.0527 ema=1.0541 lr=5.0e-04 [103.6s]
+    ep   5 train=0.5978 val=0.9380 ema=0.9453 lr=1.0e-03 [101.2s]
+    ep  31 train=0.8908 val=1.0562 ema=1.0547 lr=5.0e-04 [103.4s]
+    ep   6 train=0.6000 val=0.9381 ema=0.9431 lr=1.0e-03 [100.4s]
+    ep  32 train=0.8844 val=1.0552 ema=1.0549 lr=5.0e-04 [103.7s]
+    ep   7 train=0.6081 val=0.9336 ema=0.9403 lr=1.0e-03 [100.5s]
+    ep  33 train=0.8793 val=1.0634 ema=1.0575 lr=5.0e-04 [103.7s]
+    ep   8 train=0.6098 val=0.9326 ema=0.9380 lr=1.0e-03 [100.2s]
+    ep  34 train=0.8754 val=1.0579 ema=1.0576 lr=5.0e-04 [102.3s]
+    ep   9 train=0.6178 val=0.9319 ema=0.9362 lr=1.0e-03 [100.7s]
+    ep  35 train=0.8698 val=1.0664 ema=1.0602 lr=5.0e-04 [104.4s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.4062  1.0465 0.1432        1.4476 0.9513
+loss    0.5064  2.6597 0.2458        3.9610 0.9338
+rtt    12.4120 19.8365 0.0221       27.9692 0.9482
+  AGG MAE=4.4415 RMSE=7.8476 R2=0.1371 (3750s)
+    ep  10 train=0.6247 val=0.9337 ema=0.9354 lr=1.0e-03 [100.6s]
+    ep  11 train=0.6327 val=0.9311 ema=0.9341 lr=1.0e-03 [76.8s]
+    ep  12 train=0.6386 val=0.9371 ema=0.9350 lr=1.0e-03 [61.5s]
+    ep  13 train=0.6449 val=0.9322 ema=0.9342 lr=1.0e-03 [53.4s]
+    ep  14 train=0.6512 val=0.9303 ema=0.9330 lr=1.0e-03 [54.1s]
+    ep  15 train=0.6593 val=0.9339 ema=0.9333 lr=1.0e-03 [54.0s]
+    ep  16 train=0.6707 val=0.9313 ema=0.9327 lr=1.0e-03 [54.2s]
+    ep  17 train=0.6779 val=0.9364 ema=0.9338 lr=1.0e-03 [51.2s]
+    ep  18 train=0.6843 val=0.9322 ema=0.9333 lr=1.0e-03 [39.0s]
+    ep  19 train=0.6922 val=0.9317 ema=0.9328 lr=1.0e-03 [39.4s]
+    ep  20 train=0.7052 val=0.9332 ema=0.9330 lr=1.0e-03 [39.4s]
+    ep  21 train=0.7104 val=0.9392 ema=0.9348 lr=1.0e-03 [39.4s]
+    ep  22 train=0.7252 val=0.9372 ema=0.9355 lr=1.0e-03 [39.3s]
+    ep  23 train=0.7323 val=0.9353 ema=0.9355 lr=1.0e-03 [42.9s]
+    ep  24 train=0.7439 val=0.9387 ema=0.9365 lr=1.0e-03 [33.9s]
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (3s)
+
+=== quectel ul | y2_seq2seq | seed 0 ===
+    ep  25 train=0.7514 val=0.9387 ema=0.9371 lr=5.0e-04 [42.5s]
+    ep  26 train=0.7539 val=0.9401 ema=0.9380 lr=5.0e-04 [44.9s]
+    ep  27 train=0.7578 val=0.9355 ema=0.9373 lr=5.0e-04 [45.6s]
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (3s)
+
+=== quectel ul | y2_seq2seq | seed 1 ===
+    ep  28 train=0.7678 val=0.9428 ema=0.9389 lr=5.0e-04 [37.5s]
+    ep  29 train=0.7769 val=0.9386 ema=0.9388 lr=5.0e-04 [45.5s]
+    ep  30 train=0.7826 val=0.9403 ema=0.9393 lr=5.0e-04 [63.7s]
+    ep  31 train=0.7784 val=0.9445 ema=0.9408 lr=5.0e-04 [68.2s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.4037  1.0469 0.1423        1.4476 0.9510
+loss    0.5977  2.6586 0.2466        3.9610 0.9338
+rtt    12.3247 19.8458 0.0212       27.9692 0.9480
+  AGG MAE=4.4420 RMSE=7.8504 R2=0.1367 (2056s)
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (5s)
+
+=== quectel ul | y3_resid | seed 1 ===
+    ep   1 train=0.6499 val=0.9830 ema=0.9830 lr=1.0e-03 [91.1s]
+    ep   2 train=0.6230 val=0.9705 ema=0.9793 lr=1.0e-03 [98.4s]
+    ep   3 train=0.6214 val=0.9651 ema=0.9750 lr=1.0e-03 [98.4s]
+    ep   4 train=0.6228 val=0.9619 ema=0.9711 lr=1.0e-03 [98.5s]
+    ep   5 train=0.6245 val=0.9601 ema=0.9678 lr=1.0e-03 [98.2s]
+    ep   6 train=0.6186 val=0.9572 ema=0.9646 lr=1.0e-03 [97.7s]
+    ep   7 train=0.6223 val=0.9551 ema=0.9618 lr=1.0e-03 [98.6s]
+    ep   8 train=0.6258 val=0.9545 ema=0.9596 lr=1.0e-03 [98.9s]
+    ep   9 train=0.6313 val=0.9540 ema=0.9579 lr=1.0e-03 [97.9s]
+    ep  10 train=0.6359 val=0.9542 ema=0.9568 lr=1.0e-03 [93.4s]
+    ep  11 train=0.6438 val=0.9573 ema=0.9569 lr=1.0e-03 [56.7s]
+    ep  12 train=0.6519 val=0.9517 ema=0.9554 lr=1.0e-03 [52.8s]
+    ep  13 train=0.6628 val=0.9622 ema=0.9574 lr=1.0e-03 [52.9s]
+    ep  14 train=0.6709 val=0.9523 ema=0.9559 lr=1.0e-03 [48.0s]
+    ep  15 train=0.6746 val=0.9515 ema=0.9546 lr=1.0e-03 [38.0s]
+    ep  16 train=0.6884 val=0.9548 ema=0.9546 lr=1.0e-03 [38.1s]
+    ep  17 train=0.6941 val=0.9614 ema=0.9567 lr=1.0e-03 [38.1s]
+    ep  18 train=0.7024 val=0.9593 ema=0.9575 lr=1.0e-03 [38.1s]
+    ep  19 train=0.7139 val=0.9530 ema=0.9561 lr=1.0e-03 [38.0s]
+    ep  20 train=0.7260 val=0.9537 ema=0.9554 lr=1.0e-03 [38.0s]
+    ep  21 train=0.7320 val=0.9519 ema=0.9543 lr=1.0e-03 [38.2s]
+    ep  22 train=0.7482 val=0.9564 ema=0.9549 lr=1.0e-03 [38.3s]
+    ep  23 train=0.7592 val=0.9503 ema=0.9536 lr=1.0e-03 [38.0s]
+    ep  24 train=0.7692 val=0.9548 ema=0.9539 lr=1.0e-03 [37.8s]
+    ep  25 train=0.7800 val=0.9536 ema=0.9538 lr=1.0e-03 [38.0s]
+    ep  26 train=0.7926 val=0.9542 ema=0.9539 lr=1.0e-03 [38.0s]
+    ep  27 train=0.8032 val=0.9569 ema=0.9548 lr=1.0e-03 [38.1s]
+    ep  28 train=0.8189 val=0.9580 ema=0.9558 lr=1.0e-03 [38.1s]
+    ep  29 train=0.8320 val=0.9649 ema=0.9585 lr=1.0e-03 [38.2s]
+    ep  30 train=0.8424 val=0.9620 ema=0.9596 lr=1.0e-03 [37.7s]
+    ep  31 train=0.8418 val=0.9578 ema=0.9591 lr=1.0e-03 [37.8s]
+    ep  32 train=0.8373 val=0.9590 ema=0.9590 lr=5.0e-04 [37.9s]
+    ep  33 train=0.8307 val=0.9587 ema=0.9589 lr=5.0e-04 [37.9s]
+    ep  34 train=0.8281 val=0.9602 ema=0.9593 lr=5.0e-04 [36.9s]
+    ep  35 train=0.8258 val=0.9599 ema=0.9595 lr=5.0e-04 [33.3s]
+    ep  36 train=0.8234 val=0.9665 ema=0.9616 lr=5.0e-04 [62.6s]
+    ep  37 train=0.8233 val=0.9595 ema=0.9610 lr=5.0e-04 [64.7s]
+    ep  38 train=0.8209 val=0.9632 ema=0.9617 lr=5.0e-04 [65.7s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.3971  1.0487 0.1392        1.4476 0.9513
+loss    0.6458  2.7495 0.2070        3.9610 0.9272
+rtt    12.5461 19.9137 0.0145       27.9692 0.9486
+  AGG MAE=4.5297 RMSE=7.9039 R2=0.1203 (2188s)
+[data y3] 32 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (9s)
+
+=== quectel ul | y3_dist | seed 2 ===
+    ep   1 train=0.7484 val=1.0823 ema=1.0823 lr=1.0e-03 [99.6s]
+    ep   2 train=0.7093 val=1.0731 ema=1.0795 lr=1.0e-03 [108.1s]
+    ep   3 train=0.6994 val=1.0614 ema=1.0741 lr=1.0e-03 [106.7s]
+    ep   4 train=0.6884 val=1.0542 ema=1.0681 lr=1.0e-03 [106.4s]
+    ep   5 train=0.6860 val=1.0508 ema=1.0629 lr=1.0e-03 [107.3s]
+    ep   6 train=0.6927 val=1.0462 ema=1.0579 lr=1.0e-03 [106.6s]
+    ep   7 train=0.6916 val=1.0466 ema=1.0545 lr=1.0e-03 [107.5s]
+    ep   8 train=0.7019 val=1.0466 ema=1.0521 lr=1.0e-03 [88.9s]
+    ep   9 train=0.7097 val=1.0516 ema=1.0520 lr=1.0e-03 [88.2s]
+    ep  10 train=0.7148 val=1.0435 ema=1.0494 lr=1.0e-03 [80.0s]
+    ep  11 train=0.7244 val=1.0443 ema=1.0479 lr=1.0e-03 [63.2s]
+    ep  12 train=0.7273 val=1.0412 ema=1.0459 lr=1.0e-03 [43.8s]
+    ep  13 train=0.7403 val=1.0431 ema=1.0450 lr=1.0e-03 [41.9s]
+    ep  14 train=0.7470 val=1.0433 ema=1.0445 lr=1.0e-03 [41.8s]
+    ep  15 train=0.7534 val=1.0408 ema=1.0434 lr=1.0e-03 [41.9s]
+    ep  16 train=0.7636 val=1.0379 ema=1.0417 lr=1.0e-03 [42.1s]
+    ep  17 train=0.7722 val=1.0448 ema=1.0427 lr=1.0e-03 [42.2s]
+    ep  18 train=0.7813 val=1.0442 ema=1.0431 lr=1.0e-03 [41.9s]
+    ep  19 train=0.7919 val=1.0412 ema=1.0426 lr=1.0e-03 [41.9s]
+    ep  20 train=0.8054 val=1.0406 ema=1.0420 lr=1.0e-03 [41.9s]
+    ep  21 train=0.8122 val=1.0420 ema=1.0420 lr=1.0e-03 [42.0s]
+    ep  22 train=0.8192 val=1.0478 ema=1.0437 lr=1.0e-03 [42.0s]
+    ep  23 train=0.8330 val=1.0469 ema=1.0447 lr=1.0e-03 [42.2s]
+    ep  24 train=0.8439 val=1.0517 ema=1.0468 lr=1.0e-03 [42.1s]
+    ep  25 train=0.8553 val=1.0613 ema=1.0511 lr=5.0e-04 [42.1s]
+    ep  26 train=0.8523 val=1.0509 ema=1.0511 lr=5.0e-04 [42.3s]
+    ep  27 train=0.8629 val=1.0508 ema=1.0510 lr=5.0e-04 [42.1s]
+    ep  28 train=0.8697 val=1.0615 ema=1.0542 lr=5.0e-04 [42.6s]
+    ep  29 train=0.8810 val=1.0606 ema=1.0561 lr=5.0e-04 [44.8s]
+    ep  30 train=0.8908 val=1.0655 ema=1.0589 lr=5.0e-04 [35.7s]
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (6s)
+
+=== quectel ul | y2_seq2seq | seed 2 ===
+    ep  31 train=0.8849 val=1.0633 ema=1.0602 lr=5.0e-04 [95.4s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.4027  1.0469 0.1421        1.4476 0.9513
+loss    0.5216  2.6349 0.2579        3.9610 0.9339
+rtt    12.2462 19.8427 0.0215       27.9692 0.9483
+  AGG MAE=4.3902 RMSE=7.8415 R2=0.1405 (2027s)
+[data y3] 32 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (16s)
+
+=== quectel ul | y3_full | seed 2 ===
+    ep   1 train=0.6448 val=0.9548 ema=0.9548 lr=1.0e-03 [102.9s]
+    ep   2 train=0.6169 val=0.9502 ema=0.9534 lr=1.0e-03 [103.3s]
+    ep   3 train=0.6039 val=0.9385 ema=0.9489 lr=1.0e-03 [99.1s]
+    ep   4 train=0.5969 val=0.9359 ema=0.9450 lr=1.0e-03 [89.6s]
+    ep   5 train=0.5991 val=0.9345 ema=0.9419 lr=1.0e-03 [85.9s]
+    ep   6 train=0.6031 val=0.9350 ema=0.9398 lr=1.0e-03 [84.0s]
+    ep   7 train=0.6032 val=0.9376 ema=0.9392 lr=1.0e-03 [84.3s]
+    ep   8 train=0.6133 val=0.9349 ema=0.9379 lr=1.0e-03 [81.8s]
+    ep   9 train=0.6222 val=0.9309 ema=0.9358 lr=1.0e-03 [68.8s]
+    ep  10 train=0.6266 val=0.9348 ema=0.9355 lr=1.0e-03 [69.3s]
+    ep  11 train=0.6343 val=0.9326 ema=0.9346 lr=1.0e-03 [68.3s]
+    ep  12 train=0.6398 val=0.9350 ema=0.9347 lr=1.0e-03 [51.2s]
+    ep  13 train=0.6477 val=0.9309 ema=0.9336 lr=1.0e-03 [41.1s]
+    ep  14 train=0.6557 val=0.9357 ema=0.9342 lr=1.0e-03 [42.0s]
+    ep  15 train=0.6719 val=0.9337 ema=0.9341 lr=1.0e-03 [41.2s]
+    ep  16 train=0.6754 val=0.9304 ema=0.9330 lr=1.0e-03 [41.3s]
+    ep  17 train=0.6811 val=0.9360 ema=0.9339 lr=1.0e-03 [41.4s]
+    ep  18 train=0.6881 val=0.9338 ema=0.9339 lr=1.0e-03 [41.0s]
+    ep  19 train=0.6993 val=0.9335 ema=0.9338 lr=1.0e-03 [41.3s]
+    ep  20 train=0.7123 val=0.9337 ema=0.9337 lr=1.0e-03 [41.7s]
+    ep  21 train=0.7191 val=0.9313 ema=0.9330 lr=1.0e-03 [41.3s]
+    ep  22 train=0.7255 val=0.9361 ema=0.9339 lr=1.0e-03 [41.4s]
+    ep  23 train=0.7390 val=0.9379 ema=0.9351 lr=1.0e-03 [41.5s]
+    ep  24 train=0.7510 val=0.9336 ema=0.9347 lr=1.0e-03 [41.7s]
+    ep  25 train=0.7614 val=0.9397 ema=0.9362 lr=5.0e-04 [41.7s]
+    ep  26 train=0.7624 val=0.9353 ema=0.9359 lr=5.0e-04 [44.1s]
+    ep  27 train=0.7727 val=0.9381 ema=0.9366 lr=5.0e-04 [42.9s]
+    ep  28 train=0.7792 val=0.9377 ema=0.9369 lr=5.0e-04 [70.8s]
+    ep  29 train=0.7912 val=0.9422 ema=0.9385 lr=5.0e-04 [69.8s]
+    ep  30 train=0.7991 val=0.9410 ema=0.9393 lr=5.0e-04 [68.4s]
+    ep  31 train=0.7957 val=0.9446 ema=0.9408 lr=5.0e-04 [68.0s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.4163  1.0464 0.1429        1.4476 0.9511
+loss    0.5267  2.6381 0.2558        3.9610 0.9364
+rtt    12.2922 19.8434 0.0215       27.9692 0.9482
+  AGG MAE=4.4117 RMSE=7.8426 R2=0.1400 (1914s)
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (6s)
+
+=== quectel ul | y3_resid | seed 2 ===
+    ep   1 train=0.6486 val=0.9792 ema=0.9792 lr=1.0e-03 [69.2s]
+    ep   2 train=0.6253 val=0.9691 ema=0.9761 lr=1.0e-03 [68.3s]
+    ep   3 train=0.6202 val=0.9643 ema=0.9726 lr=1.0e-03 [69.0s]
+    ep   4 train=0.6252 val=0.9654 ema=0.9704 lr=1.0e-03 [68.5s]
+    ep   5 train=0.6241 val=0.9598 ema=0.9673 lr=1.0e-03 [68.9s]
+    ep   6 train=0.6205 val=0.9549 ema=0.9636 lr=1.0e-03 [69.4s]
+    ep   7 train=0.6166 val=0.9559 ema=0.9612 lr=1.0e-03 [58.7s]
+    ep   8 train=0.6256 val=0.9543 ema=0.9592 lr=1.0e-03 [54.8s]
+    ep   9 train=0.6324 val=0.9519 ema=0.9570 lr=1.0e-03 [55.1s]
+    ep  10 train=0.6376 val=0.9549 ema=0.9564 lr=1.0e-03 [55.0s]
+    ep  11 train=0.6466 val=0.9519 ema=0.9550 lr=1.0e-03 [55.2s]
+    ep  12 train=0.6492 val=0.9542 ema=0.9548 lr=1.0e-03 [47.4s]
+    ep  13 train=0.6587 val=0.9508 ema=0.9536 lr=1.0e-03 [42.8s]
+    ep  14 train=0.6707 val=0.9541 ema=0.9537 lr=1.0e-03 [42.2s]
+    ep  15 train=0.6744 val=0.9528 ema=0.9534 lr=1.0e-03 [42.1s]
+    ep  16 train=0.6841 val=0.9487 ema=0.9520 lr=1.0e-03 [42.0s]
+    ep  17 train=0.6942 val=0.9543 ema=0.9527 lr=1.0e-03 [41.7s]
+    ep  18 train=0.7035 val=0.9521 ema=0.9525 lr=1.0e-03 [41.5s]
+    ep  19 train=0.7140 val=0.9512 ema=0.9521 lr=1.0e-03 [41.1s]
+    ep  20 train=0.7270 val=0.9498 ema=0.9514 lr=1.0e-03 [40.9s]
+    ep  21 train=0.7366 val=0.9501 ema=0.9510 lr=1.0e-03 [41.5s]
+    ep  22 train=0.7421 val=0.9511 ema=0.9510 lr=1.0e-03 [41.6s]
+    ep  23 train=0.7570 val=0.9548 ema=0.9522 lr=1.0e-03 [41.4s]
+    ep  24 train=0.7731 val=0.9548 ema=0.9530 lr=1.0e-03 [41.3s]
+    ep  25 train=0.7840 val=0.9511 ema=0.9524 lr=1.0e-03 [41.4s]
+    ep  26 train=0.7943 val=0.9541 ema=0.9529 lr=1.0e-03 [41.7s]
+    ep  27 train=0.8057 val=0.9546 ema=0.9534 lr=1.0e-03 [41.7s]
+    ep  28 train=0.8171 val=0.9524 ema=0.9531 lr=1.0e-03 [38.0s]
+    ep  29 train=0.8294 val=0.9517 ema=0.9527 lr=1.0e-03 [36.6s]
+    ep  30 train=0.8428 val=0.9525 ema=0.9526 lr=5.0e-04 [41.1s]
+    ep  31 train=0.8362 val=0.9522 ema=0.9525 lr=5.0e-04 [41.1s]
+    ep  32 train=0.8330 val=0.9532 ema=0.9527 lr=5.0e-04 [41.4s]
+    ep  33 train=0.8306 val=0.9539 ema=0.9531 lr=5.0e-04 [41.4s]
+    ep  34 train=0.8285 val=0.9566 ema=0.9541 lr=5.0e-04 [41.6s]
+    ep  35 train=0.8277 val=0.9540 ema=0.9541 lr=5.0e-04 [41.5s]
+    ep  36 train=0.8261 val=0.9565 ema=0.9548 lr=5.0e-04 [41.8s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.3959  1.0497 0.1377        1.4476 0.9512
+loss    0.6705  2.7566 0.2030        3.9610 0.9374
+rtt    12.5021 19.9089 0.0150       27.9692 0.9482
+  AGG MAE=4.5229 RMSE=7.9051 R2=0.1186 (1746s)
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (3s)
+
+=== quectel ul | y2_seq2seq | seed 0 ===
+    ep   1 train=0.6660 val=0.9759 ema=0.9759 lr=1.0e-03 [40.2s]
+    ep   2 train=0.6273 val=0.9686 ema=0.9737 lr=1.0e-03 [41.0s]
+    ep   3 train=0.6248 val=0.9634 ema=0.9706 lr=1.0e-03 [41.4s]
+    ep   4 train=0.6308 val=0.9633 ema=0.9684 lr=1.0e-03 [41.2s]
+    ep   5 train=0.6272 val=0.9618 ema=0.9664 lr=1.0e-03 [41.3s]
+    ep   6 train=0.6249 val=0.9587 ema=0.9641 lr=1.0e-03 [41.2s]
+    ep   7 train=0.6182 val=0.9576 ema=0.9622 lr=1.0e-03 [41.3s]
+    ep   8 train=0.6283 val=0.9561 ema=0.9604 lr=1.0e-03 [41.5s]
+    ep   9 train=0.6362 val=0.9551 ema=0.9588 lr=1.0e-03 [41.1s]
+    ep  10 train=0.6419 val=0.9538 ema=0.9573 lr=1.0e-03 [41.5s]
+    ep  11 train=0.6468 val=0.9512 ema=0.9554 lr=1.0e-03 [41.1s]
+    ep  12 train=0.6499 val=0.9521 ema=0.9544 lr=1.0e-03 [41.2s]
+    ep  13 train=0.6631 val=0.9523 ema=0.9538 lr=1.0e-03 [41.2s]
+    ep  14 train=0.6731 val=0.9518 ema=0.9532 lr=1.0e-03 [41.4s]
+    ep  15 train=0.6851 val=0.9533 ema=0.9532 lr=1.0e-03 [41.3s]
+    ep  16 train=0.6838 val=0.9511 ema=0.9526 lr=1.0e-03 [41.2s]
+    ep  17 train=0.6967 val=0.9512 ema=0.9522 lr=1.0e-03 [40.9s]
+    ep  18 train=0.7030 val=0.9552 ema=0.9531 lr=1.0e-03 [41.4s]
+    ep  19 train=0.7182 val=0.9527 ema=0.9530 lr=1.0e-03 [41.4s]
+    ep  20 train=0.7373 val=0.9526 ema=0.9529 lr=1.0e-03 [41.3s]
+    ep  21 train=0.7416 val=0.9522 ema=0.9527 lr=1.0e-03 [41.3s]
+    ep  22 train=0.7464 val=0.9522 ema=0.9525 lr=1.0e-03 [41.2s]
+    ep  23 train=0.7589 val=0.9531 ema=0.9527 lr=1.0e-03 [40.9s]
+    ep  24 train=0.7668 val=0.9575 ema=0.9542 lr=1.0e-03 [40.0s]
+    ep  25 train=0.7793 val=0.9542 ema=0.9542 lr=1.0e-03 [36.6s]
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (6s)
+
+=== quectel ul | y2_seq2seq | seed 1 ===
+[data y2] 10 features, sessions {'train': 265, 'val': 56, 'test': 58}, windows {'train': 193502, 'val': 162894, 'test': 168519} (9s)
+
+=== quectel ul | y2_seq2seq | seed 2 ===
+    ep  26 train=0.7948 val=0.9518 ema=0.9534 lr=5.0e-04 [84.7s]
+    ep   1 train=0.6725 val=0.9757 ema=0.9757 lr=1.0e-03 [96.2s]
+    ep   1 train=0.6655 val=0.9779 ema=0.9779 lr=1.0e-03 [99.2s]
+    ep  27 train=0.8013 val=0.9536 ema=0.9535 lr=5.0e-04 [103.4s]
+    ep   2 train=0.6276 val=0.9679 ema=0.9734 lr=1.0e-03 [101.7s]
+    ep   2 train=0.6304 val=0.9715 ema=0.9760 lr=1.0e-03 [99.8s]
+    ep  28 train=0.8121 val=0.9529 ema=0.9533 lr=5.0e-04 [104.0s]
+    ep   3 train=0.6289 val=0.9620 ema=0.9699 lr=1.0e-03 [100.5s]
+    ep   3 train=0.6274 val=0.9618 ema=0.9717 lr=1.0e-03 [99.7s]
+    ep  29 train=0.8252 val=0.9563 ema=0.9542 lr=5.0e-04 [104.4s]
+    ep   4 train=0.6249 val=0.9611 ema=0.9673 lr=1.0e-03 [101.0s]
+    ep   4 train=0.6239 val=0.9615 ema=0.9687 lr=1.0e-03 [100.7s]
+    ep  30 train=0.8352 val=0.9583 ema=0.9554 lr=5.0e-04 [103.4s]
+    ep   5 train=0.6275 val=0.9612 ema=0.9655 lr=1.0e-03 [99.7s]
+    ep   5 train=0.6226 val=0.9564 ema=0.9650 lr=1.0e-03 [100.5s]
+    ep  31 train=0.8329 val=0.9569 ema=0.9559 lr=5.0e-04 [101.0s]
+    ep   6 train=0.6199 val=0.9574 ema=0.9631 lr=1.0e-03 [98.8s]
+    ep   6 train=0.6131 val=0.9574 ema=0.9627 lr=1.0e-03 [101.4s]
+    ep  32 train=0.8307 val=0.9598 ema=0.9570 lr=5.0e-04 [101.1s]
+    ep   7 train=0.6223 val=0.9544 ema=0.9605 lr=1.0e-03 [100.2s]
+    ep   7 train=0.6282 val=0.9526 ema=0.9597 lr=1.0e-03 [104.8s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.3931  1.0518 0.1351        1.4476 0.9510
+loss    0.5108  2.7551 0.2044        3.9610 0.9318
+rtt    12.4425 19.9014 0.0157       27.9692 0.9486
+  AGG MAE=4.4488 RMSE=7.9028 R2=0.1184 (1763s)
+    ep   8 train=0.6273 val=0.9561 ema=0.9591 lr=1.0e-03 [89.3s]
+    ep   8 train=0.6290 val=0.9551 ema=0.9583 lr=1.0e-03 [85.3s]
+    ep   9 train=0.6400 val=0.9522 ema=0.9571 lr=1.0e-03 [83.6s]
+    ep   9 train=0.6308 val=0.9536 ema=0.9569 lr=1.0e-03 [84.2s]
+    ep  10 train=0.6458 val=0.9513 ema=0.9553 lr=1.0e-03 [83.4s]
+    ep  10 train=0.6403 val=0.9523 ema=0.9555 lr=1.0e-03 [84.1s]
+    ep  11 train=0.6444 val=0.9542 ema=0.9550 lr=1.0e-03 [82.8s]
+    ep  11 train=0.6524 val=0.9514 ema=0.9543 lr=1.0e-03 [83.9s]
+    ep  12 train=0.6624 val=0.9534 ema=0.9545 lr=1.0e-03 [82.7s]
+    ep  12 train=0.6543 val=0.9514 ema=0.9534 lr=1.0e-03 [83.9s]
+    ep  13 train=0.6507 val=0.9549 ema=0.9546 lr=1.0e-03 [82.9s]
+    ep  13 train=0.6650 val=0.9524 ema=0.9531 lr=1.0e-03 [83.8s]
+    ep  14 train=0.6726 val=0.9492 ema=0.9530 lr=1.0e-03 [83.5s]
+    ep  14 train=0.6712 val=0.9535 ema=0.9532 lr=1.0e-03 [83.1s]
+    ep  15 train=0.6723 val=0.9541 ema=0.9533 lr=1.0e-03 [83.1s]
+    ep  15 train=0.6809 val=0.9502 ema=0.9523 lr=1.0e-03 [83.3s]
+    ep  16 train=0.6878 val=0.9517 ema=0.9529 lr=1.0e-03 [83.5s]
+    ep  16 train=0.6892 val=0.9526 ema=0.9524 lr=1.0e-03 [83.7s]
+    ep  17 train=0.6990 val=0.9540 ema=0.9532 lr=1.0e-03 [82.5s]
+    ep  17 train=0.7100 val=0.9541 ema=0.9529 lr=1.0e-03 [83.7s]
+    ep  18 train=0.7056 val=0.9532 ema=0.9532 lr=1.0e-03 [83.4s]
+    ep  18 train=0.7084 val=0.9529 ema=0.9529 lr=1.0e-03 [84.0s]
+    ep  19 train=0.7164 val=0.9526 ema=0.9530 lr=1.0e-03 [82.6s]
+    ep  19 train=0.7199 val=0.9568 ema=0.9541 lr=1.0e-03 [83.3s]
+    ep  20 train=0.7318 val=0.9523 ema=0.9528 lr=1.0e-03 [82.9s]
+    ep  20 train=0.7268 val=0.9528 ema=0.9537 lr=1.0e-03 [83.2s]
+    ep  21 train=0.7427 val=0.9554 ema=0.9536 lr=1.0e-03 [74.3s]
+    ep  21 train=0.7411 val=0.9504 ema=0.9527 lr=1.0e-03 [70.2s]
+    ep  22 train=0.7515 val=0.9558 ema=0.9542 lr=1.0e-03 [68.1s]
+    ep  22 train=0.7460 val=0.9525 ema=0.9527 lr=1.0e-03 [67.3s]
+    ep  23 train=0.7516 val=0.9542 ema=0.9542 lr=1.0e-03 [68.2s]
+    ep  23 train=0.7539 val=0.9544 ema=0.9532 lr=1.0e-03 [67.4s]
+    ep  24 train=0.7667 val=0.9562 ema=0.9548 lr=1.0e-03 [68.0s]
+    ep  24 train=0.7741 val=0.9526 ema=0.9530 lr=5.0e-04 [67.2s]
+    ep  25 train=0.7798 val=0.9547 ema=0.9548 lr=5.0e-04 [68.7s]
+    ep  25 train=0.7756 val=0.9504 ema=0.9522 lr=5.0e-04 [68.0s]
+    ep  26 train=0.7880 val=0.9542 ema=0.9546 lr=5.0e-04 [68.5s]
+    ep  26 train=0.7897 val=0.9516 ema=0.9520 lr=5.0e-04 [67.6s]
+    ep  27 train=0.7971 val=0.9585 ema=0.9558 lr=5.0e-04 [68.9s]
+    ep  27 train=0.7984 val=0.9514 ema=0.9519 lr=5.0e-04 [68.2s]
+    ep  28 train=0.8044 val=0.9575 ema=0.9563 lr=5.0e-04 [68.1s]
+    ep  28 train=0.8104 val=0.9526 ema=0.9521 lr=5.0e-04 [67.9s]
+    ep  29 train=0.8166 val=0.9570 ema=0.9565 lr=5.0e-04 [68.2s]
+    ep  29 train=0.8257 val=0.9532 ema=0.9524 lr=5.0e-04 [67.8s]
+    ep  30 train=0.8277 val=0.9585 ema=0.9571 lr=5.0e-04 [68.3s]
+    ep  30 train=0.8379 val=0.9530 ema=0.9526 lr=5.0e-04 [67.9s]
+    ep  31 train=0.8250 val=0.9582 ema=0.9574 lr=5.0e-04 [68.4s]
+    ep  31 train=0.8369 val=0.9553 ema=0.9534 lr=5.0e-04 [67.8s]
+    ep  32 train=0.8226 val=0.9596 ema=0.9581 lr=5.0e-04 [69.1s]
+    ep  32 train=0.8347 val=0.9558 ema=0.9541 lr=5.0e-04 [68.9s]
+    ep  33 train=0.8210 val=0.9608 ema=0.9589 lr=5.0e-04 [68.7s]
+    ep  33 train=0.8337 val=0.9546 ema=0.9543 lr=5.0e-04 [68.3s]
+    ep  34 train=0.8178 val=0.9601 ema=0.9593 lr=2.5e-04 [68.0s]
+    ep  34 train=0.8301 val=0.9565 ema=0.9549 lr=5.0e-04 [67.8s]
+    ep  35 train=0.8104 val=0.9629 ema=0.9603 lr=2.5e-04 [68.8s]
+    ep  35 train=0.8286 val=0.9587 ema=0.9561 lr=5.0e-04 [69.6s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.3925  1.0522 0.1350        1.4476 0.9513
+loss    0.4879  2.7648 0.1987        3.9610 0.9326
+rtt    12.2767 19.9033 0.0156       27.9692 0.9486
+  AGG MAE=4.3857 RMSE=7.9068 R2=0.1164 (2843s)
+    ep  36 train=0.8267 val=0.9570 ema=0.9563 lr=2.5e-04 [58.2s]
+    ep  37 train=0.8218 val=0.9581 ema=0.9569 lr=2.5e-04 [55.2s]
+    ep  38 train=0.8187 val=0.9575 ema=0.9571 lr=2.5e-04 [55.7s]
+    ep  39 train=0.8170 val=0.9574 ema=0.9572 lr=2.5e-04 [58.3s]
+    ep  40 train=0.8153 val=0.9590 ema=0.9577 lr=2.5e-04 [43.8s]
+    ep  41 train=0.8143 val=0.9575 ema=0.9577 lr=2.5e-04 [42.8s]
+    ep  42 train=0.8123 val=0.9589 ema=0.9580 lr=2.5e-04 [43.1s]
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.3936  1.0516 0.1357        1.4476 0.9512
+loss    0.5617  2.7739 0.1949        3.9610 0.9328
+rtt    12.3561 19.9042 0.0155       27.9692 0.9482
+  AGG MAE=4.4371 RMSE=7.9099 R2=0.1153 (3192s)

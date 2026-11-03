@@ -1,0 +1,20 @@
+% Shared pgfplots styles (colorblind-safe palette).
+\definecolor{cPers}{HTML}{8C8C8C}
+\definecolor{cSnaive}{HTML}{B07AA1}
+\definecolor{cRidge}{HTML}{59A14F}
+\definecolor{cYtwo}{HTML}{E15759}
+\definecolor{cResid}{HTML}{F28E2B}
+\definecolor{cFull}{HTML}{EDC948}
+\definecolor{cYthree}{HTML}{4E79A7}
+\pgfplotsset{
+  y3base/.style={width=5.6cm, height=4.2cm, grid=major, grid style={gray!25},
+    tick label style={font=\scriptsize}, label style={font=\scriptsize},
+    title style={font=\footnotesize, yshift=-1ex}, legend style={font=\scriptsize}},
+  mPers/.style={cPers, densely dotted, thick, mark=none},
+  mSnaive/.style={cSnaive, dashdotted, thick, mark=none},
+  mRidge/.style={cRidge, dashed, thick, mark=none},
+  mYtwo/.style={cYtwo, thick, mark=o, mark size=1.2pt},
+  mResid/.style={cResid, thick, mark=none},
+  mFull/.style={cFull, thick, mark=none},
+  mYthree/.style={cYthree, very thick, mark=square*, mark size=1.1pt},
+}

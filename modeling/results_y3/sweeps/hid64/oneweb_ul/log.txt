@@ -1,0 +1,64 @@
+[data y3] 31 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 115847, 'val': 22751, 'test': 28125} (2s)
+
+=== oneweb ul | y3_dist | seed 0 ===
+    ep   1 train=0.0762 val=0.1619 ema=0.1619 lr=1.0e-03 [47.8s]
+    ep   2 train=0.0519 val=0.1660 ema=0.1631 lr=1.0e-03 [46.0s]
+    ep   3 train=0.0497 val=0.1559 ema=0.1609 lr=1.0e-03 [47.4s]
+    ep   4 train=0.0491 val=0.1526 ema=0.1584 lr=1.0e-03 [47.1s]
+    ep   5 train=0.0484 val=0.1496 ema=0.1558 lr=1.0e-03 [45.5s]
+    ep   6 train=0.0482 val=0.1586 ema=0.1566 lr=1.0e-03 [46.3s]
+    ep   7 train=0.0494 val=0.1499 ema=0.1546 lr=1.0e-03 [46.5s]
+    ep   8 train=0.0489 val=0.1512 ema=0.1536 lr=1.0e-03 [46.0s]
+    ep   9 train=0.0488 val=0.1561 ema=0.1544 lr=1.0e-03 [46.9s]
+    ep  10 train=0.0490 val=0.1550 ema=0.1545 lr=1.0e-03 [46.0s]
+    ep  11 train=0.0499 val=0.1596 ema=0.1561 lr=1.0e-03 [48.4s]
+    ep  12 train=0.0509 val=0.1577 ema=0.1565 lr=1.0e-03 [49.2s]
+    ep  13 train=0.0510 val=0.1552 ema=0.1561 lr=1.0e-03 [48.3s]
+    ep  14 train=0.0513 val=0.1755 ema=0.1619 lr=1.0e-03 [49.4s]
+    ep  15 train=0.0519 val=0.1572 ema=0.1605 lr=1.0e-03 [51.8s]
+    ep  16 train=0.0516 val=0.1605 ema=0.1605 lr=1.0e-03 [54.8s]
+    ep  17 train=0.0532 val=0.1759 ema=0.1651 lr=5.0e-04 [53.0s]
+    ep  18 train=0.0512 val=0.1779 ema=0.1690 lr=5.0e-04 [59.3s]
+    ep  19 train=0.0511 val=0.1749 ema=0.1707 lr=5.0e-04 [62.9s]
+    ep  20 train=0.0517 val=0.1899 ema=0.1765 lr=5.0e-04 [60.6s]
+    ep  21 train=0.0519 val=0.1884 ema=0.1801 lr=5.0e-04 [63.9s]
+    ep  22 train=0.0532 val=0.1864 ema=0.1820 lr=5.0e-04 [62.9s]
+    ep  23 train=0.0538 val=0.1693 ema=0.1781 lr=5.0e-04 [61.8s]
+           MAE     RMSE     R2  RMSE_persist   PICP
+target                                             
+jitter  0.0000   0.0000    NaN        0.0000 0.9777
+loss    0.0000   0.0000    NaN        0.0000 0.9185
+rtt    71.9462 146.2392 0.7578      188.1696 0.9483
+  AGG MAE=23.9821 RMSE=48.7464 R2=0.7578 (1197s)
+[data y3] 31 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 115847, 'val': 22751, 'test': 28125} (1s)
+
+=== oneweb ul | y3_dist | seed 1 ===
+    ep   1 train=0.0765 val=0.1722 ema=0.1722 lr=1.0e-03 [38.2s]
+    ep   2 train=0.0518 val=0.1610 ema=0.1689 lr=1.0e-03 [36.1s]
+    ep   3 train=0.0494 val=0.2078 ema=0.1805 lr=1.0e-03 [36.2s]
+    ep   4 train=0.0487 val=0.1841 ema=0.1816 lr=1.0e-03 [35.9s]
+    ep   5 train=0.0484 val=0.1702 ema=0.1782 lr=1.0e-03 [35.7s]
+    ep   6 train=0.0482 val=0.1632 ema=0.1737 lr=1.0e-03 [35.8s]
+    ep   7 train=0.0483 val=0.1527 ema=0.1674 lr=1.0e-03 [35.6s]
+    ep   8 train=0.0486 val=0.1612 ema=0.1655 lr=1.0e-03 [35.7s]
+    ep   9 train=0.0489 val=0.1734 ema=0.1679 lr=1.0e-03 [35.6s]
+    ep  10 train=0.0493 val=0.1753 ema=0.1701 lr=1.0e-03 [37.9s]
+    ep  11 train=0.0496 val=0.1692 ema=0.1698 lr=1.0e-03 [40.5s]
+    ep  12 train=0.0496 val=0.1633 ema=0.1679 lr=1.0e-03 [40.2s]
+    ep  13 train=0.0504 val=0.1779 ema=0.1709 lr=1.0e-03 [40.5s]
+    ep  14 train=0.0512 val=0.1611 ema=0.1679 lr=1.0e-03 [40.1s]
+    ep  15 train=0.0517 val=0.1789 ema=0.1712 lr=1.0e-03 [45.8s]
+    ep  16 train=0.0522 val=0.1911 ema=0.1772 lr=1.0e-03 [46.3s]
+    ep  17 train=0.0521 val=0.1611 ema=0.1723 lr=5.0e-04 [46.4s]
+    ep  18 train=0.0514 val=0.1795 ema=0.1745 lr=5.0e-04 [46.4s]
+    ep  19 train=0.0511 val=0.1862 ema=0.1780 lr=5.0e-04 [47.8s]
+    ep  20 train=0.0517 val=0.2014 ema=0.1850 lr=5.0e-04 [49.3s]
+    ep  21 train=0.0523 val=0.2098 ema=0.1925 lr=5.0e-04 [49.3s]
+    ep  22 train=0.0525 val=0.1882 ema=0.1912 lr=5.0e-04 [49.7s]
+    ep  23 train=0.0535 val=0.2012 ema=0.1942 lr=5.0e-04 [49.5s]
+           MAE     RMSE     R2  RMSE_persist   PICP
+target                                             
+jitter  0.0000   0.0000    NaN        0.0000 0.9305
+loss    0.0000   0.0000    NaN        0.0000 0.9476
+rtt    71.1057 148.7971 0.7492      188.1696 0.9512
+  AGG MAE=23.7019 RMSE=49.5990 R2=0.7492 (959s)

@@ -1,0 +1,45 @@
+{
+ "epochs": 27,
+ "params": 449592,
+ "settings": {
+  "provider": "oneweb",
+  "direction": "ul",
+  "methods": [
+   "y2_seq2seq"
+  ],
+  "seeds": [
+   0
+  ],
+  "epochs": 60,
+  "patience": 15,
+  "batch_size": 512,
+  "input_len": 60,
+  "output_len": 15,
+  "data_root": "/Users/josh/Desktop/Collins/modeling/data/lsn-data",
+  "out_dir": "results_y3/sweeps/L60",
+  "save_models": false,
+  "legacy_data": false,
+  "hidden_size": 128,
+  "qweight": 1.0,
+  "train_stride": 1
+ },
+ "causal_ping": true,
+ "seconds": 2169.3,
+ "n_test": 27795,
+ "features": [
+  "throughput_mbps",
+  "packet_loss_percent",
+  "jitter_ms",
+  "rtt_mean",
+  "sinr_db",
+  "elevation_deg",
+  "azimuth_deg",
+  "satellite_change",
+  "time_since_handover"
+ ],
+ "n_sessions": {
+  "train": 45,
+  "val": 9,
+  "test": 11
+ }
+}

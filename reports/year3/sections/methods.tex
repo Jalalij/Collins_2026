@@ -1,0 +1,50 @@
+The Year 3 forecaster is built in four steps. Each step is evaluated separately in Section~\ref{sec:results} so that its contribution can be seen.
+
+\subsection{Step 1: residual decoder}
+The Year 2 decoder starts every forecast from a zero vector and predicts the level of each target directly. Year 3 starts the decoder from the last observed target values $\mathbf{y}_t$ (read from the input window) and lets each head predict the change,
+\begin{equation}
+\hat{\mathbf{y}}_{t+h} = \hat{\mathbf{y}}_{t+h-1} + g_\theta(\mathbf{s}_h), \qquad \hat{\mathbf{y}}_{t} = \mathbf{y}_t ,
+\label{eq:resid}
+\end{equation}
+where $\mathbf{s}_h$ is the decoder state at step $h$. With $g_\theta\equiv 0$ the model is exactly the persistence forecast. The network only has to learn the departure from it. Teacher forcing is applied per sample instead of per batch, and gradients flow through the fed-back predictions~\cite{bengio2015scheduled}. This step was already in the repository at the start of Year 3 but had not been evaluated.
+
+\subsection{Step 2: causal data pipeline and context features}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Causal ping inputs} (audit item A3, applied to every method).
+  \item \textbf{Sentinel removal.} Some 5G files contain logger sentinels (for example SINR $=-32768$). Radio values outside physical ranges (SINR in $[-50,60]$\,dB, RSRP in $[-160,-20]$\,dBm, RSRQ in $[-40,0]$\,dB) are set to missing and forward filled.
+  \item \textbf{Context features.} For each target we add seven causal statistics computed per session: the number of rows since the value last changed (the phase inside the report cycle, since jitter and loss are one-second iperf reports held for five rows), the mean and maximum over the last second, the means over the last 30\,s and 60\,s, the standard deviation over the last 60\,s, and the session-to-date mean. We also add the time since the previous row, since collector gaps often precede RTT spikes. The 30-row window covers only 6\,s, and these features give the model a longer view at no extra sequence length.
+  \item \textbf{Input clipping.} After $z$-scoring with training statistics, non-target inputs are clipped to $[-5,5]$. Heavy tails reach $|z|\approx 100$ and otherwise dominate the GRU input.
+\end{itemize}
+
+\subsection{Step 3: distributional output heads}
+Link-state targets are heavy tailed. In the test sessions the RTT RMSE of the retrained Year 2 model is \RatioRMSEMAEMin{} to \RatioRMSEMAEMax{} times its MAE, against about 1.25 for Gaussian errors. A model trained only with squared error learns the conditional mean, which minimizes RMSE but is not the best forecast under absolute error, and it says nothing about how uncertain each forecast is. Each scoring function has its own optimal point forecast: the mean for squared error and the median for absolute error~\cite{gneiting2011making}. Year 3 therefore replaces each scalar head by a head with six outputs per target and step: a mean $\hat{\mu}$ and the quantiles $\hat{q}_\tau$ for $\tau\in\mathcal{T}=\{0.025, 0.25, 0.5, 0.75, 0.975\}$. All outputs are anchored on the last value as in~\eqref{eq:resid}, and the decoder feeds back its mean. The quantiles are built as the median plus or minus cumulative softplus gaps, which rules out quantile crossing,
+\begin{equation}
+\hat{q}_{0.25}=\hat{q}_{0.5}-\varsigma(a_1),\quad \hat{q}_{0.025}=\hat{q}_{0.25}-\varsigma(a_2),\quad
+\hat{q}_{0.75}=\hat{q}_{0.5}+\varsigma(b_1),\quad \hat{q}_{0.975}=\hat{q}_{0.75}+\varsigma(b_2),
+\end{equation}
+with $\varsigma(u)=\log(1+e^u)$. The training loss on normalized targets is
+\begin{equation}
+\mathcal{L} = \frac{1}{NHK}\sum_{n,h,k}\Big[\big(\hat{\mu}_{nhk}-y_{nhk}\big)^2 + \frac{1}{|\mathcal{T}|}\sum_{\tau\in\mathcal{T}}\rho_\tau\big(y_{nhk}-\hat{q}_{\tau,nhk}\big)\Big],
+\qquad \rho_\tau(e)=\max\{\tau e,(\tau-1)e\},
+\label{eq:loss}
+\end{equation}
+where $\rho_\tau$ is the pinball loss of quantile regression~\cite{koenker1978regression}. The mean is used for RMSE and $R^2$ and the median for MAE. The extra cost is small: the distributional model has \ParamsDist{} parameters against \ParamsResid{} for the Step 1 model on OneWeb DL. Figure~\ref{fig:arch} shows the resulting architecture.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{0.86\linewidth}{!}{\input{tikz/model_arch.tex}}
+  \caption{Year 3 forecaster. The encoder and attention are those of Year 2. The decoder is anchored on the last observation and each head outputs a mean and five non-crossing quantiles of the change.}
+  \label{fig:arch}
+\end{figure}
+
+\subsection{Step 4: calibration and ensembles}
+Quantiles learned on training sessions are not guaranteed to cover unseen sessions. We calibrate them with conformalized quantile regression (CQR)~\cite{romano2019conformalized}. For each target and step, the score on validation window $i$ is $s_i=\max\{\hat{q}_{0.025,i}-y_i,\ y_i-\hat{q}_{0.975,i}\}$ and $c$ is its $\lceil (n+1)(1-\alpha)\rceil$-th smallest value over the $n$ validation windows. The test interval is $[\hat{q}_{0.025}-c,\ \hat{q}_{0.975}+c]$ with $\alpha=0.05$. For models without quantiles (Year 2, persistence, ridge) we use the standard split conformal interval $\hat{y}\pm q$, with $q$ the same order statistic of the validation absolute residuals~\cite{lei2018distribution}. Both intervals have finite-sample coverage $\geq 1-\alpha$ when validation and test windows are exchangeable~\cite{lei2018distribution}. Windows of one session are correlated and sessions differ in time of day and load. The guarantee is therefore approximate here~\cite{barber2023conformal}, and we report the coverage measured on the test sessions. Validation sessions are also used for early stopping, as in Year 2.
+
+Finally, the three seeds of each model are averaged (mean and each quantile) into a deep ensemble~\cite{lakshminarayanan2017simple}, which is calibrated in the same way.
+
+\subsection{Reference methods}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Persistence:} $\hat{\mathbf{y}}_{t+h}=\mathbf{y}_t$.
+  \item \textbf{Seasonal repeat (1\,s):} $\hat{\mathbf{y}}_{t+h}=\mathbf{y}_{t+h-5\lceil h/5\rceil}$, the value one iperf report cycle earlier.
+  \item \textbf{Ridge (direct):} a linear model per target and step that predicts $\mathbf{y}_{t+h}-\mathbf{y}_t$ from the last input row and the full 30-row history of the targets. The ridge penalty is chosen on the validation sessions from $\{10^{-2},\dots,10^{4}\}$ and the intercept is not penalized. It is fitted on the Year 2 features (\emph{Ridge}) and on the Year 3 features (\emph{Ridge-Y3}).
+\end{itemize}

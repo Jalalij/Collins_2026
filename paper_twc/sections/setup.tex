@@ -1,0 +1,40 @@
+\section{Evaluation Setup}
+\label{sec:setup}
+\subsection{Data}
+Table~\ref{tab:data} lists the six links. Sessions are split at random into 70\% training, 15\% calibration (also used for model selection), and 15\% test sessions with a fixed seed. All windows of a session stay in one set. The OneWeb UL jitter and loss are zero in every row of every session. They are kept as targets for uniformity but excluded from all summaries. The 5G sets have about seven times more windows than the satellite sets, and every fourth training window is used for all methods. Overlapping windows are highly redundant, and the subsampling keeps the study within one laptop GPU.
+
+\begin{table}[t]
+\centering
+\caption{Datasets (5\,Hz rows, windows of 30 input and 15 target rows).}
+\label{tab:data}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcrrrc}
+\toprule
+Link & Sessions & Train & Calib. & Test & Features \\
+\midrule
+OneWeb DL   & 45/9/11   & 117{,}558 & 22{,}655  & 27{,}492  & 9/31 \\
+OneWeb UL   & 45/9/11   & 115{,}847 & 22{,}751  & 28{,}125  & 9/31 \\
+Starlink DL & 37/7/9    & 105{,}906 & 20{,}025  & 25{,}838  & 19/41 \\
+Starlink UL & 37/7/9    & 106{,}165 & 20{,}090  & 25{,}666  & 19/41 \\
+5G DL       & 266/57/58 & 194{,}725 & 166{,}266 & 169{,}204 & 10/32 \\
+5G UL       & 265/56/58 & 193{,}502 & 162{,}894 & 168{,}519 & 10/32 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Inputs}
+The base feature set of each link (left number in the last column of Table~\ref{tab:data}) holds the three targets, the iperf throughput, the link telemetry listed in Section~\ref{sec:system}, and for Starlink and 5G three weather variables. The extended set adds, for each target, seven causal statistics computed within the session: the number of rows since the value last changed (the phase in the report cycle, since jitter and loss are one-second reports held for five rows), the mean and maximum of the last second, the means of the last 30\,s and 60\,s, the standard deviation of the last 60\,s, and the session-to-date mean. It also adds the time since the previous row. Radio values outside physical ranges, such as the logger sentinel $-32768$ in some 5G SINR records, are treated as missing, and non-target inputs are clipped to $\pm 5$ standard deviations after normalization with training statistics.
+
+\subsection{Methods}
+\begin{itemize}
+  \item \textbf{Persistence:} $\hat{\mathbf{y}}_{t+h}=\mathbf{y}_t$.
+  \item \textbf{Seasonal:} $\hat{\mathbf{y}}_{t+h}=\mathbf{y}_{t+h-5\lceil h/5\rceil}$, the value one second earlier.
+  \item \textbf{Ridge} and \textbf{Ridge-E:} a linear model per target and step that predicts $\mathbf{y}_{t+h}-\mathbf{y}_t$ from the last input row and the 30-row target history, on the base and extended features. The penalty is chosen on the calibration sessions from $\{10^{-2},\dots,10^{4}\}$.
+  \item \textbf{S2S:} the GRU encoder-decoder of Section~\ref{sec:method} with one scalar head per target, a decoder started from zero, and the squared-error loss, on the base features. This is the model used in our earlier deployment of the prediction-aware scheduler, retrained here on causal inputs.
+  \item \textbf{Ablation steps:} S2S-A anchors the decoder as in~\eqref{eq:anchor}. S2S-AE also uses the extended features. \textbf{DS2S} adds the distributional heads and the loss~\eqref{eq:loss}. DS2S-E is the three-seed ensemble of DS2S, and S2S-E that of S2S.
+\end{itemize}
+All neural models use AdamW with learning rate and weight decay $10^{-3}$, batch size 512, gradient clipping at norm 5, and a plateau schedule that halves the learning rate after 8 epochs without improvement. The checkpoint with the lowest exponentially smoothed calibration-session loss (factor 0.3) is kept, and training stops after 15 epochs without improvement or at 60 epochs. All \NRuns{} runs stopped early, after \EpochsMin{} to \EpochsMax{} epochs. Each neural method is trained with three seeds on an Apple M3 Max GPU.
+
+\subsection{Metrics}
+For each target and step we compute the MAE (using $\hat{q}_{0.5}$ for DS2S), the RMSE and $R^2$ (using $\hat{\mu}$), the RMSE skill $1-\mathrm{RMSE}/\mathrm{RMSE}_{\mathrm{pers}}$ against persistence~\cite{hyndman2006another}, the empirical coverage (PICP) of the calibrated 95\% interval, and the interval score~\eqref{eq:is}. We report averages over the 15 steps, means and standard deviations over seeds, and relative changes against S2S.

@@ -1,0 +1,66 @@
+{
+ "epochs": 32,
+ "params": 469283,
+ "settings": {
+  "provider": "quectel",
+  "direction": "ul",
+  "methods": [
+   "y3_dist"
+  ],
+  "seeds": [
+   0
+  ],
+  "epochs": 60,
+  "patience": 15,
+  "batch_size": 512,
+  "input_len": 30,
+  "output_len": 15,
+  "data_root": "/Users/josh/Desktop/Collins/modeling/data/lsn-data",
+  "out_dir": "results_y3/main",
+  "save_models": true,
+  "legacy_data": false,
+  "train_stride": 4
+ },
+ "causal_ping": true,
+ "seconds": 3344.5,
+ "n_test": 168519,
+ "features": [
+  "iperf_throughput_mbps",
+  "iperf_jitter_ms",
+  "iperf_loss_pct",
+  "ping_rtt_ms",
+  "rsrp",
+  "rsrq",
+  "sinr",
+  "weather_humidity",
+  "weather_pressure",
+  "weather_rain_rate",
+  "row_dt",
+  "ping_rtt_ms__rsc",
+  "ping_rtt_ms__mean5",
+  "ping_rtt_ms__max5",
+  "ping_rtt_ms__mean150",
+  "ping_rtt_ms__mean300",
+  "ping_rtt_ms__std300",
+  "ping_rtt_ms__xmean",
+  "iperf_jitter_ms__rsc",
+  "iperf_jitter_ms__mean5",
+  "iperf_jitter_ms__max5",
+  "iperf_jitter_ms__mean150",
+  "iperf_jitter_ms__mean300",
+  "iperf_jitter_ms__std300",
+  "iperf_jitter_ms__xmean",
+  "iperf_loss_pct__rsc",
+  "iperf_loss_pct__mean5",
+  "iperf_loss_pct__max5",
+  "iperf_loss_pct__mean150",
+  "iperf_loss_pct__mean300",
+  "iperf_loss_pct__std300",
+  "iperf_loss_pct__xmean"
+ ],
+ "n_sessions": {
+  "train": 265,
+  "val": 56,
+  "test": 58
+ }
+}

@@ -1,0 +1,496 @@
+% Required packages:
+% \usepackage{tikz}
+% \usetikzlibrary{positioning,arrows.meta,calc}
+
+\begin{tikzpicture}[
+    font=\small,
+    >=Latex,
+    outerbox/.style={
+        draw=black,
+        dashed,
+        dash pattern=on 8pt off 5pt,
+        line width=0.9pt
+    },
+    module/.style={
+        draw=black!50,
+        line width=0.6pt,
+        minimum height=0.75cm,
+        align=center,
+        inner sep=3pt
+    },
+    greenmod/.style={
+        module,
+        fill=green!15
+    },
+    yellowmod/.style={
+        module,
+        fill=yellow!20
+    },
+    cyanmod/.style={
+        module,
+        fill=cyan!25
+    },
+    redmod/.style={
+        module,
+        fill=red!30
+    },
+    textblock/.style={
+        anchor=north west,
+        align=left,
+        text width=3.05cm,
+        inner sep=0pt
+    },
+    blackarrow/.style={
+        -{Latex[length=2.8mm,width=2mm]},
+        line width=1.1pt
+    },
+    doublearrow/.style={
+        {Latex[length=2.8mm,width=2mm]}-
+        {Latex[length=2.8mm,width=2mm]},
+        line width=1.1pt
+    },
+    greenarrow/.style={
+        -{Latex[length=2.8mm,width=2mm]},
+        line width=1.1pt,
+        draw=green!60!black
+    }
+]
+
+% =========================================================
+% MAIN DIMENSIONS
+% =========================================================
+
+\def\stackx{7.0}
+\def\stackwidth{8.4}
+
+% =========================================================
+% APPLICATION
+% =========================================================
+
+\node[
+    outerbox,
+    fill=orange!55,
+    minimum width=\stackwidth cm,
+    minimum height=0.80cm,
+    anchor=south west,
+    align=center
+] (app) at (\stackx,8.9)
+{\Large Application};
+
+% =========================================================
+% VIRTUAL TUNNEL
+% =========================================================
+
+\node[
+    outerbox,
+    fill=blue!15,
+    minimum width=\stackwidth cm,
+    minimum height=8.9cm,
+    anchor=north west
+] (vt) at (\stackx,8.9) {};
+
+\node[
+    anchor=north,
+    font=\Large
+] at ([yshift=-0.18cm]vt.north)
+{Virtual Tunnel Interface (10.0.0.2)};
+
+% =========================================================
+% TOP LEFT TEXT
+% =========================================================
+
+\node[
+    textblock
+] at ([xshift=0.85cm,yshift=-1.18cm]vt.north west)
+{
+    \textbf{QUIC Probes:}\\
+    Check if dead paths have\\
+    recovered and probes stale\\
+    paths for updates PathStats.
+};
+
+% =========================================================
+% TOP RIGHT TEXT
+% =========================================================
+
+\node[
+    textblock,
+    text width=3.15cm
+] at ([xshift=4.90cm,yshift=-0.95cm]vt.north west)
+{
+    QUIC Path Stats:\\
+    path active, CWND, RTT,\\
+    bytes \{lost, sent, inflight\}\\
+    Updates when path receives\\
+    QUIC data.
+};
+
+% =========================================================
+% ROW 1 MODULES
+% =========================================================
+
+\node[
+    greenmod,
+    minimum width=2.55cm
+] (monitor)
+at ([xshift=2.15cm,yshift=-2.70cm]vt.north west)
+{\Large Path Monitor};
+
+\node[
+    yellowmod,
+    minimum width=2.55cm
+] (metrics)
+at ([xshift=6.15cm,yshift=-2.70cm]vt.north west)
+{\Large Path Metrics};
+
+% =========================================================
+% MIDDLE LEFT TEXT
+% =========================================================
+
+\node[
+    textblock
+] at ([xshift=0.85cm,yshift=-3.30cm]vt.north west)
+{
+    \textbf{QUIC Stream:}\\
+    \hspace*{0.15cm}handshakes, keep alive to\\
+    \hspace*{0.15cm}server, receives server's\\
+    \hspace*{0.15cm}PathStats\\
+    Feed PathStats into model.
+};
+
+% =========================================================
+% MIDDLE RIGHT TEXT
+% =========================================================
+
+\node[
+    textblock,
+    text width=3.15cm
+] at ([xshift=4.90cm,yshift=-3.30cm]vt.north west)
+{
+    Optional FEC mechanism\\
+    with plug and play schemes.\\
+    Uses model to decide on\\
+    redundancy.\\
+    Encodes and decodes data.
+};
+
+% =========================================================
+% ROW 2 MODULES
+% =========================================================
+
+\node[
+    greenmod,
+    minimum width=2.55cm
+] (control)
+at ([xshift=2.15cm,yshift=-5.15cm]vt.north west)
+{\Large Control Plane};
+
+\node[
+    yellowmod,
+    minimum width=2.55cm
+] (fec)
+at ([xshift=6.15cm,yshift=-5.15cm]vt.north west)
+{\Large FEC};
+
+% =========================================================
+% BOTTOM LEFT TEXT
+% =========================================================
+
+\node[
+    textblock,
+    text width=3.15cm
+] at ([xshift=0.85cm,yshift=-5.95cm]vt.north west)
+{
+    Facilitate sending fresh data\\
+    to sidecar for inference and\\
+    then feeding results into\\
+    FEC.
+};
+
+% =========================================================
+% BOTTOM RIGHT TEXT
+% =========================================================
+
+\node[
+    textblock
+] at ([xshift=4.90cm,yshift=-6.15cm]vt.north west)
+{
+    \textbf{Datagrams:}\\
+    \hspace*{0.15cm}send data into MPQUIC\\
+    \hspace*{0.15cm}for scheduling
+};
+
+% =========================================================
+% ROW 3 MODULES
+% =========================================================
+
+\node[
+    yellowmod,
+    minimum width=2.55cm
+] (modeling)
+at ([xshift=2.15cm,yshift=-7.65cm]vt.north west)
+{\Large Modeling};
+
+\node[
+    greenmod,
+    minimum width=2.55cm
+] (dataplane)
+at ([xshift=6.15cm,yshift=-7.65cm]vt.north west)
+{\Large Data Plane};
+
+% =========================================================
+% INTERNAL ARROWS
+% =========================================================
+
+% Path Metrics -> Path Monitor
+\draw[blackarrow]
+(metrics.west) -- (monitor.east);
+
+% Path Metrics -> Control Plane
+\draw[blackarrow]
+([xshift=-0.72cm]metrics.west)
+|- (control.east);
+
+% Control Plane -> Modeling
+\draw[blackarrow]
+(control.west)
+-| ([xshift=-0.40cm]modeling.west)
+-- (modeling.west);
+
+% Modeling -> FEC
+\draw[blackarrow]
+(modeling.east) -- (fec.south west);
+
+% FEC -> Data Plane
+\draw[blackarrow]
+(fec.east)
+-| ([xshift=0.40cm]dataplane.east)
+-- (dataplane.east);
+
+% =========================================================
+% MODELING SIDECAR
+% =========================================================
+
+\node[
+    outerbox,
+    fill=yellow!18,
+    minimum width=6.45cm,
+    minimum height=2.65cm,
+    anchor=east
+] (sidecar)
+at ([xshift=-0.60cm,yshift=-0.10cm]modeling.west) {};
+
+\node[
+    font=\Large,
+    anchor=north
+] at ([yshift=-0.15cm]sidecar.north)
+{Modeling Sidecar};
+
+\node[
+    anchor=north west,
+    align=left,
+    text width=5.95cm,
+    inner sep=0pt
+] at ([xshift=0.22cm,yshift=-0.70cm]sidecar.north west)
+{
+    Optional (and separate) Python application to load\\
+    models (for each path) and retrieve weather data and\\
+    physical layer data from 5G radio and SatCom UTs.\\
+    Receives last 30s of RTT, loss, and throughput from\\
+    tunnel and predicts future 15s of values using models\\
+    and then transmits results back to the tunnel.
+};
+
+\draw[doublearrow]
+(sidecar.east) -- (modeling.west);
+
+% =========================================================
+% MULTIPATH QUIC
+% =========================================================
+
+\node[
+    outerbox,
+    fill=violet!18,
+    minimum width=\stackwidth cm,
+    minimum height=3.45cm,
+    anchor=north west
+] (mpq) at (\stackx,0) {};
+
+\node[
+    anchor=north,
+    font=\Large
+] at ([yshift=-0.12cm]mpq.north)
+{Multipath QUIC};
+
+% =========================================================
+% MPQUIC TOP ROW
+% =========================================================
+
+\node[
+    greenmod,
+    text width=2.20cm,
+    minimum height=0.75cm
+] (unrel)
+at ([xshift=1.45cm,yshift=-1.20cm]mpq.north west)
+{
+    Unreliable Data\\
+    Plane Packets
+};
+
+\node[
+    greenmod,
+    text width=2.20cm,
+    minimum height=0.75cm
+] (probes)
+at ([xshift=4.20cm,yshift=-1.20cm]mpq.north west)
+{
+    Path Monitor\\
+    Probes
+};
+
+\node[
+    greenmod,
+    text width=2.20cm,
+    minimum height=0.75cm
+] (reliable)
+at ([xshift=6.95cm,yshift=-1.20cm]mpq.north west)
+{
+    Reliable Control\\
+    Plane Packets
+};
+
+% =========================================================
+% MPQUIC BOTTOM ROW
+% =========================================================
+
+\node[
+    cyanmod,
+    text width=1.15cm
+] (modelstats)
+at ([xshift=0.95cm,yshift=-2.60cm]mpq.north west)
+{
+    Model\\
+    Stats
+};
+
+\node[
+    redmod,
+    minimum width=4.00cm
+] (scheduler)
+at ([xshift=4.20cm,yshift=-2.60cm]mpq.north west)
+{
+    \Large Multipath Scheduler
+};
+
+\node[
+    cyanmod,
+    text width=1.15cm
+] (pathstats)
+at ([xshift=7.45cm,yshift=-2.60cm]mpq.north west)
+{
+    Path\\
+    Stats
+};
+
+% =========================================================
+% MPQUIC ARROWS
+% =========================================================
+
+\draw[blackarrow]
+(unrel.south)
+-- ([xshift=-1.50cm]scheduler.north);
+
+\draw[blackarrow]
+(probes.south)
+-- (scheduler.north);
+
+\draw[blackarrow]
+(reliable.south)
+-- ([xshift=1.50cm]scheduler.north);
+
+\draw[greenarrow]
+(modelstats.east) -- (scheduler.west);
+
+\draw[greenarrow]
+(pathstats.west) -- (scheduler.east);
+
+% =========================================================
+% LEFT EXTERNAL LABELS
+% =========================================================
+
+\node[
+    greenmod,
+    minimum width=2.55cm,
+    minimum height=0.65cm,
+    anchor=east
+] (datatx)
+at ([xshift=-0.12cm]unrel.west)
+{
+    Data to transmit:
+};
+
+\node[
+    cyanmod,
+    minimum width=2.55cm,
+    minimum height=0.65cm,
+    anchor=east
+] (knobs)
+at ([xshift=-0.12cm]modelstats.west)
+{
+    Scheduling knobs:
+};
+
+% =========================================================
+% UDP/IP
+% =========================================================
+
+\node[
+    outerbox,
+    fill=red!15,
+    minimum width=\stackwidth cm,
+    minimum height=0.75cm,
+    anchor=north west,
+    align=center
+] (udp) at (mpq.south west)
+{
+    \Large UDP/IP
+};
+
+% =========================================================
+% NETWORK INTERFACES
+% =========================================================
+
+\node[
+    outerbox,
+    fill=green!15,
+    minimum width=3.20cm,
+    minimum height=1.15cm,
+    anchor=north west,
+    align=center
+] (if1) at (udp.south west)
+{
+    \Large Network Interface 1\\[1mm]
+    \Large 10.189.55.160
+};
+
+\node[
+    outerbox,
+    fill=green!15,
+    minimum width=3.20cm,
+    minimum height=1.15cm,
+    anchor=north east,
+    align=center
+] (ifn) at (udp.south east)
+{
+    \Large Network Interface $n$\\[1mm]
+    \Large 192.168.1.241
+};
+
+\node[
+    font=\Large
+] at ($(if1.east)!0.5!(ifn.west)$)
+{
+    $\bullet\quad\bullet\quad\bullet\quad\bullet\quad\bullet$
+};
+
+\end{tikzpicture}

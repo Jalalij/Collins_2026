@@ -1,0 +1,8 @@
+{
+ "S2S_cpu_1thread": 6.885,
+ "DS2S_cpu_1thread": 10.024,
+ "S2S_cpu_multi": 24.824,
+ "DS2S_cpu_multi": 25.311,
+ "S2S_mps_multi": 36.757,
+ "DS2S_mps_multi": 46.899
+}

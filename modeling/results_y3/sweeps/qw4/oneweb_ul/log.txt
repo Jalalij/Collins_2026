@@ -1,0 +1,72 @@
+[data y3] 31 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 115847, 'val': 22751, 'test': 28125} (1s)
+
+=== oneweb ul | y3_dist | seed 0 ===
+    ep   1 train=0.1590 val=0.3425 ema=0.3425 lr=1.0e-03 [61.7s]
+    ep   2 train=0.1008 val=0.3315 ema=0.3392 lr=1.0e-03 [56.6s]
+    ep   3 train=0.0965 val=0.2763 ema=0.3203 lr=1.0e-03 [56.1s]
+    ep   4 train=0.0932 val=0.2588 ema=0.3019 lr=1.0e-03 [55.5s]
+    ep   5 train=0.0917 val=0.2731 ema=0.2932 lr=1.0e-03 [54.5s]
+    ep   6 train=0.0916 val=0.2678 ema=0.2856 lr=1.0e-03 [51.1s]
+    ep   7 train=0.0910 val=0.2671 ema=0.2801 lr=1.0e-03 [49.0s]
+    ep   8 train=0.0902 val=0.2752 ema=0.2786 lr=1.0e-03 [49.6s]
+    ep   9 train=0.0898 val=0.2435 ema=0.2681 lr=1.0e-03 [50.1s]
+    ep  10 train=0.0901 val=0.2635 ema=0.2667 lr=1.0e-03 [48.3s]
+    ep  11 train=0.0900 val=0.2428 ema=0.2595 lr=1.0e-03 [46.7s]
+    ep  12 train=0.0892 val=0.2517 ema=0.2572 lr=1.0e-03 [46.7s]
+    ep  13 train=0.0887 val=0.2515 ema=0.2555 lr=1.0e-03 [45.8s]
+    ep  14 train=0.0886 val=0.2783 ema=0.2623 lr=1.0e-03 [43.6s]
+    ep  15 train=0.0880 val=0.2609 ema=0.2619 lr=1.0e-03 [43.2s]
+    ep  16 train=0.0882 val=0.2574 ema=0.2605 lr=1.0e-03 [43.3s]
+    ep  17 train=0.0875 val=0.2505 ema=0.2575 lr=1.0e-03 [42.8s]
+    ep  18 train=0.0864 val=0.2618 ema=0.2588 lr=1.0e-03 [42.9s]
+    ep  19 train=0.0871 val=0.2713 ema=0.2625 lr=1.0e-03 [42.6s]
+    ep  20 train=0.0842 val=0.2785 ema=0.2673 lr=1.0e-03 [42.6s]
+    ep  21 train=0.0853 val=0.2772 ema=0.2703 lr=1.0e-03 [44.0s]
+    ep  22 train=0.0838 val=0.2881 ema=0.2756 lr=5.0e-04 [47.7s]
+    ep  23 train=0.0786 val=0.2851 ema=0.2784 lr=5.0e-04 [47.9s]
+    ep  24 train=0.0773 val=0.2985 ema=0.2845 lr=5.0e-04 [48.2s]
+    ep  25 train=0.0773 val=0.3155 ema=0.2938 lr=5.0e-04 [49.5s]
+    ep  26 train=0.0760 val=0.3053 ema=0.2972 lr=5.0e-04 [53.4s]
+    ep  27 train=0.0758 val=0.3013 ema=0.2984 lr=5.0e-04 [53.3s]
+    ep  28 train=0.0755 val=0.3105 ema=0.3021 lr=5.0e-04 [52.8s]
+           MAE     RMSE     R2  RMSE_persist   PICP
+target                                             
+jitter  0.0000   0.0000    NaN        0.0000 0.9457
+loss    0.0000   0.0000    NaN        0.0000 0.9580
+rtt    68.9273 151.2882 0.7409      188.1696 0.9482
+  AGG MAE=22.9758 RMSE=50.4294 R2=0.7409 (1375s)
+[data y3] 31 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 115847, 'val': 22751, 'test': 28125} (1s)
+
+=== oneweb ul | y3_dist | seed 1 ===
+    ep   1 train=0.1576 val=0.2905 ema=0.2905 lr=1.0e-03 [53.0s]
+    ep   2 train=0.1011 val=0.2757 ema=0.2860 lr=1.0e-03 [52.6s]
+    ep   3 train=0.0961 val=0.2686 ema=0.2808 lr=1.0e-03 [52.4s]
+    ep   4 train=0.0939 val=0.2936 ema=0.2846 lr=1.0e-03 [53.6s]
+    ep   5 train=0.0921 val=0.2571 ema=0.2764 lr=1.0e-03 [45.0s]
+    ep   6 train=0.0917 val=0.2743 ema=0.2757 lr=1.0e-03 [44.1s]
+    ep   7 train=0.0900 val=0.2489 ema=0.2677 lr=1.0e-03 [44.9s]
+    ep   8 train=0.0902 val=0.2565 ema=0.2643 lr=1.0e-03 [44.5s]
+    ep   9 train=0.0906 val=0.2623 ema=0.2637 lr=1.0e-03 [44.5s]
+    ep  10 train=0.0892 val=0.2667 ema=0.2646 lr=1.0e-03 [39.8s]
+    ep  11 train=0.0890 val=0.2556 ema=0.2619 lr=1.0e-03 [38.9s]
+    ep  12 train=0.0889 val=0.3116 ema=0.2768 lr=1.0e-03 [33.5s]
+    ep  13 train=0.0895 val=0.2883 ema=0.2803 lr=1.0e-03 [28.6s]
+    ep  14 train=0.0876 val=0.3044 ema=0.2875 lr=1.0e-03 [27.7s]
+    ep  15 train=0.0883 val=0.2635 ema=0.2803 lr=1.0e-03 [27.6s]
+    ep  16 train=0.0890 val=0.2604 ema=0.2743 lr=1.0e-03 [27.3s]
+    ep  17 train=0.0887 val=0.3092 ema=0.2848 lr=1.0e-03 [25.6s]
+    ep  18 train=0.0871 val=0.2987 ema=0.2890 lr=1.0e-03 [25.8s]
+    ep  19 train=0.0869 val=0.2840 ema=0.2875 lr=1.0e-03 [25.7s]
+    ep  20 train=0.0855 val=0.3185 ema=0.2968 lr=5.0e-04 [22.1s]
+    ep  21 train=0.0798 val=0.3145 ema=0.3021 lr=5.0e-04 [18.3s]
+    ep  22 train=0.0794 val=0.3248 ema=0.3089 lr=5.0e-04 [18.9s]
+    ep  23 train=0.0794 val=0.3317 ema=0.3157 lr=5.0e-04 [18.8s]
+    ep  24 train=0.0785 val=0.3342 ema=0.3213 lr=5.0e-04 [18.3s]
+    ep  25 train=0.0784 val=0.3429 ema=0.3278 lr=5.0e-04 [18.4s]
+    ep  26 train=0.0786 val=0.3285 ema=0.3280 lr=5.0e-04 [18.1s]
+           MAE     RMSE     R2  RMSE_persist   PICP
+target                                             
+jitter  0.0000   0.0000    NaN        0.0000 0.9302
+loss    0.0000   0.0000    NaN        0.0000 0.9149
+rtt    70.8753 147.7991 0.7525      188.1696 0.9531
+  AGG MAE=23.6251 RMSE=49.2664 R2=0.7525 (871s)

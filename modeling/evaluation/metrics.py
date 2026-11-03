@@ -55,7 +55,12 @@ def smape(pred, target, eps=1e-8):
 def r2(pred, target):
     ss_res = ((target - pred) ** 2).sum(axis=0)
     ss_tot = ((target - target.mean(axis=0)) ** 2).sum(axis=0)
-    return 1 - ss_res / (ss_tot + 1e-8)
+    out = 1 - ss_res / (ss_tot + 1e-8)
+    # R2 is undefined for a constant target (e.g. OneWeb UL jitter/loss, which are
+    # 0 in every row). The 1e-8 guard would otherwise report a perfect 1.0 and
+    # inflate the AGGREGATE row; NaN keys are skipped when aggregating.
+    n = target.shape[0] if np.ndim(target) else 1
+    return np.where(ss_tot <= 1e-12 * max(n, 1), np.nan, out)
 
 def prediction_interval(pred, target, alpha=0.05):
     residuals = target - pred

@@ -1,0 +1,9 @@
+[data y2] 19 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (0s)
+
+=== starlink dl | persistence | seed 0 ===
+           MAE    RMSE      R2  RMSE_persist   PICP
+target                                             
+jitter  0.2024  1.2658 -0.2648        1.2658 0.9709
+loss    2.9238  7.8774 -0.0370        7.8774 0.9643
+rtt    43.2005 62.3347 -0.0332       62.3347 0.9551
+  AGG MAE=15.4422 RMSE=23.8259 R2=-0.1117 (0s)

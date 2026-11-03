@@ -499,6 +499,15 @@ class DataConfig:
     # Normalisation
     normalise:       str                 = "zscore"
 
+    # Data quality / feature engineering (see clean_frame / add_engineered_features)
+    clean:           bool                = False
+    engineered:      bool                = False
+    # Clip z-scored non-target input features to [-clip_z, clip_z]; None disables.
+    clip_z:          Optional[float]     = None
+    # Replace ping values that the parser interpolated from the NEXT real ping
+    # with the last real ping (causal). See causal_ping_fix().
+    causal_ping:     bool                = False
+
     # IO mode — set automatically from MODEL_IO_MODE in run.py,
     # or override explicitly here.
     io_mode:         str                 = IO_MODE_MIMO
@@ -536,6 +545,12 @@ class DataConfig:
 
         if self.features is None:
             self.features = list(DEFAULT_FEATURES_BY_EXP[exp_key])
+
+        if self.engineered:
+            self.features = list(self.features) + [
+                f for f in engineered_feature_names(self.targets)
+                if f not in self.features
+            ]
 
         # MISO / SISO only ever operate on the primary target.
         if self.io_mode in (IO_MODE_MISO, IO_MODE_SISO) and len(self.targets) > 1:
@@ -649,6 +664,104 @@ def find_session_files(cfg: DataConfig) -> list[Path]:
 # CSV loading (provider-aware)
 # ---------------------------------------------------------------------------
 
+# Physically plausible ranges for radio measurements. Values outside are
+# logger sentinels (e.g. sinr = -32768 in some Quectel files) and become NaN,
+# which the dataset then forward-fills like any other gap.
+SANITY_RANGES: dict[str, tuple[float, float]] = {
+    "sinr":    (-50.0, 60.0),
+    "sinr_db": (-50.0, 60.0),
+    "rsrp":    (-160.0, -20.0),
+    "rsrq":    (-40.0, 0.0),
+}
+
+
+# Ping columns the raw parsers fill by two-sided time interpolation
+# (parse_starlink.py INTERP_COLS). An interpolated row mixes the previous ping
+# with the NEXT one, so a model input at time t would contain information from
+# t+1. Real pings are reported with at most 3 decimals; interpolated values are
+# not, which is how they are detected.
+INTERPOLATED_PING_COLS: dict[str, tuple[str, ...]] = {
+    "starlink": ("ping_server_rtt_ms", "ping_tunnel_rtt_ms", "ping_internet_rtt_ms"),
+    "quectel": ("ping_rtt_ms",),
+}
+
+
+def interpolated_mask(values: pd.Series) -> pd.Series:
+    v = pd.to_numeric(values, errors="coerce")
+    return ((v * 1000 - (v * 1000).round()).abs() > 1e-3) & v.notna()
+
+
+def causal_ping_fix(df: pd.DataFrame, provider: str) -> None:
+    """In place: keep the original column as '<col>__orig' (used as the
+    target) and replace interpolated inputs with the last real ping."""
+    for col in INTERPOLATED_PING_COLS.get(provider, ()):
+        if col not in df.columns:
+            continue
+        v = pd.to_numeric(df[col], errors="coerce")
+        m = interpolated_mask(v)
+        df[col + "__orig"] = v
+        df[col + "__interp"] = m.astype("float32")
+        df[col] = v.mask(m).ffill()
+
+
+def target_source(df: pd.DataFrame, col: str) -> str:
+    """Targets keep the measured series even when inputs were made causal."""
+    return col + "__orig" if col + "__orig" in df.columns else col
+
+
+def clean_frame(df: pd.DataFrame) -> None:
+    """Replace out-of-range sentinel values with NaN, in place."""
+    for col, (lo, hi) in SANITY_RANGES.items():
+        if col in df.columns:
+            vals = pd.to_numeric(df[col], errors="coerce")
+            df[col] = vals.where((vals >= lo) & (vals <= hi))
+
+
+# Causal per-session features derived from each target column. Rows are 5 Hz
+# pings while iperf metrics are 1 Hz reports forward-filled to 5 Hz, so:
+#   __rsc            rows since the value last changed (phase within the
+#                    current 1 s report; tells the model when the next update lands)
+#   __mean5/__max5   the last second's mean / max
+#   __mean150/300,   longer context than the 30-row input window
+#   __std300
+#   __xmean          session-so-far mean (the session's level)
+# All are trailing statistics, so nothing leaks from the future.
+ENGINEERED_SUFFIXES: tuple[str, ...] = (
+    "__rsc", "__mean5", "__max5", "__mean150", "__mean300", "__std300", "__xmean",
+)
+# row_dt: seconds since the previous row (capped at 5). Collector gaps of 1 s+
+# are rare but precede most RTT spikes, and windows are otherwise blind to them.
+GLOBAL_ENGINEERED: tuple[str, ...] = ("row_dt",)
+
+
+def engineered_feature_names(cols: list[str]) -> list[str]:
+    return list(GLOBAL_ENGINEERED) + [f"{c}{s}" for c in cols for s in ENGINEERED_SUFFIXES]
+
+
+def add_engineered_features(df: pd.DataFrame, cols: list[str], ts_col: str) -> None:
+    """Add GLOBAL_ENGINEERED and, for each column in cols, the
+    ENGINEERED_SUFFIXES features, in place. df must already be in time order.
+    """
+    new = {}
+    dt = df[ts_col].diff().dt.total_seconds()
+    new["row_dt"] = dt.fillna(dt.median()).fillna(0).clip(0, 5)
+    for c in cols:
+        if c not in df.columns:
+            continue
+        x = pd.to_numeric(df[c], errors="coerce").ffill().bfill().fillna(0)
+        block = x.ne(x.shift()).cumsum()
+        new[f"{c}__rsc"]     = x.groupby(block).cumcount().clip(upper=10)
+        new[f"{c}__mean5"]   = x.rolling(5, min_periods=1).mean()
+        new[f"{c}__max5"]    = x.rolling(5, min_periods=1).max()
+        new[f"{c}__mean150"] = x.rolling(150, min_periods=1).mean()
+        r300 = x.rolling(300, min_periods=1)
+        new[f"{c}__mean300"] = r300.mean()
+        new[f"{c}__std300"]  = r300.std().fillna(0)
+        new[f"{c}__xmean"]   = x.expanding().mean()
+    for k, v in new.items():
+        df[k] = v.astype("float32")
+
+
 def _parse_timestamp(series: pd.Series) -> pd.Series:
     parsed = pd.to_datetime(series, utc=False, errors="coerce")
     if parsed.dt.tz is not None:
@@ -688,6 +801,17 @@ def load_csv(path: Path, cfg: DataConfig) -> Optional[pd.DataFrame]:
 
     if cfg.provider == PROVIDER_STARLINK and "dish_snr" in df.columns:
         df["dish_snr"] = pd.to_numeric(df["dish_snr"], errors="coerce")
+
+    if cfg.causal_ping:
+        df = df.sort_values(ts_col, kind="stable").reset_index(drop=True)
+        causal_ping_fix(df, cfg.provider)
+
+    if cfg.clean:
+        clean_frame(df)
+
+    if cfg.engineered:
+        df = df.sort_values(ts_col, kind="stable").reset_index(drop=True)
+        add_engineered_features(df, [t for t in cfg.targets if t in df.columns], ts_col)
 
     return df
 
@@ -757,6 +881,7 @@ class ThroughputFileDataset(Dataset):
         target_stats: Optional[dict] = None,
         normalise: str = "zscore",
         io_mode: str = IO_MODE_MIMO,
+        clip_z: Optional[float] = None,
     ) -> None:
         if io_mode not in IO_MODES:
             raise ValueError(f"io_mode must be one of {IO_MODES}, got '{io_mode}'")
@@ -781,15 +906,13 @@ class ThroughputFileDataset(Dataset):
             .apply(pd.to_numeric, errors="coerce")
             .ffill().bfill().fillna(0)
         )
-        for tc in target_cols:
-            if tc in df.columns:
-                df[tc] = (
-                    pd.to_numeric(df[tc], errors="coerce")
-                    .ffill().bfill().fillna(0)
-                )
+        tgt_df = pd.DataFrame({
+            tc: pd.to_numeric(df[target_source(df, tc)], errors="coerce").ffill().bfill().fillna(0)
+            for tc in target_cols
+        })
 
         features = df[self.actual_feature_cols].values.astype(np.float32)
-        targets  = df[target_cols].values.astype(np.float32)
+        targets  = tgt_df[target_cols].values.astype(np.float32)
         hours    = df["hour"].values.astype(np.float32)
         dows     = df["dow"].values.astype(np.float32)
 
@@ -825,6 +948,13 @@ class ThroughputFileDataset(Dataset):
             fmin = _align_stats_array(feature_stats.get("min"), features.shape[1])
             fmax = _align_stats_array(feature_stats.get("max"), features.shape[1], fill=1.0)
             features = (features - fmin) / (fmax - fmin + 1e-8)
+
+        # Bound extreme inputs (heavy tails reach |z| ~ 100). Target columns are
+        # left untouched because models read their last value as the forecast origin.
+        if clip_z is not None and normalise in ("zscore", "minmax"):
+            clip_cols = [i for i, c in enumerate(self.actual_feature_cols)
+                         if c not in target_cols]
+            features[:, clip_cols] = np.clip(features[:, clip_cols], -clip_z, clip_z)
 
         self.feature_stats = feature_stats
 
@@ -1100,7 +1230,7 @@ def build_dataloaders(cfg: DataConfig):
 
         for tc in target_cols:
             tr_tgt = (
-                pd.to_numeric(tr[tc], errors="coerce")
+                pd.to_numeric(tr[target_source(tr, tc)], errors="coerce")
                 .ffill().bfill().fillna(0)
                 .values.astype(np.float32)
             )
@@ -1131,6 +1261,7 @@ def build_dataloaders(cfg: DataConfig):
                 target_stats=target_stats if target_stats else None,
                 normalise=cfg.normalise,
                 io_mode=cfg.io_mode,
+                clip_z=cfg.clip_z,
             )
             if len(ds) > 0:
                 if not _actual_feature_cols:

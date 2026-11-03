@@ -1,0 +1,8 @@
+oneweb dl y2_seq2seq
+oneweb dl y3_resid
+oneweb dl y3_full
+oneweb dl y3_full_huber
+starlink dl y2_seq2seq
+starlink dl y3_resid
+starlink dl y3_full
+starlink dl y3_full_huber

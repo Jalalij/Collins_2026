@@ -1,0 +1,17 @@
+score        persistence  ridge_y3  y2_seq2seq_ens  y3_dist_ens_mean  y3_dist_ens_q975
+dataset                                                                               
+oneweb_dl          0.652     0.695           0.765             0.741             0.732
+oneweb_ul          0.936     0.951           0.965             0.966             0.961
+quectel_dl         0.599     0.792           0.792             0.804             0.795
+quectel_ul         0.514     0.607           0.594             0.605             0.607
+starlink_dl        0.699     0.834           0.832             0.884             0.901
+starlink_ul        0.749     0.783           0.797             0.802             0.809
+       dataset          method  interp_frac   RMSE_all  RMSE_real    MAE_all   MAE_real
+0  starlink_dl     persistence        0.119  65.301003  65.202003  44.560001  43.261002
+1  starlink_dl        ridge_y3        0.119  37.627998  38.207001  23.042000  22.936001
+2  starlink_dl  y2_seq2seq_ens        0.119  37.129002  37.379002  21.596001  21.252001
+3  starlink_dl     y3_dist_ens        0.119  35.310001  35.602001  18.451000  17.863001
+4  starlink_ul     persistence        0.012   9.595000   9.524000   5.155000   5.141000
+5  starlink_ul        ridge_y3        0.012   7.105000   7.044000   3.922000   3.909000
+6  starlink_ul  y2_seq2seq_ens        0.012   7.045000   6.983000   3.884000   3.871000
+7  starlink_ul     y3_dist_ens        0.012   7.038000   6.974000   3.758000   3.744000

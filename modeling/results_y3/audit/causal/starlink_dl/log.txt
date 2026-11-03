@@ -1,0 +1,34 @@
+[data y2] 19 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (1s)
+
+=== starlink dl | persistence | seed 0 ===
+           MAE    RMSE      R2  RMSE_persist   PICP
+target                                             
+jitter  0.2024  1.2658 -0.2648        1.2658 0.9709
+loss    2.9238  7.8774 -0.0370        7.8774 0.9643
+rtt    44.5604 64.3736 -0.0971       64.3736 0.9549
+  AGG MAE=15.8955 RMSE=24.5056 R2=-0.1330 (0s)
+
+=== starlink dl | snaive | seed 0 ===
+           MAE    RMSE      R2  RMSE_persist   PICP
+target                                             
+jitter  0.2328  1.3716 -0.4450        1.2658 0.9734
+loss    3.3759  8.5899 -0.1892        7.8774 0.9641
+rtt    21.7020 46.1500  0.4487       64.3736 0.9501
+  AGG MAE=8.4369 RMSE=18.7038 R2=-0.0618 (0s)
+
+=== starlink dl | ridge | seed 0 ===
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.1919  0.9555 0.2834        1.2658 0.9749
+loss    2.8870  6.4307 0.3198        7.8774 0.9613
+rtt    23.4333 38.2850 0.6213       64.3736 0.9510
+  AGG MAE=8.8374 RMSE=15.2237 R2=0.4081 (0s)
+[data y3] 41 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (1s)
+
+=== starlink dl | ridge_y3 | seed 0 ===
+           MAE    RMSE     R2  RMSE_persist   PICP
+target                                            
+jitter  0.2122  0.9485 0.2938        1.2658 0.9714
+loss    2.8344  6.3557 0.3355        7.8774 0.9622
+rtt    23.0423 37.5466 0.6358       64.3736 0.9510
+  AGG MAE=8.6963 RMSE=14.9503 R2=0.4217 (0s)

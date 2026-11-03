@@ -1,0 +1,14 @@
+{
+ "dl": {
+  "windows": 25838,
+  "frac_last_row_interpolated": 0.11897205666073225,
+  "frac_between_if_interpolated": 1.0,
+  "frac_between_if_real": 0.46722895800386577
+ },
+ "ul": {
+  "windows": 25666,
+  "frac_last_row_interpolated": 0.012117197849294787,
+  "frac_between_if_interpolated": 1.0,
+  "frac_between_if_real": 0.3403667915598501
+ }
+}

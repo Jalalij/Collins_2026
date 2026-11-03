@@ -1,0 +1,97 @@
+done oneweb_dl
+done oneweb_ul
+done starlink_dl
+done starlink_ul
+done quectel_dl
+done quectel_ul
+
+== coverage
+        dataset  target  level  DS2S_cov  DS2S_width  S2S_cov  S2S_width
+0     oneweb_dl     rtt   0.50    0.4249     12.2823   0.5229    17.7795
+1     oneweb_dl     rtt   0.95    0.9487     80.0738   0.9531    84.0879
+2     oneweb_dl  jitter   0.50    0.5690      0.1632   0.5546     0.1633
+3     oneweb_dl  jitter   0.95    0.9559      0.3546   0.9665     0.3972
+4     oneweb_dl    loss   0.50    0.4689      0.3506   0.4363     0.0783
+5     oneweb_dl    loss   0.95    0.9435      1.3131   0.9246     2.3619
+6     oneweb_ul     rtt   0.50    0.4886     63.4471   0.4704    43.9940
+7     oneweb_ul     rtt   0.95    0.9505    380.0331   0.9510   622.0574
+8   starlink_dl     rtt   0.50    0.4884     25.3283   0.5463    23.6803
+9   starlink_dl     rtt   0.95    0.9529    100.2604   0.9496   175.6594
+10  starlink_dl  jitter   0.50    0.4731      0.1737   0.5098     0.0823
+11  starlink_dl  jitter   0.95    0.9418      0.7512   0.9601     3.5800
+12  starlink_dl    loss   0.50    0.5897      3.3763   0.5624     3.8144
+13  starlink_dl    loss   0.95    0.9661     14.9345   0.9648    22.3162
+14  starlink_ul     rtt   0.50    0.4751      5.2134   0.4952     5.7697
+15  starlink_ul     rtt   0.95    0.9361     16.8511   0.9304    16.4301
+16  starlink_ul  jitter   0.50    0.4944      0.2282   0.5074     0.2598
+17  starlink_ul  jitter   0.95    0.9517      0.7853   0.9424     0.8159
+18  starlink_ul    loss   0.50    0.5337      0.1790   0.5026     0.2256
+19  starlink_ul    loss   0.95    0.9379      1.0425   0.9235     0.9445
+20   quectel_dl     rtt   0.50    0.5049      5.0526   0.5074     5.0472
+21   quectel_dl     rtt   0.95    0.9503     15.7140   0.9532    16.5124
+22   quectel_dl  jitter   0.50    0.4889      0.0435   0.4844     0.0405
+23   quectel_dl  jitter   0.95    0.9437      0.1653   0.9475     0.1931
+24   quectel_dl    loss   0.50    0.5136      0.0424   0.4813     0.0104
+25   quectel_dl    loss   0.95    0.9572      0.2025   0.9528     0.5880
+26   quectel_ul     rtt   0.50    0.5003     11.0919   0.4914    16.7110
+27   quectel_ul     rtt   0.95    0.9497     65.5878   0.9485    82.2194
+28   quectel_ul  jitter   0.50    0.5112      0.2526   0.4997     0.3841
+29   quectel_ul  jitter   0.95    0.9452      2.7842   0.9513     2.5122
+30   quectel_ul    loss   0.50    0.4853      0.1481   0.4478     0.2008
+31   quectel_ul    loss   0.95    0.9479      1.9003   0.9317     0.9336
+
+== adaptivity
+       dataset  spearman_width_abs_err  width_p10  width_p50  width_p90  S2S_width  S2S_median_signed_err_h5  DS2S_median_signed_err_h5
+0    oneweb_dl                  0.4324    54.8000    72.9958   100.1708    84.0879                    6.7639                     3.1667
+1    oneweb_ul                  0.5029   118.8583   338.3958   719.8334   622.0574                    4.9485                     4.5208
+2  starlink_dl                  0.6406    21.0365    77.5000   210.7370   175.6594                    2.1918                     0.5854
+3  starlink_ul                  0.1685    14.9781    16.2281    18.9958    16.4301                    1.0617                     0.0792
+4   quectel_dl                  0.1929    12.0422    14.3891    21.2203    16.5124                    0.2250                    -0.1177
+5   quectel_ul                  0.2298    53.9558    62.3167    78.6525    82.2194                    5.9735                     0.1865
+
+== sessions
+       dataset  n_sessions  ds2s_wins  median_rel_change_pct  wilcoxon_p
+0    oneweb_dl          11         11                -9.2600      0.0010
+1    oneweb_ul          11          8                -2.2325      0.1475
+2  starlink_dl           9          8               -15.6052      0.0078
+3  starlink_ul           9          9                -2.5895      0.0039
+4   quectel_dl          58         48                -1.6199      0.0000
+5   quectel_ul          58         58               -18.5101      0.0000
+
+== events
+       dataset        event  frac_windows  S2S_MAE_event  DS2S_MAE_event  S2S_MAE_none  DS2S_MAE_none
+0    oneweb_dl     handover        0.0172        16.4601         14.0910       17.7704        15.9683
+1    oneweb_ul     handover        0.0090       149.1892        147.4274       68.0285        66.7841
+2  starlink_dl     handover        0.1379        20.5646         17.3204       21.7610        18.6320
+3  starlink_dl  reconfig15s        0.0178        28.5863         23.0196       21.4697        18.3686
+4  starlink_ul     handover        0.1325         3.3901          3.2874        3.9600         3.8299
+5  starlink_ul  reconfig15s        0.1098         3.7531          3.6120        3.9006         3.7760
+
+== hour
+        dataset  hour_bin  S2S_MAE  DS2S_MAE      n
+0     oneweb_dl         0  18.0085   16.3660  15198
+1     oneweb_dl        12  17.9170   15.8956   9451
+2     oneweb_dl        20  15.7923   13.7710   2843
+3     oneweb_ul         0  65.3521   64.9624  15937
+4     oneweb_ul        12  76.4765   75.4930   9509
+5     oneweb_ul        20  61.5984   54.2947   2679
+6   starlink_dl         0  20.4012   16.9745   8605
+7   starlink_dl         4  22.0722   20.8745   8624
+8   starlink_dl         8  22.4297   17.2956   5752
+9   starlink_dl        12  22.0795   17.9108   2857
+10  starlink_ul         0   3.7986    3.6491  17172
+11  starlink_ul         4   4.1686    4.1211   2850
+12  starlink_ul         8   4.2503    4.1991   2827
+13  starlink_ul        12   3.7531    3.6120   2817
+14   quectel_dl         0   3.2273    3.1972  35004
+15   quectel_dl         4   3.0129    2.9502  29169
+16   quectel_dl         8   3.3103    3.2489  20422
+17   quectel_dl        12   3.2548    3.1888  26265
+18   quectel_dl        16   3.2524    3.2160  17505
+19   quectel_dl        20   3.0939    3.0459  40839
+20   quectel_ul         0  10.9740    9.0571  34884
+21   quectel_ul         4  12.9159   10.7866  28975
+22   quectel_ul         8  11.9116    9.8178  17476
+23   quectel_ul        12  11.8614    9.7040  34926
+24   quectel_ul        16  12.6950    9.6748  14530
+25   quectel_ul        20  13.7187   11.4423  37728

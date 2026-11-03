@@ -1,0 +1,79 @@
+\documentclass[journal]{IEEEtran}
+% Calibrated distributional forecasting of LEO and 5G link state (IEEE Transactions on Wireless Communications).
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{iftex}
+\ifXeTeX
+  \usepackage{fontspec}
+  \setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+  \setsansfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+  \setmonofont{texgyrecursor}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+\fi
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{microtype}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{scalerel}
+\usepackage{tikz}
+\usetikzlibrary{svg.path,positioning,arrows.meta,calc,fit,backgrounds}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots,fillbetween}
+\pgfplotsset{compat=1.18}
+\usepackage{balance}
+\definecolor{orcidlogocol}{HTML}{A6CE39}
+\tikzset{
+orcidlogo/.pic={
+\fill[orcidlogocol] svg{M256,128c0,70.7-57.3,128-128,128C57.3,256,0,198.7,0,128C0,57.3,57.3,0,128,0C198.7,0,256,57.3,256,128z};
+\fill[white] svg{M86.3,186.2H70.9V79.1h15.4v48.4V186.2z}
+svg{M108.9,79.1h41.6c39.6,0,57,28.3,57,53.6c0,27.5-21.5,53.6-56.8,53.6h-41.8V79.1z M124.3,172.4h24.5c34.9,0,42.9-26.5,42.9-39.7c0-21.5-13.7-39.7-43.7-39.7h-23.7V172.4z}
+svg{M88.7,56.8c0,5.5-4.5,10.1-10.1,10.1c-5.6,0-10.1-4.6-10.1-10.1c0-5.6,4.5-10.1,10.1-10.1C84.2,46.7,88.7,51.3,88.7,56.8z};
+}
+}
+\newcommand\orcidicon[1]{\href{https://orcid.org/#1}{\mbox{\scalerel*{
+\begin{tikzpicture}[yscale=-1,transform shape]
+\pic{orcidlogo};
+\end{tikzpicture}
+}{|}}}}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\RR}{\mathbb{R}}
+\makeatletter\newcommand{\tabinput}[1]{\@@input #1 }\makeatother
+\input{figs/plotstyle.tex}
+\input{figs/data/numbers_audit.tex}
+\input{figs/data/numbers_results.tex}
+\input{figs/data/numbers_analysis.tex}
+
+\begin{document}
+\title{\huge Calibrated Distributional Forecasting of LEO and 5G Link State for Prediction-Aware Multipath Transport}
+
+\author{
+$\text{Jalal Jalali}^{\orcidicon{0000-0002-3609-6775}}$,\ \IEEEmembership{Member, IEEE}, Evan Gossling, Daji Qiao, and Hongwei Zhang
+\vspace{-2.0em}
+\thanks{The authors are with the Department of Electrical and Computer Engineering, Iowa State University, Ames, IA, USA. Jalal Jalali is also with the Wireless Communication Research Group, JuliaSpace LLC, Chicago, IL, USA. This work was supported in part by Collins Aerospace. The code, trained models, and result files are available at \href{https://github.com/Jalalij/Collins_2026}{\texttt{https://github.com/Jalalij/Collins\_2026}}.}
+}
+\markboth{IEEE Transactions on Wireless Communications}{Calibrated Distributional Forecasting of LEO and 5G Link State}
+\maketitle
+
+\input{sections/abstract.tex}
+\input{sections/intro.tex}
+\input{sections/related.tex}
+\input{sections/system.tex}
+\input{sections/method.tex}
+\input{sections/setup.tex}
+\input{sections/results.tex}
+\input{sections/discussion.tex}
+
+\balance
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+\end{document}

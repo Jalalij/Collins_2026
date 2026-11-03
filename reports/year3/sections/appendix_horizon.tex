@@ -1,0 +1,209 @@
+This appendix lists the test-set results of every method at six horizon steps for every link and target (seed means for the neural models, ``Y3 ens.'' is the three-seed ensemble). MAE uses the median output of Y3. MIS is the calibrated 95\% interval score. The full per-step values for all 15 steps are in \texttt{modeling/\allowbreak{}results\_\allowbreak{}y3/\allowbreak{}summary/\allowbreak{}horizon\_\allowbreak{}mean.csv}.
+
+\begin{table}[H]
+\centering
+\caption{OneWeb DL, rtt (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_oneweb_dl_rtt.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{OneWeb DL, jitter (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_oneweb_dl_jitter.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{OneWeb DL, loss (\%) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_oneweb_dl_loss.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{OneWeb UL, rtt (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_oneweb_ul_rtt.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Starlink DL, rtt (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_starlink_dl_rtt.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Starlink DL, jitter (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_starlink_dl_jitter.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Starlink DL, loss (\%) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_starlink_dl_loss.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Starlink UL, rtt (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_starlink_ul_rtt.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Starlink UL, jitter (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_starlink_ul_jitter.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Starlink UL, loss (\%) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_starlink_ul_loss.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{5G DL, rtt (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_quectel_dl_rtt.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{5G DL, jitter (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_quectel_dl_jitter.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{5G DL, loss (\%) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_quectel_dl_loss.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{5G UL, rtt (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_quectel_ul_rtt.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{5G UL, jitter (ms) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_quectel_ul_jitter.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{5G UL, loss (\%) per horizon.}
+\small
+\begin{tabular}{llrrrrrr}
+\toprule
+Metric & Method & 0.2\,s & 0.6\,s & 1.0\,s & 1.6\,s & 2.0\,s & 3.0\,s \\
+\midrule
+\tabinput{data/tab2_h_quectel_ul_loss.tex}
+\bottomrule
+\end{tabular}
+\end{table}

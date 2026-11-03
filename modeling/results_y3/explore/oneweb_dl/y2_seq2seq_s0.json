@@ -1,0 +1,22 @@
+{
+ "epochs": 18,
+ "params": 449592,
+ "seconds": 495.8,
+ "n_test": 27492,
+ "features": [
+  "throughput_mbps",
+  "packet_loss_percent",
+  "jitter_ms",
+  "rtt_mean",
+  "sinr_db",
+  "elevation_deg",
+  "azimuth_deg",
+  "satellite_change",
+  "time_since_handover"
+ ],
+ "n_sessions": {
+  "train": 45,
+  "val": 9,
+  "test": 11
+ }
+}

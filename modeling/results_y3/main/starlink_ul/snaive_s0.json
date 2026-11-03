@@ -1,0 +1,54 @@
+{
+ "settings": {
+  "provider": "starlink",
+  "direction": "ul",
+  "methods": [
+   "persistence",
+   "snaive",
+   "ridge",
+   "ridge_y3"
+  ],
+  "seeds": [
+   0
+  ],
+  "epochs": 60,
+  "patience": 15,
+  "batch_size": 512,
+  "input_len": 30,
+  "output_len": 15,
+  "data_root": "/Users/josh/Desktop/Collins/modeling/data/lsn-data",
+  "out_dir": "results_y3/main",
+  "save_models": true,
+  "legacy_data": false,
+  "train_stride": 1
+ },
+ "causal_ping": true,
+ "seconds": 0.2,
+ "n_test": 25666,
+ "features": [
+  "ping_server_rtt_ms",
+  "ping_dns_rtt_ms",
+  "iperf_throughput_mbps",
+  "iperf_jitter_ms",
+  "iperf_loss_pct",
+  "dish_pop_ping_ms",
+  "satellite_dtc",
+  "satellite_handoff",
+  "satellite_age_s",
+  "distance_km",
+  "elevation_deg",
+  "azimuth_deg",
+  "dish_obstruction_fraction",
+  "dish_snr",
+  "dish_boresight_azimuth_deg",
+  "dish_boresight_elevation_deg",
+  "weather_humidity",
+  "weather_pressure",
+  "weather_rain_rate"
+ ],
+ "n_sessions": {
+  "train": 37,
+  "val": 7,
+  "test": 9
+ }
+}

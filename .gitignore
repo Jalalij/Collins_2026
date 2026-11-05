@@ -214,8 +214,8 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Year 3: large regenerable prediction arrays (rebuild with experiments/y3_benchmark.py)
-modeling/results_y3/**/preds/
+# final report: large regenerable prediction arrays (rebuild with experiments/final_benchmark.py)
+modeling/results_final/**/preds/
 # LaTeX build files
 *.aux
 *.bbl
@@ -223,9 +223,9 @@ modeling/results_y3/**/preds/
 *.out
 *.toc
 *.synctex.gz
-reports/year3/main.log
+reports/final_report/main.log
 paper_twc/main.log
 .DS_Store
 # keep figure/table data of the documents (the generic "data/" rule above would drop them)
-!reports/year3/data/
+!reports/final_report/data/
 !paper_twc/figs/data/

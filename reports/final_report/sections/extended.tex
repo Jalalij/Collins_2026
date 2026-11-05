@@ -1,0 +1,158 @@
+This section goes beyond the headline numbers of Section~\ref{sec:results}. All analyses use the saved test predictions of the three-seed ensembles (Initial ensemble and Final ensemble) and are produced by \texttt{experiments/\allowbreak{}final\_\allowbreak{}analysis.py} and \texttt{experiments/\allowbreak{}final\_\allowbreak{}report\_\allowbreak{}tables2.py}.
+
+\subsection{Statistical significance across sessions}
+Test windows from one session are strongly correlated, so the number of independent units is the number of test sessions, not the number of windows. Table~\ref{tab:sessions} compares the RTT MAE of the two ensembles session by session. The final model has the lower MAE in \SessWinsTotal{} of the \SessNTotal{} test sessions. A Wilcoxon signed-rank test over sessions rejects equal performance at the 1\% level on five links. On OneWeb UL the final model wins in \SessWinsOWUL{} of \SessNOWUL{} sessions and the test is not significant ($p=\SessPOWUL$). Figure~\ref{fig:sessions} shows the per-session changes.
+
+\begin{table}[h]
+\centering
+\caption{Per-session comparison of the RTT MAE (Final ensemble median against Initial ensemble). Wins count the test sessions in which the final model has the lower MAE. $p$ is the two-sided Wilcoxon signed-rank $p$-value over sessions.}
+\label{tab:sessions}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Link & Test sessions & Final wins & Median change (\%) & $p$ \\
+\midrule
+\tabinput{data/tab2_sessions.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_sessions.tex}}
+  \caption{Change of the RTT MAE of the Final ensemble against the Initial ensemble in each test session, sorted. Negative bars are sessions where the final model is better.}
+  \label{fig:sessions}
+\end{figure}
+
+\subsection{Calibration of the raw quantiles}
+Before conformal calibration, the learned quantiles should already be close to their nominal levels. Figure~\ref{fig:reliability} plots the fraction of test targets below each predicted quantile. For RTT the points lie close to the diagonal on all links. For jitter and loss the lower quantiles are often exceeded by ties at zero: when the target is exactly zero in most rows, $P(y\le\hat q_\tau)$ jumps at the value zero, and the empirical curve is a step rather than a line. The conformal step of Section~\ref{sec:methods} corrects the remaining offsets of the 2.5\% and 97.5\% quantiles.
+
+\begin{figure}[h]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_reliability.tex}}
+  \caption{Reliability of the raw (uncalibrated) quantiles of the Final ensemble on the test sessions, averaged over the 15 steps.}
+  \label{fig:reliability}
+\end{figure}
+
+\subsection{Coverage and width at two levels}
+Table~\ref{tab:coverage} reports the calibrated 50\% and 95\% intervals of both models for every target. At the 95\% level both models reach close to nominal coverage on every link, and the Final RTT interval is narrower on five of six links, often by a large margin (Starlink DL: 100 against 176\,ms, OneWeb UL: 380 against 622\,ms). Starlink UL is the exception (16.9 against 16.4\,ms). At the 50\% level the picture is mixed. The final model's interval under-covers on OneWeb DL (0.425), which shows that the calibration and test sessions of that link differ in the center of the distribution, and it is wider than the Initial interval on OneWeb UL. The main gain of Final is therefore in the tails, where a constant-width interval is most wasteful.
+
+\begin{table}[h]
+\centering
+\caption{Calibrated intervals on the test sessions: coverage and mean width (in the unit of the target) at the 50\% and 95\% levels. Initial uses split conformal around its mean, Final uses CQR.}
+\label{tab:coverage}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llrrrrrrrr}
+\toprule
+ & & \multicolumn{4}{c}{50\% interval} & \multicolumn{4}{c}{95\% interval} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-10}
+Link & Target & cov. Initial & cov. Final & width Initial & width Final & cov. Initial & cov. Final & width Initial & width Final \\
+\midrule
+\tabinput{data/tab2_coverage.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Does the interval width follow the error?}
+An input-dependent interval is useful only if it is wide when the forecast is likely to be wrong. Table~\ref{tab:adaptivity} gives the Spearman rank correlation between the width of the Final 95\% RTT interval and the absolute error of the Final median for every test window, together with the spread of the widths. The correlation is positive on all links, from \RhoMin{} to \RhoMax. It is highest on Starlink DL and the OneWeb links, where the RTT alternates between calm periods and bursts, and lowest on Starlink UL and 5G, where the width varies less (on Starlink UL the 10th and 90th percentiles of the width differ by only 27\%).
+
+\begin{table}[h]
+\centering
+\caption{Adaptivity of the Final 95\% RTT interval (ms): Spearman correlation between width and absolute error, width percentiles, and the constant width of the Initial interval.}
+\label{tab:adaptivity}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Link & $\rho$(width, $|e|$) & width p10 & width p50 & width p90 & Initial width \\
+\midrule
+\tabinput{data/tab2_adaptivity.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Errors around handovers}
+The satellite links log a handover flag (OneWeb satellite change, Starlink satellite handoff) and the 5G modem logs a handover flag that is never set in the test sessions. Table~\ref{tab:events} splits the test windows by whether a handover occurs inside the 3\,s horizon. On OneWeb UL a handover in the horizon more than doubles the RTT error of both models, and neither model anticipates it well. On OneWeb DL and on Starlink the errors around handovers are similar to the errors elsewhere, and the Final gain is of the same size in both groups. Handover flags alone are therefore not enough to predict the RTT jumps.
+
+\begin{table}[h]
+\centering
+\caption{RTT MAE (ms) of the ensembles for test windows with and without a handover inside the forecast horizon.}
+\label{tab:events}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrrr}
+\toprule
+ & & \multicolumn{3}{c}{handover in horizon} & \multicolumn{3}{c}{no handover} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+Link & windows (\%) & Initial & Final & $\Delta$\% & Initial & Final & $\Delta$\% \\
+\midrule
+\tabinput{data/tab2_events.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Errors by time of day}
+Figure~\ref{fig:hour} shows the RTT MAE by the hour of the forecast origin (4\,h bins, local time). The test sessions do not cover all hours on the satellite links, which were measured at fixed times. Where an hour is covered, the Final ensemble is better in every bin. The 5G UL error is highest in the evening bin (20:00--24:00) for both models, which suggests a load effect on the uplink.
+
+\begin{figure}[h]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_hour.tex}}
+  \caption{RTT MAE of the ensembles by hour of day of the forecast origin. Missing bars are hours without test sessions.}
+  \label{fig:hour}
+\end{figure}
+
+\subsection{Predicted against measured RTT}
+Figure~\ref{fig:scatter} plots the 1\,s forecasts of 400 random test windows against the measured RTT. Both models regress toward the typical RTT and miss the largest spikes, which no model can anticipate from a 6\,s history. The Final median follows the bulk of the measurements more closely, while the Initial mean is pulled upward by the spikes. Over all test windows, the median signed error of the 1\,s forecast is \BiasYtwoOWDL\,ms for Initial and \BiasYthreeOWDL\,ms for Final on OneWeb DL, and \BiasYtwoQUL\,ms against \BiasYthreeQUL\,ms on 5G UL. That upward pull is the main reason for the higher Initial MAE.
+
+\begin{figure}[h]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_scatter.tex}}
+  \caption{Forecast 1\,s ahead against the measured RTT for 400 random test windows per link.}
+  \label{fig:scatter}
+\end{figure}
+
+\subsection{Example forecasts on every link}
+Figure~\ref{fig:traces} shows one minute of a test session on every link with the Final median, the calibrated 95\% interval, and the Initial forecast, all 1\,s ahead.
+
+\begin{figure}[p]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_traces_all.tex}}
+  \caption{One minute of a test session per link, forecast 1\,s ahead ($h=5$).}
+  \label{fig:traces}
+\end{figure}
+
+\subsection{Jitter and loss per horizon}
+Figures~\ref{fig:jitter} and~\ref{fig:loss} give the MAE and the calibrated interval score of jitter and loss per step. The interval-score gains of Final hold at every step. The point errors of the two models are close, with Ridge-E competitive on loss.
+
+\begin{figure}[p]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_jitter_mae.tex}}\\[1em]
+  \resizebox{\linewidth}{!}{\input{figs/fig_jitter_mis.tex}}
+  \caption{Jitter MAE (top) and calibrated interval score (bottom) per horizon step. OneWeb UL is omitted because its jitter is always zero.}
+  \label{fig:jitter}
+\end{figure}
+
+\begin{figure}[p]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_loss_mae.tex}}\\[1em]
+  \resizebox{\linewidth}{!}{\input{figs/fig_loss_mis.tex}}
+  \caption{Loss MAE (top) and calibrated interval score (bottom) per horizon step.}
+  \label{fig:loss}
+\end{figure}
+
+\subsection{Training cost}
+Table~\ref{tab:cost} lists the parameter count, the number of epochs until early stopping, and the wall-clock time per run. Times were measured with six runs sharing one Apple M3 Max GPU and are only comparable within a link.
+
+\begin{table}[h]
+\centering
+\caption{Training cost per run (means over three seeds).}
+\label{tab:cost}
+\small
+\begin{tabular}{llrrr}
+\toprule
+Link & Model & Parameters & Epochs & Minutes \\
+\midrule
+\tabinput{data/tab2_cost.tex}
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,7 +1,7 @@
-# Reference notes: Year 3 report and IEEE TWC paper
+# Reference notes: final report and IEEE TWC paper
 
 - `refs_verified.bib` holds the **38 entries selected** for the TWC paper. The cap is 40, so 2 slots are spare.
-- `refs_pool.bib` holds the **full verified pool of 65 entries**. This is the selected set plus alternates, and the Year 3 report can draw on all of it.
+- `refs_pool.bib` holds the **full verified pool of 65 entries**. This is the selected set plus alternates, and the final report can draw on all of it.
 
 ## How the entries were verified (2026-11-01)
 
@@ -9,7 +9,7 @@
 - **Preprints and ML-venue entries:** these were checked against their `https://arxiv.org/abs/<id>` landing pages. That covers all 17 arXiv ids cited in the pool, including the 2026 preprints chi2026reading and casparsen2026statistical.
 - **NeurIPS/ICML entries without a DOI:** these were checked against the NeurIPS proceedings or PMLR pages.
 - **Unverified fields:** no DOI was invented. Volume and pages for minovski2023throughput could not be re-checked because Crossref holds only the early-access record. That entry is a pool alternate, not in the selected set.
-- **ARA testbed key:** the Year 2 keys `ISLAM2025111188` / `islam_design_2024` are now **`islam2025design`**. It is the published version: *Computer Networks* 263:111188 (2025), preprint arXiv:2408.00913.
+- **ARA testbed key:** the initial keys `ISLAM2025111188` / `islam_design_2024` are now **`islam2025design`**. It is the published version: *Computer Networks* 263:111188 (2025), preprint arXiv:2408.00913.
 - **Duplicate removed:** liu2025vivisecting appeared twice in the candidate list, under leo_measurement and link_prediction, and is kept once.
 
 ## Selected set (38)
@@ -69,9 +69,9 @@ If the paper needs swaps or the 2 spare slots, these are the best candidates:
 - **chen2025minimum**, **lanfer2024weather**, **casparsen2026statistical**, **mei2022realtime**, **minovski2023throughput**, **yue2018linkforecast**: extra prediction references.
 - **yang2024mobility**, **zhu2022integrated**, **giordani2021nonterrestrial**, **azari2022evolution**, **xing2023online**: extra multipath/NTN references.
 
-## Key map from the Year 2 bibs
+## Key map from the initial bibs
 
-| Year 2 key | New key |
+| the initial study key | New key |
 |---|---|
 | ISLAM2025111188 / islam_design_2024 | islam2025design |
 | lumos5g | narayanan2020lumos5g |

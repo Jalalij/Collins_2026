@@ -1,5 +1,5 @@
 """
-models/seq2seq_dist.py - Year 3 distributional Seq2Seq-GRU (MIMO).
+models/seq2seq_dist.py - final report distributional Seq2Seq-GRU (MIMO).
 
 Same encoder, attention and residual autoregressive decoder as models/seq2seq.py,
 but each target head returns a small predictive distribution instead of one number:

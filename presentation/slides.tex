@@ -1,5 +1,5 @@
 \documentclass[aspectratio=169,11pt]{beamer}
-% Year 3 review talk (30 min). Figures and numbers come from the Year 3 report sources.
+% Final report talk (30 min). Figures and numbers come from the final report sources.
 \usepackage{amsmath,amssymb,bm}
 \usepackage{graphicx}
 \usepackage{booktabs}
@@ -36,7 +36,7 @@
 \setbeamertemplate{footline}{%
   \leavevmode
   \begin{beamercolorbox}[wd=\paperwidth,ht=2.35ex,dp=1.0ex,leftskip=.3cm,rightskip=.30cm]{normal text}%
-    {\fontsize{7}{8}\selectfont\color{gray}Collins--ISU WiCI \textbullet{} Year 3 link-state forecasting}\hfill{\fontsize{7.5}{9}\selectfont\insertframenumber}
+    {\fontsize{7}{8}\selectfont\color{gray}Collins--ISU WiCI \textbullet{} Final report: link-state forecasting}\hfill{\fontsize{7.5}{9}\selectfont\insertframenumber}
   \end{beamercolorbox}}
 \newcommand{\takeaway}[1]{\vfill\centering{\fontsize{11.5}{14}\selectfont\color{Navy}\bfseries #1}\par}
 \newcommand{\good}[1]{\textcolor{Good}{\textbf{#1}}}
@@ -53,7 +53,7 @@
 \input{data/numbers_analysis.tex}
 
 \tikzset{s/.style={draw, rounded corners=3pt, align=center, text width=2.9cm, minimum height=2.1cm, fill=#1}}
-\title{Year 3: Link-State Forecasting}
+\title{Final Report: Link-State Forecasting}
 \author{Jalal Jalali, Evan Gossling, Daji Qiao, Hongwei Zhang}
 
 \begin{document}
@@ -66,7 +66,7 @@
   \vspace{0.7cm}
   {\fontsize{22}{26}\selectfont\color{Navy}\bfseries Integrated Terrestrial and Satellite Communications\par}
   \vspace{0.15cm}
-  {\fontsize{14}{17}\selectfont\color{Low}\bfseries Year 3: Link-State Forecasting\\Audit, Distributional Models, and Calibrated Uncertainty\par}
+  {\fontsize{14}{17}\selectfont\color{Low}\bfseries Final Report: Link-State Forecasting\\Audit, Distributional Models, and Calibrated Uncertainty\par}
   \vfill
   {\fontsize{10.5}{13}\selectfont Jalal Jalali \quad Evan Gossling \quad Daji Qiao \quad Hongwei Zhang\par}
   {\fontsize{8.7}{11}\selectfont Iowa State University \textbullet{} Center for Wireless, Communities and Innovation (WiCI)\par}
@@ -81,8 +81,8 @@
   \begin{column}{0.5\textwidth}
   \begin{enumerate}
     \item Why forecast link state
-    \item Where Year 2 left us
-    \item Audit of the Year 2 pipeline
+    \item Where the earlier work left us
+    \item Audit of the initial pipeline
     \item What we changed (4 steps, with code)
     \item How we evaluated
   \end{enumerate}
@@ -99,7 +99,7 @@
   \end{columns}
   \vspace{0.6cm}
   \begin{block}{One-line summary}
-  Against the Year 2 model, on all six links: calibrated 95\% interval score \good{\ChgMISMean\%} and RTT MAE \good{\ChgMAEMean\%} on average, RMSE about unchanged.
+  Against the initial model, on all six links: calibrated 95\% interval score \good{\ChgMISMean\%} and RTT MAE \good{\ChgMAEMean\%} on average, RMSE about unchanged.
   \end{block}
 \end{frame}
 
@@ -109,13 +109,13 @@
   \begin{column}{0.52\textwidth}
   \begin{itemize}
     \item A terminal with \textbf{Starlink, OneWeb, and 5G} paths can send each packet on the best one.
-    \item The Year 2 \textbf{liquid tunnel} (MPQUIC) does this, but schedulers react to \emph{past} RTT.
+    \item The earlier \textbf{liquid tunnel} (MPQUIC) does this, but schedulers react to \emph{past} RTT.
     \item LEO paths change fast:
     \begin{itemize}
       \item Starlink reallocates users every \textbf{15\,s}
       \item OneWeb RTT jumps at every handover
     \end{itemize}
-    \item Year 2 showed that forecasts help: prediction-aware minRTT cut frame loss per second by 52\%.
+    \item The earlier phase showed that forecasts help: prediction-aware minRTT cut frame loss per second by 52\%.
   \end{itemize}
   \end{column}
   \begin{column}{0.45\textwidth}
@@ -131,7 +131,7 @@
 \end{frame}
 
 % 4 ------------------------------------------------------------------------
-\begin{frame}{Where Year 2 left us}
+\begin{frame}{Where the earlier work left us}
   \begin{columns}[T,onlytextwidth]
   \begin{column}{0.5\textwidth}
   \begin{itemize}
@@ -143,7 +143,7 @@
   \end{itemize}
   \end{column}
   \begin{column}{0.48\textwidth}
-  \textbf{Open questions for Year 3}
+  \textbf{Open questions for the final report}
   \begin{enumerate}
     \item Are the numbers right?\\(data pipeline, metrics)
     \item Can the forecasts be better?
@@ -165,7 +165,7 @@
   \centering\small
   \begin{tabular}{lrrrrr}
   \toprule
-  Link & Sessions (tr/va/te) & Train windows & Test windows & Features (Y2/Y3) \\
+  Link & Sessions (tr/va/te) & Train windows & Test windows & Features (Initial/Final) \\
   \midrule
   OneWeb DL   & 45 / 9 / 11   & 117{,}558 & 27{,}492  & 9 / 31 \\
   OneWeb UL   & 45 / 9 / 11   & 115{,}847 & 28{,}125  & 9 / 31 \\
@@ -178,17 +178,17 @@
   \vspace{0.3cm}
   \begin{itemize}
     \item One row every \textbf{200\,ms}: input 30 rows = \textbf{6\,s}, horizon 15 steps = \textbf{0.2--3\,s}
-    \item Split by \textbf{session} (70/15/15, seed 42), same as Year 2: test sessions never seen
+    \item Split by \textbf{session} (70/15/15, seed 42), same as the earlier work: test sessions never seen
     \item 5G: every 4th training window used (7$\times$ more data), for all methods
   \end{itemize}
 \end{frame}
 
 % 7 ------------------------------------------------------------------------
-\begin{frame}{Audit: six issues in the Year 2 pipeline}
+\begin{frame}{Audit: six issues in the initial pipeline}
   \footnotesize
   \begin{tabular}{p{3.2cm}p{6.3cm}p{4.6cm}}
   \toprule
-  Issue & Effect & Year 3 fix \\
+  Issue & Effect & Fix in the final report \\
   \midrule
   A1 Horizon unit & ``t+15s'' is really \textbf{3\,s} (200\,ms steps) & report $h\times0.2$\,s \\
   A2 Interval coverage & built from \textbf{test} residuals: 0.95 by construction & calibrate on validation sessions \\
@@ -200,7 +200,7 @@
   \end{tabular}
   \vspace{0.3cm}
   \begin{itemize}\small
-    \item Reproduced Year 2 first: Starlink DL MAE \ReproSLMAE{} vs.\ 8.55, RMSE \ReproSLRMSE{} vs.\ 14.95
+    \item Reproduced the earlier results first: Starlink DL MAE \ReproSLMAE{} vs.\ 8.55, RMSE \ReproSLRMSE{} vs.\ 14.95
     \item 3 independent reviewers + 2 skeptics per finding, only surviving findings kept
   \end{itemize}
 \end{frame}
@@ -235,7 +235,7 @@
   \end{itemize}
   \end{column}
   \end{columns}
-  \takeaway{All Year 3 results use causal inputs, for every method.}
+  \takeaway{All final results use causal inputs, for every method.}
 \end{frame}
 
 % 9 ------------------------------------------------------------------------
@@ -257,8 +257,8 @@ def causal_ping_fix(df, provider):
 \end{lstlisting}
   \vspace{0.2cm}
   \begin{itemize}\small
-    \item Behind a flag: \texttt{DataConfig(causal\_ping=True)}, so Year 2 can still be reproduced exactly
-    \item Applied to \textbf{every} method in the study, including the retrained Year 2 model
+    \item Behind a flag: \texttt{DataConfig(causal\_ping=True)}, so the earlier results can still be reproduced exactly
+    \item Applied to \textbf{every} method in the study, including the retrained initial model
   \end{itemize}
 \end{frame}
 
@@ -274,14 +274,14 @@ def causal_ping_fix(df, provider):
   \end{tikzpicture}
   \vspace{0.5cm}
   \begin{itemize}
-    \item Encoder and attention are \textbf{unchanged} from Year 2, so the comparison isolates the decoder and the output
+    \item Encoder and attention are \textbf{unchanged} from the initial model, so the comparison isolates the decoder and the output
     \item Each step is evaluated separately (ablation, slide 23)
-    \item New model: \texttt{models/seq2seq\_dist.py}, \ParamsDist{} parameters (Year 2: \ParamsYtwo)
+    \item New model: \texttt{models/seq2seq\_dist.py}, \ParamsDist{} parameters (initial model: \ParamsYtwo)
   \end{itemize}
 \end{frame}
 
 % 11 -----------------------------------------------------------------------
-\begin{frame}{Year 3 forecaster}
+\begin{frame}{Final forecaster}
   \centering
   \resizebox{0.78\textwidth}{!}{\input{tikz/model_arch.tex}}
   \takeaway{Persistence is the forecast when every head outputs zero. The network learns the departure from it.}
@@ -311,7 +311,7 @@ new[f"{c}__xmean"]  = x.expanding().mean()
   \begin{column}{0.45\textwidth}
   \textbf{Why}
   \begin{itemize}\small
-    \item Year 2 decoder started from \textbf{zero}, had to re-learn the level every time
+    \item The initial decoder started from \textbf{zero}, had to re-learn the level every time
     \item 6\,s window is short: rolling 30--60\,s statistics give longer context for free
     \item jitter/loss are 1\,Hz reports held 5 rows: ``rows since change'' gives the phase
     \item 5G logs contain SINR $=-32768$ sentinels: set to missing, clip $|z|\le5$
@@ -377,7 +377,7 @@ def dist_loss(out, y, quantile_weight=1.0):
     \item score on validation windows:\\ $s_i=\max\{\hat q_{.025}-y_i,\ y_i-\hat q_{.975}\}$
     \item $c$ = the $\lceil(n{+}1)(0.95)\rceil$-th smallest score
     \item interval $[\hat q_{.025}-c,\ \hat q_{.975}+c]$, one $c$ per target and step
-    \item Year 2 model: same, around its mean ($\hat y\pm c$)
+    \item Initial model: same, around its mean ($\hat y\pm c$)
     \item 3-seed ensemble: average mean and every quantile
   \end{itemize}
   \end{column}
@@ -402,15 +402,15 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \textbf{Methods (same split, same causal data)}
   \begin{itemize}\small
     \item Persistence, 1\,s seasonal repeat
-    \item Ridge and Ridge-Y3 (tuned linear)
-    \item \textbf{Y2} Seq2Seq-GRU, retrained
+    \item Ridge and Ridge-E (tuned linear)
+    \item \textbf{Initial} Seq2Seq-GRU, retrained
     \item Ablation: +residual, +data
-    \item \textbf{Y3} distributional + ensemble
+    \item \textbf{Final} distributional + ensemble
   \end{itemize}
   \textbf{Protocol}
   \begin{itemize}\small
     \item 3 seeds per neural model, \NRuns{} runs + 80 sweep runs
-    \item Year 2 optimizer, early stopping (stopped after \EpochsMin--\EpochsMax{} epochs)
+    \item Original optimizer settings, early stopping (stopped after \EpochsMin--\EpochsMax{} epochs)
     \item Apple M3 Max GPU, about 7\,h
   \end{itemize}
   \end{column}
@@ -428,12 +428,12 @@ lo, hi = q_lo_test - c, q_hi_test + c
 \end{frame}
 
 % 17 -----------------------------------------------------------------------
-\begin{frame}{Headline: Year 3 vs.\ Year 2 on all six links (RTT)}
+\begin{frame}{Headline: final vs.\ initial model on all six links (RTT)}
   \centering
   \begin{tikzpicture}
   \begin{axis}[ybar, width=0.95\textwidth, height=5.4cm, bar width=9pt, ymin=-45, ymax=5,
     symbolic x coords={OneWeb DL,OneWeb UL,Starlink DL,Starlink UL,5G DL,5G UL}, xtick=data,
-    ylabel={change vs.\ Year 2 (\%)}, legend style={at={(0.5,1.02)}, anchor=south, legend columns=3, font=\footnotesize},
+    ylabel={change vs.\ the initial model (\%)}, legend style={at={(0.5,1.02)}, anchor=south, legend columns=3, font=\footnotesize},
     tick label style={font=\footnotesize}, ymajorgrids, grid style={gray!25}, nodes near coords, every node near coord/.append style={font=\tiny, anchor=north}]
   \addplot[fill=cYthree] coordinates {(OneWeb DL,\ChgMISOWDL) (OneWeb UL,\ChgMISOWUL) (Starlink DL,\ChgMISSLDL) (Starlink UL,\ChgMISSLUL) (5G DL,\ChgMISQDL) (5G UL,\ChgMISQUL)};
   \addplot[fill=cRidge] coordinates {(OneWeb DL,\ChgMAEOWDL) (OneWeb UL,\ChgMAEOWUL) (Starlink DL,\ChgMAESLDL) (Starlink UL,\ChgMAESLUL) (5G DL,\ChgMAEQDL) (5G UL,\ChgMAEQUL)};
@@ -441,7 +441,7 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \legend{95\% interval score, MAE, RMSE}
   \end{axis}
   \end{tikzpicture}\par
-  \small Seed means (3 seeds each). Coverage of the 95\% intervals on test sessions: Y3 \PICPMin--\PICPMax.
+  \small Seed means (3 seeds each). Coverage of the final model's 95\% intervals on test sessions: \PICPMin--\PICPMax.
   \takeaway{Interval score \ChgMISWorst\% to \ChgMISBest\%, MAE \ChgMAEWorst\% to \ChgMAEBest\%, RMSE about unchanged.}
 \end{frame}
 
@@ -476,7 +476,7 @@ lo, hi = q_lo_test - c, q_hi_test + c
 \begin{frame}{Per horizon step: RTT MAE}
   \centering
   \resizebox{!}{0.7\textheight}{\input{figs/fig_rtt_mae.tex}}
-  \takeaway{Y3 below Y2 at every step (0.2--3\,s) on every link.}
+  \takeaway{Final model below initial model at every step (0.2--3\,s) on every link.}
 \end{frame}
 
 \begin{frame}{Per horizon step: calibrated 95\% interval score}
@@ -490,13 +490,13 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \centering
   \resizebox{0.88\textwidth}{!}{\input{figs/fig_trace.tex}}
   \begin{itemize}\small
-    \item Year 3 interval widens around bursts, narrows when calm. Width--error rank correlation \RhoMin--\RhoMax{} on all links
-    \item Starlink DL 95\% interval: \textbf{100\,ms} wide (Y3) vs.\ \textbf{176\,ms} (Y2), same coverage
+    \item Final interval widens around bursts, narrows when calm. Width--error rank correlation \RhoMin--\RhoMax{} on all links
+    \item Starlink DL 95\% interval: \textbf{100\,ms} wide (Final) vs.\ \textbf{176\,ms} (Initial), same coverage
   \end{itemize}
 \end{frame}
 
 % 21 -----------------------------------------------------------------------
-\begin{frame}{Which step helps? (ablation, \% vs.\ Year 2)}
+\begin{frame}{Which step helps? (ablation vs.\ initial model)}
   \centering\tiny
   \setlength{\tabcolsep}{2.4pt}
   \begin{tabular}{l*{18}{r}}
@@ -523,8 +523,8 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \resizebox{\linewidth}{!}{%
   \begin{tabular}{lrrrrrr}
   \toprule
-  & \multicolumn{3}{c}{Year 2 method} & \multicolumn{3}{c}{Calibrated} \\
-  Link & Y2 & Y3 & $\Delta$\% & Y2 & Y3 & $\Delta$\% \\
+  & \multicolumn{3}{c}{Earlier method} & \multicolumn{3}{c}{Calibrated} \\
+  Link & Initial & Final & $\Delta$\% & Initial & Final & $\Delta$\% \\
   \midrule
   \tabinput{data/tab_isproto.tex}
   \bottomrule
@@ -534,8 +534,8 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \small
   RTT interval score (ms)
   \begin{itemize}
-    \item \textbf{Year 2 method}: quantiles of test residuals around the mean $\rightarrow$ both models within $\pm2\%$
-    \item \textbf{Calibrated} on held-out sessions $\rightarrow$ Y3 8--39\% better
+    \item \textbf{Earlier method}: quantiles of test residuals around the mean $\rightarrow$ both models within $\pm2\%$
+    \item \textbf{Calibrated} on held-out sessions $\rightarrow$ final model 8--39\% better
   \end{itemize}
   \end{column}
   \end{columns}
@@ -550,7 +550,7 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \resizebox{\linewidth}{!}{%
   \begin{tabular}{lrrrr}
   \toprule
-  Link & Sessions & Y3 wins & Median $\Delta$\% & $p$ \\
+  Link & Sessions & Final wins & Median $\Delta$\% & $p$ \\
   \midrule
   \tabinput{data/tab2_sessions.tex}
   \bottomrule
@@ -559,7 +559,7 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \begin{column}{0.46\textwidth}
   \begin{itemize}\small
     \item Windows of one session are correlated, so the \textbf{session} is the unit of evidence
-    \item Y3 has lower RTT MAE in \good{\SessWinsTotal{} of \SessNTotal} test sessions
+    \item The final model has lower RTT MAE in \good{\SessWinsTotal{} of \SessNTotal} test sessions
     \item Wilcoxon $p<0.01$ on 5 of 6 links
     \item OneWeb UL: 8 of 11, not significant ($p=\SessPOWUL$)
   \end{itemize}
@@ -582,8 +582,8 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \vspace{0.3cm}
   \begin{itemize}\small
     \item Persistence is poor at 5\,Hz (single pings are noisy). Starlink DL has a 1\,s pattern (seasonal repeat: 28\% skill)
-    \item A tuned linear model (Ridge-Y3) is \textbf{within 1 point} of the Year 2 network's RMSE skill on 4 links
-    \item Y3 ensemble: \good{lowest MAE and highest skill on every link} (tied on 5G UL)
+    \item A tuned linear model (Ridge-E) is \textbf{within 1 point} of the initial network's RMSE skill on 4 links
+    \item Final ensemble: \good{lowest MAE and highest skill on every link} (tied on 5G UL)
   \end{itemize}
 \end{frame}
 
@@ -594,15 +594,15 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \begin{tabular}{l*{12}{r}}
   \toprule
   & \multicolumn{3}{c}{OneWeb DL} & \multicolumn{3}{c}{OneWeb UL} & \multicolumn{3}{c}{Starlink DL} & \multicolumn{3}{c}{Starlink UL} \\
-  Setting (Y3 vs.\ Y2, \%) & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS \\
+  Setting (Final vs.\ Initial, \%) & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS \\
   \midrule
   \tabinput{data/tab3_sweeps_vs.tex}
   \bottomrule
   \end{tabular}
   \vspace{0.3cm}
   \begin{itemize}\small
-    \item Y3 beats Y2 in \textbf{every} window and horizon setting: MIS 7--41\% better, MAE lower everywhere
-    \item \good{Pinball weight 4} (instead of 1) improves Y3 further: OneWeb DL MAE $-10.4\%$. Our main tables understate the model
+    \item The final model beats the initial one in \textbf{every} window and horizon setting: MIS 7--41\% better, MAE lower everywhere
+    \item \good{Pinball weight 4} (instead of 1) improves the final model further: OneWeb DL MAE $-10.4\%$. Our main tables understate the model
     \item Best window depends on the link (12\,s: OneWeb UL $-9.4\%$, OneWeb DL $+11.2\%$). Hidden size 128 is adequate
   \end{itemize}
 \end{frame}
@@ -619,7 +619,7 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \end{itemize}
   \textbf{Spike warning} (RTT $>$ 90th pct., AUROC)
   \begin{itemize}\small
-    \item Starlink DL: \good{\AUCYthreeSLDL} (Y3) vs.\ \AUCYtwoSLDL{} (Y2)
+    \item Starlink DL: \good{\AUCYthreeSLDL} (Final) vs.\ \AUCYtwoSLDL{} (Initial)
     \item similar on 4 links, worse on OneWeb DL\\(\AUCYthreeOWDL{} vs.\ \AUCYtwoOWDL)
   \end{itemize}
   \end{column}
@@ -652,7 +652,7 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \begin{column}{0.47\textwidth}
   \textbf{Next steps}
   \begin{itemize}\small
-    \item Run Y3 inside the liquid tunnel (end-to-end video test)
+    \item Run the final model inside the liquid tunnel (end-to-end video test)
     \item Pinball weight 4, per-link input window
     \item Cross-path features (state of the other links)
     \item Online (adaptive) conformal updates
@@ -672,7 +672,7 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \vspace{0.2cm}
   \begin{block}{Deliverables (github.com/Jalalij/Collins\_2026)}
   \small
-  Year 3 report (53 pages) \textbullet{} IEEE TWC paper draft (10 pages, 40 refs) \textbullet{} code and benchmark scripts \textbullet{} 202 trained models \textbullet{} measurement data \textbullet{} supplementary docs (changes, data audit, reproduction)
+  final report (53 pages) \textbullet{} IEEE TWC paper draft (10 pages, 40 refs) \textbullet{} code and benchmark scripts \textbullet{} 202 trained models \textbullet{} measurement data \textbullet{} supplementary docs (changes, data audit, reproduction)
   \end{block}
   \takeaway{Questions?}
 \end{frame}

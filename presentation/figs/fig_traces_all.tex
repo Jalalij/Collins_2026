@@ -3,10 +3,10 @@
 \nextgroupplot[title={OneWeb DL}, ylabel={RTT (ms)}, legend to name=legtr, legend columns=4]
 \addplot[name path=hi0, draw=none, forget plot] table[x=t, y=y3hi] {data/trace_oneweb_dl.dat};
 \addplot[name path=lo0, draw=none, forget plot] table[x=t, y=y3lo] {data/trace_oneweb_dl.dat};
-\addplot[cYthree!25] fill between[of=hi0 and lo0]; \addlegendentry{Y3 95\% interval}
+\addplot[cYthree!25] fill between[of=hi0 and lo0]; \addlegendentry{Final 95\% interval}
 \addplot[black, thin] table[x=t, y=truth] {data/trace_oneweb_dl.dat}; \addlegendentry{measured}
-\addplot[mYtwo, mark=none] table[x=t, y=y2] {data/trace_oneweb_dl.dat}; \addlegendentry{Y2 ensemble}
-\addplot[cYthree, thick] table[x=t, y=y3med] {data/trace_oneweb_dl.dat}; \addlegendentry{Y3 median}
+\addplot[mYtwo, mark=none] table[x=t, y=y2] {data/trace_oneweb_dl.dat}; \addlegendentry{Initial ensemble}
+\addplot[cYthree, thick] table[x=t, y=y3med] {data/trace_oneweb_dl.dat}; \addlegendentry{Final median}
 \nextgroupplot[title={Starlink DL}]
 \addplot[name path=hi1, draw=none, forget plot] table[x=t, y=y3hi] {data/trace_starlink_dl.dat};
 \addplot[name path=lo1, draw=none, forget plot] table[x=t, y=y3lo] {data/trace_starlink_dl.dat};

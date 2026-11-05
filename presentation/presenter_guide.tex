@@ -1,0 +1,156 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,allcolors=blue!50!black]{hyperref}
+\setlist{nosep,leftmargin=*}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\input{data/numbers_audit.tex}
+\input{data/numbers_results.tex}
+\input{data/numbers_analysis.tex}
+\newcommand{\slide}[3]{\subsection*{Slide #1: #2 \hfill{\normalsize\color{gray}#3}}}
+\newcommand{\say}{\textbf{Say:} }
+\newcommand{\key}{\textbf{Key numbers:} }
+\newcommand{\watch}{\textbf{If asked:} }
+\title{Presenter Guide: Year 3 Link-State Forecasting Talk}
+\author{Companion to \texttt{slides.pdf} (30 slides, 30 minutes)}
+\date{November 2026}
+\begin{document}
+\maketitle
+
+\section*{How to use this guide}
+Each slide below has a target time, a short script in plain words, the numbers to remember, and the most likely questions. The times add up to about 28 minutes, leaving 2 minutes of slack. If you run long, shorten slides 18--19 (detail tables) and 26 (sensitivity) first, since their message is already on slides 17 and 23.
+
+\textbf{The story in three sentences.} We rebuilt the Year 2 evaluation and found that part of the Starlink data leaked the future into the input and that the Year 2 interval coverage was 0.95 by construction. We kept the Year 2 encoder but made the model predict a distribution (a mean and five quantiles) and calibrated its intervals on sessions it never saw. The result is \ChgMISMean\% better calibrated uncertainty and \ChgMAEMean\% lower RTT error on average, on all six links, with squared error unchanged.
+
+\textbf{Words to use consistently.} ``Y2'' = Year 2 Seq2Seq-GRU, retrained by us on the corrected data. ``Y3'' = the new distributional model. ``Interval score'' (MIS) = width of the 95\% interval plus a penalty for each miss, lower is better. ``Coverage'' (PICP) = fraction of real values that fall inside the interval. ``Step'' = 200\,ms.
+
+\section*{Slide-by-slide script}
+
+\slide{1}{Title}{0:30}
+\say Introduce the team and the Collins collaborators. Year 3 is about making the link forecasts trustworthy enough for the multipath scheduler.
+
+\slide{2}{Outline}{0:45}
+\say Read the one-line summary at the bottom. Tell the audience that you will show where every gain comes from and also where the model did \emph{not} improve.
+
+\slide{3}{Why forecast link state?}{1:00}
+\say A terminal with Starlink, OneWeb, and 5G can pick a path per packet. Schedulers today react to past RTT, which is too slow on LEO links (Starlink reallocates every 15\,s, OneWeb jumps at handovers). Year 2 already showed forecasts help (52\% less frame loss per second with prediction-aware minRTT). What is missing is knowing how wrong a forecast may be.
+
+\slide{4}{Where Year 2 left us}{0:45}
+\say Year 2 compared eight models and picked Seq2Seq-GRU. It reported coverage of 0.95 everywhere. Our first job was to check those numbers before improving anything.
+
+\slide{5}{System model}{1:15}
+\say Walk left to right. (a) Three access links from the ARA client to a measurement server. Point to the two satellite shells and the handovers. (b) Our pipeline: collectors, causal alignment on a 200\,ms grid, a 6\,s window, the forecaster, its quantiles, and calibration. (c) The scheduler uses the per-path forecasts and upper bounds, and new measurements arrive every 200\,ms.
+\watch \emph{Is this deployed?} The forecaster runs offline on recorded data. The Year 2 liquid tunnel has the integration hook. The end-to-end test is the next step (slide 29).
+
+\slide{6}{Data}{0:45}
+\say Six links, sessions split by session so test sessions are never seen. Stress the time units: 30 rows is 6\,s of history, 15 steps is 0.2--3\,s ahead. The 5G sets are 7 times larger, so we used every fourth training window for every method.
+
+\slide{7}{Audit: six issues}{1:15}
+\say Before changing the model we reproduced Year 2 (Starlink DL MAE \ReproSLMAE{} vs.\ 8.55 reported) and then audited it. Three reviewers checked independently and two more tried to refute each finding. The six surviving issues are on the slide. The two that change how Year 2 should be read are A2 (coverage computed from test residuals) and A3 (the Starlink leak).
+\watch \emph{Does this invalidate Year 2?} No. The ranking of models does not change. The absolute Starlink RTT numbers were a few percent optimistic, and the 0.95 coverage was not evidence of calibration.
+
+\slide{8}{A3: interpolation leak}{1:30}
+\say When a ping is missing, the parser fills it by drawing a line to the \emph{next} real ping. The model's last input then already contains half of the answer. For persistence this exactly halves the error on those rows, a 4$\times$ smaller squared error. \InterpFracSLDL\% of Starlink DL targets are interpolated, and fixing it raises the one-step persistence RMSE by \AuditPersHonePct\%.
+\watch \emph{Why did the parser do this?} It is a common way to merge collectors with different clocks. It is fine for plotting, wrong for forecasting. \emph{Other links?} OneWeb and 5G have no interpolated values.
+
+\slide{9}{The fix in code}{0:45}
+\say Real pings have at most three decimals, interpolated values do not, so they are easy to detect. The input takes the last real ping, and the target keeps the measured value. It is a flag, so Year 2 can still be reproduced exactly, and we applied it to every method.
+
+\slide{10}{Four steps}{0:45}
+\say Overview of what changed. Emphasize that the encoder and attention are identical to Year 2, so any gain comes from the decoder and the output.
+
+\slide{11}{Year 3 forecaster}{0:45}
+\say The decoder starts from the last observation and predicts changes. If the heads output zero, the model is just persistence. Each head now outputs a distribution.
+
+\slide{12}{Steps 1--2 in code}{1:00}
+\say Step 1: the Year 2 decoder started from zero every time. Step 2: the window is only 6\,s, so we add rolling 1\,s, 30\,s, and 60\,s statistics, and the ``rows since change'' feature that tells the model where it is inside the one-second iperf report. We also removed logger sentinels like SINR $=-32768$.
+
+\slide{13}{Why a distribution}{1:30}
+\say This is the key idea. RTT at 5\,Hz is heavy tailed: RMSE is \RatioRMSEMAEMin--\RatioRMSEMAEMax{} times the MAE (Gaussian would be 1.25). A squared-error model learns the mean, which spikes pull up. Each way of scoring has its own best forecast: the mean for squared error, the median for absolute error, quantiles for intervals. So we predict all of them in one pass.
+\watch \emph{Isn't reporting the median for MAE cherry-picking?} No, it is the standard result (Gneiting, 2011). We report the mean for RMSE and $R^2$, and both outputs come from the same model. We say which output is used for each metric.
+
+\slide{14}{Step 3 in code}{1:00}
+\say Each head outputs six numbers. The quantiles are the median plus or minus positive gaps (softplus), so they can never cross. The loss is squared error for the mean plus the pinball loss for the quantiles. The cost is 4\% more parameters and \TimeDSCPU\,ms per forecast on one CPU thread, well within the 200\,ms budget.
+
+\slide{15}{Step 4: calibration}{1:00}
+\say Learned quantiles may not cover new sessions. We use conformalized quantile regression: measure how far the validation targets fall outside the quantiles, take the 95th-percentile miss as a correction $c$, and widen the interval by $c$. The Year 2 model gets the same treatment around its mean, so both are compared fairly. The offsets are saved for deployment.
+\watch \emph{Is coverage guaranteed?} Only if validation and test sessions are exchangeable, which is approximately true. That is why we report the coverage we measured on test sessions (\PICPMin--\PICPMax).
+
+\slide{16}{How we evaluated}{0:45}
+\say Same split and same causal data for every method, four simple references, three seeds for every neural model, \NRuns{} main runs plus 80 sensitivity runs. Main metrics: MAE, RMSE, interval score, coverage, and a per-session significance test.
+
+\slide{17}{Headline}{1:30}
+\say Blue bars are the interval score: \ChgMISWorst\% to \ChgMISBest\% better on all six links. Green is MAE: \ChgMAEWorst\% to \ChgMAEBest\% lower on all six. Grey is RMSE: basically unchanged. Be explicit that we did not improve squared error.
+\key Largest gains: Starlink DL (MIS \ChgMISSLDL\%, MAE \ChgMAESLDL\%), 5G UL (MIS \ChgMISQUL\%, MAE \ChgMAEQUL\%).
+
+\slide{18--19}{Detail tables}{1:00 total}
+\say Point to one row only, for example Starlink DL: MAE 22.3 $\rightarrow$ 19.9 (single models) and 21.6 $\rightarrow$ 18.5 (ensembles), interval score 247 $\rightarrow$ 150, coverage stays at 0.95. Skip the rest unless asked.
+
+\slide{20--21}{Per horizon step}{1:00 total}
+\say The Year 3 curve is below Year 2 at every step on every link, for both MAE and interval score. Errors grow with the horizon as expected.
+
+\slide{22}{Intervals follow the input}{1:15}
+\say This is the picture to remember. The blue band widens around bursts and narrows when the link is calm. A constant-width interval must be wide all the time. On Starlink DL the 95\% interval is 100\,ms wide instead of 176\,ms at the same coverage.
+
+\slide{23}{Ablation}{1:15}
+\say Honest result: the residual decoder and the new features alone do \emph{not} help MAE. They even make OneWeb DL worse, because a squared-error model anchored on a spiky value follows the spikes. The features help the mean a bit (up to $-4.5\%$ RMSE). The real gain comes from the distributional heads.
+
+\slide{24}{Evaluation method matters}{1:00}
+\say If you compute intervals the Year 2 way (quantiles of the test residuals), Y2 and Y3 look the same within 2\%. Only with calibration on held-out sessions does the 8--39\% gain appear. The Year 2 method also guarantees 0.95 coverage by construction, which overstates what you get in operation.
+
+\slide{25}{Significance}{1:00}
+\say Windows from one session are correlated, so we count sessions. Y3 wins in \SessWinsTotal{} of \SessNTotal{} test sessions and is significant at 1\% on five links. OneWeb UL is not significant (8 of 11 sessions).
+
+\slide{26}{Simple baselines}{1:00}
+\say Persistence is poor at 5\,Hz. A simple 1\,s repeat already gets 28\% skill on Starlink DL. A tuned linear model is within one point of the Year 2 network on four links, which Year 2 could not show. Y3 has the best MAE and skill on every link (tied on 5G UL).
+
+\slide{27}{Sensitivity}{1:00}
+\say Y3 beats Y2 for every window and horizon we tried. The most useful finding: weighting the quantile loss 4 instead of 1 improves Y3 further (OneWeb DL MAE $-10.4\%$), so our main tables slightly understate the model. Window length is link specific.
+
+\slide{28}{Scheduler}{1:00}
+\say The upper bound is a per-path risk bound: send on a path if its bound meets the deadline, otherwise duplicate. Tight bounds on calm paths mean fewer needless duplicates. For spike warning, Y3 is clearly better on Starlink DL (AUROC \AUCYthreeSLDL{} vs.\ \AUCYtwoSLDL), similar on four links, and worse on OneWeb DL (\AUCYthreeOWDL{} vs.\ \AUCYtwoOWDL).
+
+\slide{29}{Limitations and next steps}{0:45}
+\say RMSE did not improve. Coverage is measured, not guaranteed. One site and one split. The next step is the end-to-end test inside the liquid tunnel.
+
+\slide{30}{Summary}{0:45}
+\say Repeat the three results. Mention that everything (report, paper, code, models, data) is on GitHub. Open for questions.
+
+\section*{Likely questions and answers}
+\begin{description}
+\item[Why not a Transformer or a bigger model?] The bottleneck is not capacity: hidden size 256 changed results by a few percent, and a linear model is close to the network on RMSE. The useful change was the output, not the size.
+\item[Why did RMSE not improve?] RMSE is dominated by rare RTT spikes that a 6\,s history cannot anticipate. The scatter plots in the report show both models miss the largest spikes.
+\item[Does the 5G subsampling bias the result?] It is applied to every method equally. It may slightly understate both models on 5G.
+\item[Can we trust 3 seeds?] The per-session Wilcoxon test is the stronger evidence: significant on five of six links.
+\item[What is the cost in deployment?] \TimeDSCPU\,ms per forecast on one CPU thread, 4\% more parameters than Year 2.
+\item[Why did OneWeb DL spike warning get worse?] OneWeb DL spikes are short and isolated, and the upper quantile is already wide there, so it reacts less than a mean that follows the last value.
+\item[What about throughput?] Year 3 targets RTT, jitter, and loss, the inputs of the Year 2 scheduler. Throughput can be added with the same heads.
+\item[Is the leak a bug in our code?] It is in the parser that merges collectors (\texttt{parse\_starlink.py}). The data are kept as recorded, and the fix is applied when loading.
+\end{description}
+
+\section*{Numbers to have ready}
+\begin{tabular}{lrrr}
+\toprule
+Link & MAE change & RMSE change & Interval-score change \\
+\midrule
+OneWeb DL & \ChgMAEOWDL\% & \ChgRMSEOWDL\% & \ChgMISOWDL\% \\
+OneWeb UL & \ChgMAEOWUL\% & \ChgRMSEOWUL\% & \ChgMISOWUL\% \\
+Starlink DL & \ChgMAESLDL\% & \ChgRMSESLDL\% & \ChgMISSLDL\% \\
+Starlink UL & \ChgMAESLUL\% & \ChgRMSESLUL\% & \ChgMISSLUL\% \\
+5G DL & \ChgMAEQDL\% & \ChgRMSEQDL\% & \ChgMISQDL\% \\
+5G UL & \ChgMAEQUL\% & \ChgRMSEQUL\% & \ChgMISQUL\% \\
+\bottomrule
+\end{tabular}
+
+Seed means, Y3 vs.\ retrained Y2, RTT averaged over 0.2--3\,s. Source: \texttt{modeling/results\_y3/summary/}.
+
+\section*{Where things are}
+\begin{itemize}
+\item Slides and this guide: \texttt{presentation/} (TikZ figures and tables are generated from the report data).
+\item Report: \texttt{reports/year3/Collins\_Year3\_LinkState\_Forecasting\_Report.pdf}. Paper: \texttt{paper\_twc/main.pdf}.
+\item Code shown on slides: \texttt{modeling/dataset.py} (ping fix, features) and \texttt{modeling/models/seq2seq\_dist.py} (model, loss).
+\end{itemize}
+\end{document}

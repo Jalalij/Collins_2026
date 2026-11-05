@@ -1,0 +1,14 @@
+\begin{tikzpicture}
+\begin{axis}[y3base, width=0.95\linewidth, height=5.2cm, xlabel={time in test session (s)}, ylabel={Starlink DL RTT (ms)}, xmin=0, xmax=59.8, legend style={at={(0.5,1.03)}, anchor=south, legend columns=4}]
+\addplot[name path=hi, draw=none, forget plot] table[x=t, y=y3hi] {data/trace_starlink_dl.dat};
+\addplot[name path=lo, draw=none, forget plot] table[x=t, y=y3lo] {data/trace_starlink_dl.dat};
+\addplot[cYthree!25] fill between[of=hi and lo];
+\addlegendentry{Y3 95\% interval (CQR)}
+\addplot[black, thin] table[x=t, y=truth] {data/trace_starlink_dl.dat};
+\addlegendentry{measured}
+\addplot[mYtwo, mark=none] table[x=t, y=y2] {data/trace_starlink_dl.dat};
+\addlegendentry{Y2 (ens.)}
+\addplot[cYthree, thick] table[x=t, y=y3med] {data/trace_starlink_dl.dat};
+\addlegendentry{Y3 median (ens.)}
+\end{axis}
+\end{tikzpicture}

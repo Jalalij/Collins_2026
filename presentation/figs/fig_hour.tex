@@ -1,0 +1,23 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 2, horizontal sep=1.3cm, vertical sep=1.6cm}, y3base, width=5.3cm, height=4.0cm]
+\nextgroupplot[title={OneWeb DL}, ybar, bar width=4pt, xlabel={hour of day (4\,h bins, CST)}, xtick={0,4,8,12,16,20}, xmin=-2, xmax=22, ymin=0, ylabel={RTT MAE (ms)}, legend to name=leghour, legend columns=2]
+\addplot[fill=cYtwo, draw=none] table[x=hour, y=S2S] {data/hour_oneweb_dl.dat}; \addlegendentry{Y2 ensemble}
+\addplot[fill=cYthree, draw=none] table[x=hour, y=DS2S] {data/hour_oneweb_dl.dat}; \addlegendentry{Y3 ensemble (median)}
+\nextgroupplot[title={Starlink DL}, ybar, bar width=4pt, xlabel={hour of day (4\,h bins, CST)}, xtick={0,4,8,12,16,20}, xmin=-2, xmax=22, ymin=0]
+\addplot[fill=cYtwo, draw=none] table[x=hour, y=S2S] {data/hour_starlink_dl.dat};
+\addplot[fill=cYthree, draw=none] table[x=hour, y=DS2S] {data/hour_starlink_dl.dat};
+\nextgroupplot[title={5G DL}, ybar, bar width=4pt, xlabel={hour of day (4\,h bins, CST)}, xtick={0,4,8,12,16,20}, xmin=-2, xmax=22, ymin=0]
+\addplot[fill=cYtwo, draw=none] table[x=hour, y=S2S] {data/hour_quectel_dl.dat};
+\addplot[fill=cYthree, draw=none] table[x=hour, y=DS2S] {data/hour_quectel_dl.dat};
+\nextgroupplot[title={OneWeb UL}, ybar, bar width=4pt, xlabel={hour of day (4\,h bins, CST)}, xtick={0,4,8,12,16,20}, xmin=-2, xmax=22, ymin=0, ylabel={RTT MAE (ms)}]
+\addplot[fill=cYtwo, draw=none] table[x=hour, y=S2S] {data/hour_oneweb_ul.dat};
+\addplot[fill=cYthree, draw=none] table[x=hour, y=DS2S] {data/hour_oneweb_ul.dat};
+\nextgroupplot[title={Starlink UL}, ybar, bar width=4pt, xlabel={hour of day (4\,h bins, CST)}, xtick={0,4,8,12,16,20}, xmin=-2, xmax=22, ymin=0]
+\addplot[fill=cYtwo, draw=none] table[x=hour, y=S2S] {data/hour_starlink_ul.dat};
+\addplot[fill=cYthree, draw=none] table[x=hour, y=DS2S] {data/hour_starlink_ul.dat};
+\nextgroupplot[title={5G UL}, ybar, bar width=4pt, xlabel={hour of day (4\,h bins, CST)}, xtick={0,4,8,12,16,20}, xmin=-2, xmax=22, ymin=0]
+\addplot[fill=cYtwo, draw=none] table[x=hour, y=S2S] {data/hour_quectel_ul.dat};
+\addplot[fill=cYthree, draw=none] table[x=hour, y=DS2S] {data/hour_quectel_ul.dat};
+\end{groupplot}
+\node at ($(group c2r2.south)+(0,-1.3cm)$) {\pgfplotslegendfromname{leghour}};
+\end{tikzpicture}

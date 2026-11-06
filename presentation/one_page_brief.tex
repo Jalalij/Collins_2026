@@ -1,0 +1,69 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.6in,top=0.5in,bottom=0.5in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fontspec}
+\setmainfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic, Scale=0.95]
+\definecolor{Navy}{HTML}{17365D}\definecolor{Good}{HTML}{2E7D32}
+\setlist{nosep,leftmargin=1.2em,itemsep=1pt}
+\setlength{\parindent}{0pt}\pagestyle{empty}
+\newcommand{\hd}[1]{\vspace{5pt}{\color{Navy}\large\bfseries #1}\par\vspace{2pt}}
+\newcommand{\g}[1]{\textcolor{Good}{\textbf{#1}}}
+\input{data/numbers_audit.tex}\input{data/numbers_results.tex}\input{data/numbers_analysis.tex}
+\begin{document}
+{\color{Navy}\Large\bfseries Link-State Forecasting: Final Report in One Page}\hfill{\small Collins--ISU WiCI, Nov 2026}\par
+\vspace{1pt}\rule{\textwidth}{0.4pt}
+
+\hd{1. The goal}
+\begin{itemize}
+  \item Forecast RTT, jitter, and loss of \textbf{Starlink, OneWeb, and 5G} links \textbf{0.2--3\,s ahead} (5\,Hz data) for the prediction-aware multipath (MPQUIC) scheduler.
+  \item The scheduler needs two things: a good forecast \emph{and} a trustworthy bound on how wrong it may be.
+\end{itemize}
+
+\hd{2. What was wrong before (audit of the initial pipeline)}
+\begin{itemize}
+  \item \textbf{Data leak (Starlink):} missing pings were filled by interpolating toward the \emph{next} ping, so the input already held part of the answer (\InterpFracSLDL\% of Starlink DL samples). Fixing it raises the 1-step error by \AuditPersHonePct\%.
+  \item \textbf{Fake calibration:} 95\% intervals were computed from the test errors themselves, so coverage was 0.95 by construction.
+  \item \textbf{Smaller issues:} horizon labeled ``15\,s'' is really 3\,s, constant targets counted as $R^2=1$, single training run per model.
+\end{itemize}
+
+\hd{3. What I did differently}
+\begin{enumerate}[leftmargin=1.4em]
+  \item \textbf{Causal data:} replaced interpolated inputs with the last real ping, for every method (initial model retrained on the same data, so the comparison is fair).
+  \item \textbf{Anchored decoder:} the model starts from the last measured value and predicts the change.
+  \item \textbf{Distribution instead of one number (the key change):} each output gives a mean and 5 quantiles. Reason: RTT is spiky (RMSE is \RatioRMSEMAEMin--\RatioRMSEMAEMax$\times$ the MAE), so the mean is pulled up by spikes. Median $\rightarrow$ best for absolute error, quantiles $\rightarrow$ uncertainty.
+  \item \textbf{Honest calibration:} intervals corrected on held-out sessions (conformal), coverage measured on unseen test sessions. 3-seed ensembles.
+  \item \textbf{Fair evaluation:} 3 seeds, 4 simple baselines (persistence, 1\,s repeat, two ridge models), per-session significance test, 80 extra sensitivity runs.
+\end{enumerate}
+
+\hd{4. Results (final vs.\ initial model, test sessions, RTT, 3 seeds)}
+\begin{center}\small
+\begin{tabular}{lrrrrrr}
+\toprule
+ & OneWeb DL & OneWeb UL & Starlink DL & Starlink UL & 5G DL & 5G UL \\
+\midrule
+95\% interval score & \ChgMISOWDL\% & \ChgMISOWUL\% & \ChgMISSLDL\% & \ChgMISSLUL\% & \ChgMISQDL\% & \ChgMISQUL\% \\
+MAE & \ChgMAEOWDL\% & \ChgMAEOWUL\% & \ChgMAESLDL\% & \ChgMAESLUL\% & \ChgMAEQDL\% & \ChgMAEQUL\% \\
+RMSE & \ChgRMSEOWDL\% & \ChgRMSEOWUL\% & \ChgRMSESLDL\% & \ChgRMSESLUL\% & \ChgRMSEQDL\% & \ChgRMSEQUL\% \\
+\bottomrule
+\end{tabular}\\[1pt]
+{\footnotesize negative = better. Interval coverage on unseen sessions: \PICPMin--\PICPMax{} (target 0.95).}
+\end{center}
+\begin{itemize}
+  \item \g{Uncertainty:} 95\% interval score \g{\ChgMISMean\% on average} (lower is better), all 6 links (e.g.\ Starlink DL: 100\,ms wide instead of 176\,ms, same coverage).
+  \item \g{Accuracy:} RTT error (MAE) \g{\ChgMAEMean\% on average}, all 6 links. RMSE unchanged.
+  \item \textbf{Significant:} final model better in \SessWinsTotal{} of \SessNTotal{} test sessions, $p<0.01$ on 5 of 6 links.
+  \item \textbf{Where it comes from:} only from the distributional output (step 3). Steps 1--2 alone did not lower the MAE.
+  \item \textbf{Robust:} holds for 3\,s and 12\,s input windows and a 6\,s horizon. A quantile-loss weight of 4 improves it further (OneWeb DL MAE $-10\%$).
+  \item \textbf{Cost:} \TimeDSCPU\,ms per forecast on one CPU thread (budget 200\,ms), 4\% more parameters.
+\end{itemize}
+
+\hd{5. Takeaways and limits}
+\begin{itemize}
+  \item The gain is \textbf{calibrated, input-dependent uncertainty}: tight bounds when a path is calm, wide before bursts $\rightarrow$ the scheduler duplicates packets only when needed.
+  \item \textbf{Limits:} RMSE did not improve. A tuned linear model is close on RMSE. One site, one data split. Not yet tested end-to-end in the tunnel (next step).
+  \item \textbf{Delivered:} final report (53 pp.), IEEE TWC paper draft, 30-slide deck, code, models, and data on GitHub.
+\end{itemize}
+\end{document}

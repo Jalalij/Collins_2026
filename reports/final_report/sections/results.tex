@@ -3,11 +3,11 @@ All results are on the test sessions, which were not used for training, model se
 \subsection{Headline: RTT}
 Table~\ref{tab:main} gives the RTT results per link and Figures~\ref{fig:mae}--\ref{fig:mis} show them per horizon step. Against the retrained initial model, the final model:
 \begin{itemize}[leftmargin=*]
-  \item lowers the RTT MAE on all six links, by \ChgMAEWorst\% to \ChgMAEBest\% (mean \ChgMAEMean\%). The largest gains are on 5G UL (\ChgMAEQUL\%), Starlink DL (\ChgMAESLDL\%), and OneWeb DL (\ChgMAEOWDL\%).
-  \item lowers the calibrated 95\% interval score on all six links, by \ChgMISWorst\% to \ChgMISBest\% (mean \ChgMISMean\%), at the same coverage. Measured test coverage is \PICPMin{} to \PICPMax{} for Final and similar for Initial. Both intervals are calibrated, and the Final intervals are narrower because their width follows the input (Figure~\ref{fig:trace}).
-  \item leaves RMSE and $R^2$ nearly unchanged: the RMSE changes by \ChgRMSEBest\% to $+$\ChgRMSEWorst\% (mean \ChgRMSEMean\%).
+  \item changes the RTT MAE on all six links by $\ChgMAEWorst$\% to $\ChgMAEBest$\% (mean $\ChgMAEMean$\%). The largest gains are on 5G UL ($\ChgMAEQUL$\%), Starlink DL ($\ChgMAESLDL$\%), and OneWeb DL ($\ChgMAEOWDL$\%).
+  \item changes the calibrated 95\% interval score on all six links by $\ChgMISWorst$\% to $\ChgMISBest$\% (mean $\ChgMISMean$\%), at the same coverage. Measured test coverage is \PICPMin{} to \PICPMax{} for Final and similar for Initial. Both intervals are calibrated, and the Final intervals are narrower because their width follows the input (Figure~\ref{fig:trace}).
+  \item leaves RMSE and $R^2$ nearly unchanged: the RMSE changes by $\ChgRMSEBest$\% to $+$\ChgRMSEWorst\% (mean $\ChgRMSEMean$\%).
 \end{itemize}
-With three-seed ensembles on both sides, the MAE changes by \ChgEnsMAEWorst\% to \ChgEnsMAEBest\%, the RMSE by \ChgEnsRMSEWorst\% to \ChgEnsRMSEBest\%, and the interval score by \ChgEnsMISWorst\% to \ChgEnsMISBest\%. 
+With three-seed ensembles on both sides, the MAE changes by $\ChgEnsMAEWorst$\% to $\ChgEnsMAEBest$\%, the RMSE by $\ChgEnsRMSEWorst$\% to $\ChgEnsRMSEBest$\%, and the interval score by $\ChgEnsMISWorst$\% to $\ChgEnsMISBest$\%. 
 \begin{table}[t]
 \centering
 \caption{RTT results on the test sessions, averaged over the 15 steps (0.2--3\,s). Mean $\pm$ standard deviation over 3 seeds, and 3-seed ensembles. MAE, RMSE and MIS in ms. MIS is the 95\% interval score with intervals calibrated on the validation sessions (split conformal for Initial, CQR for Final). PICP is the measured coverage of those intervals.}
@@ -108,7 +108,7 @@ Steps & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MI
 \end{table}
 
 \subsection{Simple references}
-Table~\ref{tab:baselines} compares the neural models with the four references. Two facts were not visible in the initial study, which had no linear or naive baseline. First, persistence is a poor forecast for RTT at 5\,Hz: its RMSE is higher than that of the neural models and of Ridge-E on every link, because single pings are noisy. Second, a tuned linear model on the final features (Ridge-E) is close to the initial network on RMSE skill, within one point on four links. On Starlink DL a repeat of the value one second earlier already has 28\% skill, which reflects a one-second pattern in the downlink RTT under the 1\,Hz iperf load. The final ensemble has the lowest MAE on every link and the highest skill on every link, tied with Ridge-E and the single Final models on 5G UL. The plain ridge model on initial features fails on 5G UL ($-43\%$ skill) because of unclipped logger sentinels, which the final pipeline removes.
+Table~\ref{tab:baselines} compares the neural models with the four references. Two facts were not visible in the initial study, which had no linear or naive baseline. First, persistence is a poor forecast for RTT at 5\,Hz: its RMSE is higher than that of the neural models and of Ridge-E on every link, because single pings are noisy. Second, a tuned linear model on the extended features (Ridge-E) is close to the initial network on RMSE skill, within one point on four links. On Starlink DL a repeat of the value one second earlier already has 28\% skill, which reflects a one-second pattern in the downlink RTT under the 1\,Hz iperf load. The final ensemble has the lowest MAE on every link and the highest skill on every link, tied with Ridge-E and the single Final models on 5G UL. The plain ridge model on initial features fails on 5G UL ($-43\%$ skill) because of unclipped logger sentinels, which the final pipeline removes.
 
 \begin{table}[t]
 \centering
@@ -147,4 +147,4 @@ Link & Model & MAE & RMSE & MIS & MAE & RMSE & MIS \\
 \end{table}
 
 \subsection{Effect of the interpolated Starlink targets}
-About \InterpFracSLDL\% of the Starlink DL test targets are interpolated (audit item A3). Restricted to measured targets, the ensemble RTT MAE is \RealMAEYthreeSLDL\,ms for Final and \RealMAEYtwoSLDL\,ms for Initial (\AllMAEYthreeSLDL\ and \AllMAEYtwoSLDL\,ms on all targets). The conclusions do not depend on the interpolated targets.
+About \InterpFracSLDL\% of the Starlink DL test targets are interpolated (audit item A3). Restricted to measured targets, the ensemble RTT MAE is \RealMAEFRSLDL\,ms for Final and \RealMAEPrevSLDL\,ms for Initial (\AllMAEFRSLDL\ and \AllMAEPrevSLDL\,ms on all targets). The conclusions do not depend on the interpolated targets.

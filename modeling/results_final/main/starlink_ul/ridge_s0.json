@@ -7,7 +7,7 @@
    "persistence",
    "snaive",
    "ridge",
-   "ridge_y3"
+   "ridge_fr"
   ],
   "seeds": [
    0

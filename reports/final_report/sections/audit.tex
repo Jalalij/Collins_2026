@@ -2,12 +2,12 @@ Before changing any model we rebuilt the initial evaluation in a single script (
 
 \begin{table}[t]
 \centering
-\caption{Issues found in the initial pipeline and how final handles them.}
+\caption{Issues found in the previous pipeline and how this report handles them.}
 \label{tab:audit}
 \small
 \begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.6cm}X>{\raggedright\arraybackslash}p{3.8cm}}
 \toprule
-Issue & Effect on initial numbers & final handling \\
+Issue & Effect on initial numbers & Handling in this report \\
 \midrule
 A1. Horizon unit & Steps of 200\,ms were labeled as seconds. The ``15\,s'' horizon is 3\,s. & Horizons reported as $h\times 0.2$\,s. \\
 A2. Interval coverage & Intervals were built from quantiles of the \emph{test} residuals. PICP$_{95}$ is therefore 0.95 by construction and says nothing about calibration. & Split conformal intervals calibrated on validation sessions, coverage measured on test sessions. \\
@@ -19,6 +19,6 @@ A6. One seed & Each model was trained once. The OneWeb UL Seq2Seq MAE differs be
 \end{tabularx}
 \end{table}
 
-\paragraph{Effect of A3.} Replacing the interpolated inputs raises the Starlink DL persistence RTT error at the first step by \AuditPersHonePct\%, from \AuditPersLegacyHone\,ms to \AuditPersCausalHone\,ms RMSE and the average over the horizon from \AuditPersLegacyAvg\,ms to \AuditPersCausalAvg\,ms. Every method that reads the last RTT value benefits from the leak, including the initial model. All final comparisons therefore use the corrected inputs for every method, and the initial model is retrained on them. The Modeling Dynamics report numbers for Starlink RTT are optimistic by a few percent at short horizons. The 5G and OneWeb RTT series have no interpolated values (all values lie on the ping resolution grid).
+\paragraph{Effect of A3.} Replacing the interpolated inputs raises the Starlink DL persistence RTT error at the first step by \AuditPersHonePct\%, from \AuditPersLegacyHone\,ms to \AuditPersCausalHone\,ms RMSE and the average over the horizon from \AuditPersLegacyAvg\,ms to \AuditPersCausalAvg\,ms. Every method that reads the last RTT value benefits from the leak, including the initial model. All comparisons in this report therefore use the corrected inputs for every method, and the initial model is retrained on them. The Modeling Dynamics report numbers for Starlink RTT are optimistic by a few percent at short horizons. The 5G and OneWeb RTT series have no interpolated values (all values lie on the ping resolution grid).
 
 \paragraph{Other observations.} The iperf3 collector stamps each one-second report at the start of its interval, and the parsers snap it to the nearest ping row. An iperf value at row $t$ can therefore describe traffic up to about one second after $t$. The same alignment is used for every method and in the initial study. It mainly affects the jitter and loss inputs, which are also targets and are shifted consistently. We keep it for comparability and list it as a limitation (Section~\ref{sec:limits}).

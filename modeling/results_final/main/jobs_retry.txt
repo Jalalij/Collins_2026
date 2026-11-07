@@ -1,6 +1,6 @@
-quectel_dl y2_seq2seq 0
-quectel_ul y2_seq2seq 0
-quectel_dl y2_seq2seq 1
-quectel_ul y2_seq2seq 1
-quectel_dl y2_seq2seq 2
-quectel_ul y2_seq2seq 2
+quectel_dl prev_seq2seq 0
+quectel_ul prev_seq2seq 0
+quectel_dl prev_seq2seq 1
+quectel_ul prev_seq2seq 1
+quectel_dl prev_seq2seq 2
+quectel_ul prev_seq2seq 2

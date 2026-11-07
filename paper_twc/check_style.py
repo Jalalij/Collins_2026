@@ -13,7 +13,9 @@ for f in files:
     body = re.sub(r"\\begin\{(tabular|algorithmic|equation|align)\*?\}.*?\\end\{\1\*?\}", " ", txt, flags=re.S)
     body = re.sub(r"\$[^$]*\$", " ", body)
     for i, line in enumerate(body.splitlines(), 1):
-        if ";" in line and "tikz" not in f and "\\draw" not in line and "\\addplot" not in line and "\\node" not in line:
+        code = f.startswith("figs/") and any(k in line for k in ("\\draw", "\\addplot", "\\node", "\\coordinate", "\\path", "\\fill",
+                                                                   "colormap", "rgb255", "};", "\\pgfplots", "\\begin{axis", "\\end{axis"))
+        if ";" in line and "tikz" not in f and not code and "\\draw" not in line and "\\addplot" not in line and "\\node" not in line:
             print(f"{f}:{i}: semicolon: {line.strip()[:100]}"); bad += 1
         if ", so " in line:
             print(f"{f}:{i}: ', so': {line.strip()[:100]}"); bad += 1

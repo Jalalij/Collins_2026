@@ -68,14 +68,14 @@ def main():
         y_te, y_va = tr["y_te"], tr["y_va"]
         k = 0  # RTT is target 0
         thr = np.quantile(y_va[:, :, k], 0.9)
-        meth = {m: load_ens(pdir, m) for m in ["persistence", "ridge_y3", "y2_seq2seq", "y3_dist"]}
+        meth = {m: load_ens(pdir, m) for m in ["persistence", "ridge_fr", "prev_seq2seq", "fr_dist"]}
         scores = {}
         if meth["persistence"]: scores["persistence"] = meth["persistence"]["p_te"]
-        if meth["ridge_y3"]: scores["ridge_y3"] = meth["ridge_y3"]["p_te"]
-        if meth["y2_seq2seq"]: scores["y2_seq2seq_ens"] = meth["y2_seq2seq"]["p_te"]
-        if meth["y3_dist"]:
-            scores["y3_dist_ens_mean"] = meth["y3_dist"]["p_te"]
-            scores["y3_dist_ens_q975"] = meth["y3_dist"]["d_te"][..., 5]
+        if meth["ridge_fr"]: scores["ridge_fr"] = meth["ridge_fr"]["p_te"]
+        if meth["prev_seq2seq"]: scores["prev_seq2seq_ens"] = meth["prev_seq2seq"]["p_te"]
+        if meth["fr_dist"]:
+            scores["fr_dist_ens_mean"] = meth["fr_dist"]["p_te"]
+            scores["fr_dist_ens_q975"] = meth["fr_dist"]["d_te"][..., 5]
         H = y_te.shape[1]
         for name, sc in scores.items():
             for h in range(H):
@@ -99,8 +99,8 @@ def main():
                                   "RMSE_all": np.sqrt((e ** 2).mean()), "RMSE_real": np.sqrt((e[real] ** 2).mean()),
                                   "MAE_all": np.abs(em).mean(), "MAE_real": np.abs(em[real]).mean()})
 
-        if meth["y3_dist"]:
-            d = meth["y3_dist"]
+        if meth["fr_dist"]:
+            d = meth["fr_dist"]
             c = cqr_offsets(d["d_va"], y_va)
             json.dump({"link": ds, "alpha": 0.05, "targets": [str(t) for t in tr["targets"]],
                        "n_seeds": d["n"], "offsets_hk": c.tolist(),
@@ -111,8 +111,8 @@ def main():
             n = len(y_te); s0 = n // 2; idx = np.arange(s0, s0 + 300)
             lo = d["d_te"][idx, h, k, 1] - c[h, k]; hi = d["d_te"][idx, h, k, 5] + c[h, k]
             tdf = pd.DataFrame({"t": np.arange(300) * 0.2, "truth": y_te[idx, h, k],
-                                "y3med": d["d_te"][idx, h, k, 3], "y3lo": lo, "y3hi": hi,
-                                "y2": meth["y2_seq2seq"]["p_te"][idx, h, k] if meth["y2_seq2seq"] else np.nan,
+                                "frmed": d["d_te"][idx, h, k, 3], "frlo": lo, "frhi": hi,
+                                "prev": meth["prev_seq2seq"]["p_te"][idx, h, k] if meth["prev_seq2seq"] else np.nan,
                                 "pers": meth["persistence"]["p_te"][idx, h, k] if meth["persistence"] else np.nan})
             tdf.to_csv(fig / f"trace_{ds}.dat", sep=" ", index=False, float_format="%.4g")
 

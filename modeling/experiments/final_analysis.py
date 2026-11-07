@@ -1,7 +1,7 @@
 """
 experiments/final_analysis.py - Further analyses of the saved test predictions
-(no training). For every link, with the 3-seed ensembles S2S-E (y2_seq2seq)
-and DS2S-E (y3_dist):
+(no training). For every link, with the 3-seed ensembles S2S-E (prev_seq2seq)
+and DS2S-E (fr_dist):
 
   reliability   empirical P(y <= q_tau) of the raw DS2S-E quantiles
   coverage      coverage and width of calibrated 50% and 95% intervals
@@ -43,7 +43,7 @@ for ds in LINKS:
     pdir = RES / ds / "preds"
     tr = np.load(pdir / "truth.npz")
     y_te, y_va = tr["y_te"], tr["y_va"]
-    s2 = load_ens(pdir, "y2_seq2seq"); d3 = load_ens(pdir, "y3_dist")
+    s2 = load_ens(pdir, "prev_seq2seq"); d3 = load_ens(pdir, "fr_dist")
     tnames = ["rtt", "jitter", "loss"]
     K = 1 if ds == "oneweb_ul" else 3
     # --- reliability of raw quantiles
@@ -72,7 +72,7 @@ for ds in LINKS:
                                   "DS2S_median_signed_err_h5": float(np.median(d3["d_te"][:, 4, 0, 3] - y_te[:, 4, 0]))})
     # --- metadata of the test windows
     prov, dirn = ds.split("_")
-    data, meta = B.load_splits(prov, dirn, "y2", L, H, torch.device("cpu"), str(ROOT / "data/lsn-data"))
+    data, meta = B.load_splits(prov, dirn, "base", L, H, torch.device("cpu"), str(ROOT / "data/lsn-data"))
     te = data["test"]; st = te.starts.numpy(); origin = st + L - 1
     assert len(st) == len(y_te), (ds, len(st), len(y_te))
     sid = te.sid[origin]; hour = te.hour_raw[origin] if hasattr(te, "hour_raw") else te.H.numpy()[origin]

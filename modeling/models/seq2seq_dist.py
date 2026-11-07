@@ -125,3 +125,46 @@ def dist_loss(out, y, quantile_weight: float = 1.0):
     e = y.unsqueeze(-1) - q
     pinball = torch.maximum(tau * e, (tau - 1) * e).mean()
     return mse + quantile_weight * pinball
+
+
+# ---------------------------------------------------------------------------
+# Comparison model: Gaussian (heteroscedastic) heads
+# ---------------------------------------------------------------------------
+# Same encoder, attention and anchored decoder, but each head predicts a
+# normal distribution N(mu, sigma^2) of the change and is trained with the
+# Gaussian negative log-likelihood (mean-variance network). Its output uses
+# the same 6-channel layout as DistHead, with the quantiles of the normal
+# distribution, so the evaluation and calibration code is shared.
+_Z = (-1.959964, -0.674490, 0.0, 0.674490, 1.959964)
+
+
+class GaussHead(nn.Module):
+    def __init__(self, hidden_size: int, dropout: float):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(hidden_size, hidden_size), nn.LeakyReLU(0.1),
+            nn.Dropout(dropout), nn.Linear(hidden_size, 2),
+        )
+
+    def forward(self, h):
+        o = self.net(h)
+        mu = o[:, 0]
+        sigma = Fn.softplus(o[:, 1]) + 1e-3
+        qs = [mu + z * sigma for z in _Z]
+        return torch.stack([mu] + qs, dim=-1)  # (B, 6): mean, q.025, q.25, q.5, q.75, q.975
+
+
+class ThroughputSeq2SeqGauss(ThroughputSeq2SeqDist):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        hidden_size = kwargs.get("hidden_size", 128)
+        dropout = kwargs.get("dropout", 0.3)
+        self.decoder.heads = nn.ModuleList([GaussHead(hidden_size, dropout)
+                                            for _ in range(self.num_targets)])
+
+
+def gauss_nll(out, y):
+    """Gaussian negative log-likelihood (up to a constant); out as above."""
+    mu = out[..., 0]
+    sigma = (out[..., 5] - out[..., 0]) / _Z[4]
+    return (torch.log(sigma) + 0.5 * ((y - mu) / sigma) ** 2).mean()

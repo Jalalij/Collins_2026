@@ -1,0 +1,31 @@
+link,method,variant,IS_ms,PICP,width_ms,description,change_vs_s2s_pct
+oneweb_dl,fr_dist,s2s_sym,323.407,0.953053,84.0879,"S2S-E mean -/+ split-conformal |r| (constant width, symmetric; S2S-E interval of the tables)",0
+oneweb_dl,fr_dist,s2s_asym,302.904,0.95468,117.153,"S2S-E mean + split-conformal quantiles of the signed residual, a/2 per tail (constant width, asymmetric)",-6.3399
+oneweb_dl,fr_dist,ds2s_med_sym,329.918,0.954084,90.9228,"DS2S-E median -/+ split-conformal |r| (constant width, symmetric)",2.01301
+oneweb_dl,fr_dist,ds2s_med_asym,303.866,0.958296,116.402,"DS2S-E median + split-conformal quantiles of the signed residual (constant width, asymmetric)",-6.04232
+oneweb_dl,fr_dist,ds2s_cqr,258.982,0.948674,80.0738,"DS2S-E [q.025 - c, q.975 + c], CQR (input-dependent width, asymmetric; DS2S-E interval of the tables)",-19.9207
+oneweb_ul,fr_dist,s2s_sym,1026.69,0.950964,622.057,"S2S-E mean -/+ split-conformal |r| (constant width, symmetric; S2S-E interval of the tables)",0
+oneweb_ul,fr_dist,s2s_asym,1009.35,0.95255,652.029,"S2S-E mean + split-conformal quantiles of the signed residual, a/2 per tail (constant width, asymmetric)",-1.68864
+oneweb_ul,fr_dist,ds2s_med_sym,1038.13,0.946484,571.646,"DS2S-E median -/+ split-conformal |r| (constant width, symmetric)",1.11417
+oneweb_ul,fr_dist,ds2s_med_asym,995.171,0.949687,604.994,"DS2S-E median + split-conformal quantiles of the signed residual (constant width, asymmetric)",-3.06981
+oneweb_ul,fr_dist,ds2s_cqr,756.901,0.950478,380.033,"DS2S-E [q.025 - c, q.975 + c], CQR (input-dependent width, asymmetric; DS2S-E interval of the tables)",-26.2774
+starlink_dl,fr_dist,s2s_sym,243.508,0.94957,175.659,"S2S-E mean -/+ split-conformal |r| (constant width, symmetric; S2S-E interval of the tables)",0
+starlink_dl,fr_dist,s2s_asym,246.215,0.945811,173.217,"S2S-E mean + split-conformal quantiles of the signed residual, a/2 per tail (constant width, asymmetric)",1.11178
+starlink_dl,fr_dist,ds2s_med_sym,248.909,0.950161,173.778,"DS2S-E median -/+ split-conformal |r| (constant width, symmetric)",2.21801
+starlink_dl,fr_dist,ds2s_med_asym,253.656,0.946681,170.71,"DS2S-E median + split-conformal quantiles of the signed residual (constant width, asymmetric)",4.16717
+starlink_dl,fr_dist,ds2s_cqr,143.4,0.952938,100.26,"DS2S-E [q.025 - c, q.975 + c], CQR (input-dependent width, asymmetric; DS2S-E interval of the tables)",-41.1108
+starlink_ul,fr_dist,s2s_sym,38.2304,0.93037,16.4301,"S2S-E mean -/+ split-conformal |r| (constant width, symmetric; S2S-E interval of the tables)",0
+starlink_ul,fr_dist,s2s_asym,36.8684,0.934889,17.0598,"S2S-E mean + split-conformal quantiles of the signed residual, a/2 per tail (constant width, asymmetric)",-3.56275
+starlink_ul,fr_dist,ds2s_med_sym,39.5762,0.931801,17.4599,"DS2S-E median -/+ split-conformal |r| (constant width, symmetric)",3.52018
+starlink_ul,fr_dist,ds2s_med_asym,37.0452,0.934653,17.128,"DS2S-E median + split-conformal quantiles of the signed residual (constant width, asymmetric)",-3.10012
+starlink_ul,fr_dist,ds2s_cqr,34.6373,0.936079,16.8511,"DS2S-E [q.025 - c, q.975 + c], CQR (input-dependent width, asymmetric; DS2S-E interval of the tables)",-9.39867
+quectel_dl,fr_dist,s2s_sym,25.1817,0.953179,16.5124,"S2S-E mean -/+ split-conformal |r| (constant width, symmetric; S2S-E interval of the tables)",0
+quectel_dl,fr_dist,s2s_asym,24.5907,0.955112,17.1618,"S2S-E mean + split-conformal quantiles of the signed residual, a/2 per tail (constant width, asymmetric)",-2.34683
+quectel_dl,fr_dist,ds2s_med_sym,25.5573,0.952472,16.579,"DS2S-E median -/+ split-conformal |r| (constant width, symmetric)",1.4916
+quectel_dl,fr_dist,ds2s_med_asym,24.528,0.953836,17.1615,"DS2S-E median + split-conformal quantiles of the signed residual (constant width, asymmetric)",-2.59579
+quectel_dl,fr_dist,ds2s_cqr,21.6783,0.950314,15.714,"DS2S-E [q.025 - c, q.975 + c], CQR (input-dependent width, asymmetric; DS2S-E interval of the tables)",-13.9124
+quectel_ul,fr_dist,s2s_sym,127.881,0.948496,82.2194,"S2S-E mean -/+ split-conformal |r| (constant width, symmetric; S2S-E interval of the tables)",0
+quectel_ul,fr_dist,s2s_asym,97.0483,0.948668,69.9907,"S2S-E mean + split-conformal quantiles of the signed residual, a/2 per tail (constant width, asymmetric)",-24.1105
+quectel_ul,fr_dist,ds2s_med_sym,142.762,0.948429,96.7959,"DS2S-E median -/+ split-conformal |r| (constant width, symmetric)",11.6362
+quectel_ul,fr_dist,ds2s_med_asym,94.9781,0.950739,68.3617,"DS2S-E median + split-conformal quantiles of the signed residual (constant width, asymmetric)",-25.7293
+quectel_ul,fr_dist,ds2s_cqr,91.7048,0.94971,65.5878,"DS2S-E [q.025 - c, q.975 + c], CQR (input-dependent width, asymmetric; DS2S-E interval of the tables)",-28.289

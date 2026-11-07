@@ -1,4 +1,4 @@
-h y2_seq2seq_mae y2_seq2seq_mis y3_dist_mae y3_dist_mis
+h prev_seq2seq_mae prev_seq2seq_mis fr_dist_mae fr_dist_mis
 1 35.2044 471.1204 30.9694 287.1377
 2 43.6750 627.7800 40.2330 361.3356
 3 50.3535 753.6576 46.1583 431.0384

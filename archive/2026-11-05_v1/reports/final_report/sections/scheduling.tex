@@ -1,0 +1,14 @@
+The initial QoE-predictive scheduler uses point forecasts of each path. Two outputs of the final model are directly useful to it.
+
+\paragraph{Risk bounds.} The calibrated upper bound $\hat{q}_{0.975}+c$ is a per-path, per-step RTT bound that holds about 95\% of the time on unseen sessions (Table~\ref{tab:main}). A scheduler that must meet a frame deadline can send a packet on the path whose upper bound is below the deadline, or duplicate it on two paths when no single bound is. Because the Final bound is input dependent, it is tight when a path is stable and loose only when the path is about to burst (Figure~\ref{fig:trace}). A constant-width interval, as in the initial study, is equally wide at all times and would trigger duplication far more often for the same coverage.
+
+\paragraph{Spike warning.} Let a spike be an RTT above the 90th percentile of the validation sessions. Figure~\ref{fig:spike} shows how well each forecast ranks the windows in which a spike happens $h$ steps ahead (area under the ROC curve, averaged over the steps in the text below). The Final upper quantile is the best warning signal on Starlink DL (AUROC \AUCFRSLDL{} against \AUCPrevSLDL{} for Initial), comparable on Starlink UL, 5G DL, 5G UL, and OneWeb UL, and worse than the Initial mean on OneWeb DL (\AUCFROWDL{} against \AUCPrevOWDL). OneWeb DL RTT spikes are short and isolated, and a forecast that tracks the conditional mean reacts to them more than an upper quantile that is already wide.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_spike.tex}}
+  \caption{Spike warning: AUROC for detecting that RTT at $t+h$ exceeds the validation 90th percentile. Final uses its ensemble upper quantile $\hat{q}_{0.975}$ as the score and Initial its ensemble mean.}
+  \label{fig:spike}
+\end{figure}
+
+\paragraph{Deployment.} The trained models, their normalization statistics, and the CQR offsets $c_{h,k}$ of each ensemble are saved with the results (\texttt{results\_\allowbreak{}final/\allowbreak{}main/\allowbreak{}<link>/\allowbreak{}models/\allowbreak{}} and \texttt{results\_\allowbreak{}final/\allowbreak{}summary/\allowbreak{}cqr\_\allowbreak{}offsets\_\allowbreak{}<link>.json}). The model has \ParamsDist{} parameters, 4\% more than the initial model, and the forecast for one window needs one encoder pass and 15 decoder steps, the same as the earlier work. On one CPU thread of the laptop a full forecast (15 steps, 3 targets) takes \TimeDSCPU\,ms against \TimeSSCPU\,ms for the initial model, well below the 200\,ms between measurements (\texttt{experiments/\allowbreak{}final\_\allowbreak{}timing.py}).

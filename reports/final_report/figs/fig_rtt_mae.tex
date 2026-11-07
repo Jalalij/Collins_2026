@@ -1,39 +1,39 @@
 \begin{tikzpicture}
-\begin{groupplot}[group style={group size=3 by 2, horizontal sep=1.3cm, vertical sep=1.5cm}, y3base, width=5.3cm, height=4.0cm, xmin=0.2, xmax=3, xtick={0.2,1,2,3}, xlabel={horizon (s)}]
+\begin{groupplot}[group style={group size=3 by 2, horizontal sep=1.3cm, vertical sep=1.5cm}, frbase, width=5.3cm, height=4.0cm, xmin=0.2, xmax=3, xtick={0.2,1,2,3}, xlabel={horizon (s)}]
 \nextgroupplot[title={OneWeb DL}, ylabel={RTT MAE (ms)}, legend to name=legMAE, legend columns=5]
-\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_oneweb_dl_rtt_MAE.dat};
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_oneweb_dl_rtt_MAE.dat};
 \addlegendentry{Ridge-E}
-\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_oneweb_dl_rtt_MAE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_oneweb_dl_rtt_MAE.dat};
 \addlegendentry{Initial Seq2Seq (3-seed ens.)}
-\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_oneweb_dl_rtt_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_oneweb_dl_rtt_MAE.dat};
 \addlegendentry{Final (seed mean)}
-\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_oneweb_dl_rtt_MAE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_oneweb_dl_rtt_MAE.dat};
 \addlegendentry{Final (3-seed ens.)}
 \nextgroupplot[title={Starlink DL}]
-\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_starlink_dl_rtt_MAE.dat};
-\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_starlink_dl_rtt_MAE.dat};
-\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_starlink_dl_rtt_MAE.dat};
-\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_starlink_dl_rtt_MAE.dat};
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_starlink_dl_rtt_MAE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_starlink_dl_rtt_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_starlink_dl_rtt_MAE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_starlink_dl_rtt_MAE.dat};
 \nextgroupplot[title={5G DL}]
-\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_quectel_dl_rtt_MAE.dat};
-\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_quectel_dl_rtt_MAE.dat};
-\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_quectel_dl_rtt_MAE.dat};
-\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_quectel_dl_rtt_MAE.dat};
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_quectel_dl_rtt_MAE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_quectel_dl_rtt_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_quectel_dl_rtt_MAE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_quectel_dl_rtt_MAE.dat};
 \nextgroupplot[title={OneWeb UL}, ylabel={RTT MAE (ms)}]
-\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_oneweb_ul_rtt_MAE.dat};
-\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_oneweb_ul_rtt_MAE.dat};
-\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_oneweb_ul_rtt_MAE.dat};
-\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_oneweb_ul_rtt_MAE.dat};
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_oneweb_ul_rtt_MAE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_oneweb_ul_rtt_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_oneweb_ul_rtt_MAE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_oneweb_ul_rtt_MAE.dat};
 \nextgroupplot[title={Starlink UL}]
-\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_starlink_ul_rtt_MAE.dat};
-\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_starlink_ul_rtt_MAE.dat};
-\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_starlink_ul_rtt_MAE.dat};
-\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_starlink_ul_rtt_MAE.dat};
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_starlink_ul_rtt_MAE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_starlink_ul_rtt_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_starlink_ul_rtt_MAE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_starlink_ul_rtt_MAE.dat};
 \nextgroupplot[title={5G UL}]
-\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgey3] {data/h_quectel_ul_rtt_MAE.dat};
-\addplot[mYtwo] table[x expr=\thisrow{h}*0.2, y=y2seq2seqens] {data/h_quectel_ul_rtt_MAE.dat};
-\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=y3dist] {data/h_quectel_ul_rtt_MAE.dat};
-\addplot[mYthree] table[x expr=\thisrow{h}*0.2, y=y3distens] {data/h_quectel_ul_rtt_MAE.dat};
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_quectel_ul_rtt_MAE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_quectel_ul_rtt_MAE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_quectel_ul_rtt_MAE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_quectel_ul_rtt_MAE.dat};
 \end{groupplot}
 \node at ($(group c2r2.south)+(0,-1.25cm)$) {\pgfplotslegendfromname{legMAE}};
 \end{tikzpicture}

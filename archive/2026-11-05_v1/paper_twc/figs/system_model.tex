@@ -1,0 +1,42 @@
+% System model: ARA measurement setup and prediction-aware multipath client.
+\begin{tikzpicture}[
+  font=\footnotesize, >=Latex,
+  sat/.style={draw, fill=blue!12, minimum width=7mm, minimum height=4mm, rounded corners=1pt},
+  ut/.style={draw, fill=orange!25, minimum width=14mm, minimum height=6mm, align=center, rounded corners=2pt},
+  blk/.style={draw, fill=gray!10, minimum height=7mm, align=center, rounded corners=2pt, text width=20mm},
+  pred/.style={draw, fill=green!15, minimum height=7mm, align=center, rounded corners=2pt, text width=22mm},
+  lnk/.style={->, thick},
+  wl/.style={dashed, thick, blue!60!black}
+]
+% Satellites
+\node[sat] (s1) at (0,4.2) {SL};
+\node[sat] (s2) at (1.6,4.6) {SL};
+\node[sat] (o1) at (4.0,4.6) {OW};
+\node[sat] (o2) at (5.6,4.2) {OW};
+\node[font=\scriptsize, align=center] at (0.8,5.15) {Starlink shell\\($\approx$550\,km)};
+\node[font=\scriptsize, align=center] at (4.8,5.15) {OneWeb shell\\($\approx$1200\,km)};
+\draw[->, gray] (s1.east) -- ++(0.35,0.1);
+\draw[->, gray] (o2.east) -- ++(0.35,-0.1);
+% UTs and gNB
+\node[ut] (sut) at (0.4,2.4) {Starlink\\UT};
+\node[ut] (out) at (4.8,2.4) {OneWeb\\UT};
+\node[ut, fill=red!15] (gnb) at (2.6,2.4) {5G gNB\\(Quectel UE)};
+\draw[wl] (sut) -- (s1); \draw[wl] (sut) -- (s2);
+\draw[wl] (out) -- (o1); \draw[wl] (out) -- (o2);
+\node[font=\scriptsize, blue!60!black] at (-0.55,3.4) {handover};
+% Client node
+\node[blk, text width=58mm, minimum height=8mm] (client) at (2.6,0.9) {ARA client node: ping (5\,Hz), iperf3 (1\,Hz), UT gRPC/API telemetry, weather};
+\draw[lnk] (sut) -- (sut |- client.north);
+\draw[lnk] (gnb) -- (client);
+\draw[lnk] (out) -- (out |- client.north);
+% Pipeline
+\node[blk] (feat) at (-0.6,-0.7) {features $\mathbf{x}_t\in\mathbb{R}^{F}$\\(sampled at 5\,Hz)};
+\node[pred] (model) at (2.6,-0.7) {forecaster $f_\theta$\\$\hat{\mathbf{y}}_{t+1:t+H}$};
+\node[pred] (cp) at (5.8,-0.7) {conformal\\interval $\pm q_{h,k}$};
+\draw[lnk] (client.south -| feat) -- (feat);
+\draw[lnk] (feat) -- (model);
+\draw[lnk] (model) -- (cp);
+\node[blk, text width=58mm, fill=violet!12] (sched) at (2.6,-2.1) {prediction-aware MPQUIC scheduler (liquid tunnel): per-path RTT, jitter, loss forecasts with uncertainty};
+\draw[lnk] (cp.south) |- (sched.east);
+\draw[lnk] (model.south) -- (sched.north);
+\end{tikzpicture}

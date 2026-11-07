@@ -4,10 +4,10 @@ All code is in \texttt{modeling/\allowbreak{}} of the project repository. The co
 \begin{verbatim}
 cd modeling
 # one job per (link, method, seed), 5G uses --train_stride 4
-sh results_final/main/run_job.sh oneweb_dl persistence,snaive,ridge,ridge_y3 0
-sh results_final/main/run_job.sh oneweb_dl y3_dist 0      # repeat for seeds 1 2,
-sh results_final/main/run_job.sh oneweb_dl y2_seq2seq 0   # all six links and
-sh results_final/main/run_job.sh oneweb_dl y3_resid 0     # y3_full
+sh results_final/main/run_job.sh oneweb_dl persistence,snaive,ridge,ridge_fr 0
+sh results_final/main/run_job.sh oneweb_dl fr_dist 0      # repeat for seeds 1 2,
+sh results_final/main/run_job.sh oneweb_dl prev_seq2seq 0   # all six links and
+sh results_final/main/run_job.sh oneweb_dl fr_resid 0     # fr_full
 # or all 78 jobs at once:
 cat results_final/main/jobs.txt | xargs -P 6 -L 1 results_final/main/run_job.sh
 # tables, ensembles and figure data

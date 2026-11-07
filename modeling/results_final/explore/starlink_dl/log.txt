@@ -1,12 +1,12 @@
 [data y2] 19 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (0s)
 
-=== starlink dl | y2_seq2seq | seed 0 ===
+=== starlink dl | prev_seq2seq | seed 0 ===
     ep   1 train=0.4582 val=0.9041 ema=0.9041 lr=1.0e-03 [24.9s]
     ep   2 train=0.3504 val=0.8225 ema=0.8796 lr=1.0e-03 [23.7s]
     ep   3 train=0.3359 val=0.8840 ema=0.8809 lr=1.0e-03 [24.7s]
 [data y2] 19 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (1s)
 
-=== starlink dl | y3_resid | seed 0 ===
+=== starlink dl | fr_resid | seed 0 ===
     ep   4 train=0.3343 val=0.9262 ema=0.8945 lr=1.0e-03 [24.5s]
     ep   5 train=0.3265 val=0.8748 ema=0.8886 lr=1.0e-03 [24.4s]
     ep   1 train=0.3651 val=0.8574 ema=0.8574 lr=1.0e-03 [31.2s]
@@ -16,7 +16,7 @@
     ep   3 train=0.3160 val=0.8369 ema=0.8472 lr=1.0e-03 [30.7s]
 [data y3] 41 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (1s)
 
-=== starlink dl | y3_full | seed 0 ===
+=== starlink dl | fr_full | seed 0 ===
     ep   8 train=0.3096 val=0.9338 ema=0.9233 lr=1.0e-03 [24.9s]
     ep   4 train=0.3100 val=0.8607 ema=0.8512 lr=1.0e-03 [30.6s]
     ep   9 train=0.2941 val=0.9406 ema=0.9285 lr=1.0e-03 [24.1s]
@@ -26,7 +26,7 @@
     ep   2 train=0.3181 val=0.8152 ema=0.8216 lr=1.0e-03 [30.1s]
 [data y3] 41 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (1s)
 
-=== starlink dl | y3_full_huber | seed 0 ===
+=== starlink dl | fr_full_huber | seed 0 ===
     ep  11 train=0.2821 val=0.9369 ema=0.9363 lr=5.0e-04 [24.2s]
     ep   6 train=0.2935 val=0.9050 ema=0.8687 lr=1.0e-03 [30.0s]
     ep   3 train=0.3091 val=0.8467 ema=0.8292 lr=1.0e-03 [30.0s]
@@ -63,7 +63,7 @@ rtt    21.5653 37.0453 0.6451       62.3347 0.9503
     ep   7 train=0.0729 val=0.1711 ema=0.1718 lr=1.0e-03 [24.2s]
 [data y3] 41 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (1s)
 
-=== starlink dl | y3_dist | seed 0 ===
+=== starlink dl | fr_dist | seed 0 ===
     ep  13 train=0.2525 val=0.9452 ema=0.9327 lr=5.0e-04 [21.4s]
     ep  10 train=0.2543 val=0.9010 ema=0.8841 lr=1.0e-03 [23.5s]
     ep  14 train=0.2485 val=0.9812 ema=0.9472 lr=5.0e-04 [29.8s]

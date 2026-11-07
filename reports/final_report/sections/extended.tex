@@ -102,7 +102,7 @@ Figure~\ref{fig:hour} shows the RTT MAE by the hour of the forecast origin (4\,h
 \end{figure}
 
 \subsection{Predicted against measured RTT}
-Figure~\ref{fig:scatter} plots the 1\,s forecasts of 400 random test windows against the measured RTT. Both models regress toward the typical RTT and miss the largest spikes, which no model can anticipate from a 6\,s history. The Final median follows the bulk of the measurements more closely, while the Initial mean is pulled upward by the spikes. Over all test windows, the median signed error of the 1\,s forecast is \BiasYtwoOWDL\,ms for Initial and \BiasYthreeOWDL\,ms for Final on OneWeb DL, and \BiasYtwoQUL\,ms against \BiasYthreeQUL\,ms on 5G UL. That upward pull is the main reason for the higher Initial MAE.
+Figure~\ref{fig:scatter} plots the 1\,s forecasts of 400 random test windows against the measured RTT. Both models regress toward the typical RTT and miss the largest spikes, which no model can anticipate from a 6\,s history. The Final median follows the bulk of the measurements more closely, while the Initial mean is pulled upward by the spikes. Over all test windows, the median signed error of the 1\,s forecast is \BiasPrevOWDL\,ms for Initial and \BiasFROWDL\,ms for Final on OneWeb DL, and \BiasPrevQUL\,ms against \BiasFRQUL\,ms on 5G UL. That upward pull is the main reason for the higher Initial MAE.
 
 \begin{figure}[h]
   \centering

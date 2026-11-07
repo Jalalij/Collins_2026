@@ -1,0 +1,16 @@
+{
+ "link": "oneweb_dl",
+ "n_train_sessions": 45,
+ "n_train_rows": 119538,
+ "n_test_sessions": 11,
+ "n_val_sessions": 9,
+ "train_interp_share": 0.0,
+ "row_dt_median_s": 0.20098114013671875,
+ "row_dt_p90_s": 0.21605567932128905,
+ "row_dt_share_over_0p5s": 0.0014059400969094423,
+ "rtt_train_mean_ms": 71.87799835205078,
+ "rtt_train_sd_ms": 56.85972595214844,
+ "n_pairs_d_lag1_measured": 119448,
+ "n_boot": 2000,
+ "boot_seed": 0
+}

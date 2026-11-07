@@ -1,9 +1,9 @@
 [data y3] 31 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 116208, 'val': 22385, 'test': 27162} (2s)
 
-=== oneweb dl | y3_dist | seed 0 ===
+=== oneweb dl | fr_dist | seed 0 ===
 [data y2] 9 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 116208, 'val': 22385, 'test': 27162} (1s)
 
-=== oneweb dl | y2_seq2seq | seed 0 ===
+=== oneweb dl | prev_seq2seq | seed 0 ===
     ep   1 train=0.7867 val=1.3975 ema=1.3975 lr=1.0e-03 [78.9s]
     ep   1 train=0.7188 val=1.2742 ema=1.2742 lr=1.0e-03 [67.6s]
     ep   2 train=0.7302 val=1.3762 ema=1.3911 lr=1.0e-03 [84.0s]
@@ -51,11 +51,11 @@ rtt    19.6583 67.9299 0.2081       89.6646 0.9536
   AGG MAE=6.7282 RMSE=23.7396 R2=0.2204 (1568s)
 [data y3] 31 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 116208, 'val': 22385, 'test': 27162} (2s)
 
-=== oneweb dl | y3_dist | seed 1 ===
+=== oneweb dl | fr_dist | seed 1 ===
     ep   1 train=0.8043 val=1.4259 ema=1.4259 lr=1.0e-03 [84.6s]
 [data y2] 9 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 116208, 'val': 22385, 'test': 27162} (1s)
 
-=== oneweb dl | y2_seq2seq | seed 1 ===
+=== oneweb dl | prev_seq2seq | seed 1 ===
     ep   2 train=0.7201 val=1.3800 ema=1.4121 lr=1.0e-03 [83.6s]
     ep   1 train=0.7199 val=1.3625 ema=1.3625 lr=1.0e-03 [73.8s]
     ep   3 train=0.7138 val=1.3699 ema=1.3995 lr=1.0e-03 [89.2s]

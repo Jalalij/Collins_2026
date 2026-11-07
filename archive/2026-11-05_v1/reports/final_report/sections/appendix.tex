@@ -1,0 +1,30 @@
+All code is in \texttt{modeling/\allowbreak{}} of the project repository. The commands below regenerate every number, table, and figure of Section~\ref{sec:results}. They take about seven hours on an Apple M3 Max with six jobs in parallel (\texttt{results\_final/main/scheduler.sh} limits the memory-hungry 5G jobs to two at a time).
+
+\begin{small}
+\begin{verbatim}
+cd modeling
+# one job per (link, method, seed), 5G uses --train_stride 4
+sh results_final/main/run_job.sh oneweb_dl persistence,snaive,ridge,ridge_fr 0
+sh results_final/main/run_job.sh oneweb_dl fr_dist 0      # repeat for seeds 1 2,
+sh results_final/main/run_job.sh oneweb_dl prev_seq2seq 0   # all six links and
+sh results_final/main/run_job.sh oneweb_dl fr_resid 0     # fr_full
+# or all 78 jobs at once:
+cat results_final/main/jobs.txt | xargs -P 6 -L 1 results_final/main/run_job.sh
+# tables, ensembles and figure data
+python3 experiments/final_aggregate.py && python3 experiments/final_extras.py
+python3 experiments/final_audit_numbers.py && python3 experiments/final_tables.py
+# initial data as-is (audit item A3):
+python3 experiments/final_benchmark.py --provider starlink --direction dl \
+        --methods persistence --legacy_data --out_dir results_final/audit/legacy
+\end{verbatim}
+\end{small}
+
+\noindent Main files:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{experiments/\allowbreak{}final\_\allowbreak{}benchmark.py}: data loading on the initial split, training, baselines, metrics, conformal calibration.
+  \item \texttt{experiments/\allowbreak{}final\_\allowbreak{}aggregate.py}: seed averages, ensembles, relative changes, figure data.
+  \item \texttt{models/\allowbreak{}seq2seq\_\allowbreak{}dist.py}: the final distributional forecaster.
+  \item \texttt{dataset.py}: causal ping fix, sentinel cleaning, context features, input clipping (all behind \texttt{DataConfig} flags that default to the initial behavior).
+  \item \texttt{results\_\allowbreak{}final/\allowbreak{}main/\allowbreak{}<link>/\allowbreak{}}: per-run metrics (\texttt{<method>\_\allowbreak{}s<seed>.csv}), run settings (\texttt{.json}), trained models (\texttt{models/\allowbreak{}*.pt}, with normalization statistics), and test predictions (\texttt{preds/\allowbreak{}}).
+  \item \texttt{results\_\allowbreak{}final/\allowbreak{}summary/\allowbreak{}}: \texttt{summary.csv}, \texttt{relative\_\allowbreak{}change.csv}, \texttt{horizon\_\allowbreak{}mean.csv}.
+\end{itemize}

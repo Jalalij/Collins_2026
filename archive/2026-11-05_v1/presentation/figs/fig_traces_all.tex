@@ -1,0 +1,47 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 3, horizontal sep=1.4cm, vertical sep=1.5cm}, frbase, width=8cm, height=4.2cm, xmin=0, xmax=59.8, xlabel={time (s)}]
+\nextgroupplot[title={OneWeb DL}, ylabel={RTT (ms)}, legend to name=legtr, legend columns=4]
+\addplot[name path=hi0, draw=none, forget plot] table[x=t, y=frhi] {data/trace_oneweb_dl.dat};
+\addplot[name path=lo0, draw=none, forget plot] table[x=t, y=frlo] {data/trace_oneweb_dl.dat};
+\addplot[cFR!25] fill between[of=hi0 and lo0]; \addlegendentry{Final 95\% interval}
+\addplot[black, thin] table[x=t, y=truth] {data/trace_oneweb_dl.dat}; \addlegendentry{measured}
+\addplot[mPrev, mark=none] table[x=t, y=y2] {data/trace_oneweb_dl.dat}; \addlegendentry{Initial ensemble}
+\addplot[cFR, thick] table[x=t, y=frmed] {data/trace_oneweb_dl.dat}; \addlegendentry{Final median}
+\nextgroupplot[title={Starlink DL}]
+\addplot[name path=hi1, draw=none, forget plot] table[x=t, y=frhi] {data/trace_starlink_dl.dat};
+\addplot[name path=lo1, draw=none, forget plot] table[x=t, y=frlo] {data/trace_starlink_dl.dat};
+\addplot[cFR!25] fill between[of=hi1 and lo1];
+\addplot[black, thin] table[x=t, y=truth] {data/trace_starlink_dl.dat};
+\addplot[mPrev, mark=none] table[x=t, y=y2] {data/trace_starlink_dl.dat};
+\addplot[cFR, thick] table[x=t, y=frmed] {data/trace_starlink_dl.dat};
+\nextgroupplot[title={5G DL}, ylabel={RTT (ms)}]
+\addplot[name path=hi2, draw=none, forget plot] table[x=t, y=frhi] {data/trace_quectel_dl.dat};
+\addplot[name path=lo2, draw=none, forget plot] table[x=t, y=frlo] {data/trace_quectel_dl.dat};
+\addplot[cFR!25] fill between[of=hi2 and lo2];
+\addplot[black, thin] table[x=t, y=truth] {data/trace_quectel_dl.dat};
+\addplot[mPrev, mark=none] table[x=t, y=y2] {data/trace_quectel_dl.dat};
+\addplot[cFR, thick] table[x=t, y=frmed] {data/trace_quectel_dl.dat};
+\nextgroupplot[title={OneWeb UL}]
+\addplot[name path=hi3, draw=none, forget plot] table[x=t, y=frhi] {data/trace_oneweb_ul.dat};
+\addplot[name path=lo3, draw=none, forget plot] table[x=t, y=frlo] {data/trace_oneweb_ul.dat};
+\addplot[cFR!25] fill between[of=hi3 and lo3];
+\addplot[black, thin] table[x=t, y=truth] {data/trace_oneweb_ul.dat};
+\addplot[mPrev, mark=none] table[x=t, y=y2] {data/trace_oneweb_ul.dat};
+\addplot[cFR, thick] table[x=t, y=frmed] {data/trace_oneweb_ul.dat};
+\nextgroupplot[title={Starlink UL}, ylabel={RTT (ms)}]
+\addplot[name path=hi4, draw=none, forget plot] table[x=t, y=frhi] {data/trace_starlink_ul.dat};
+\addplot[name path=lo4, draw=none, forget plot] table[x=t, y=frlo] {data/trace_starlink_ul.dat};
+\addplot[cFR!25] fill between[of=hi4 and lo4];
+\addplot[black, thin] table[x=t, y=truth] {data/trace_starlink_ul.dat};
+\addplot[mPrev, mark=none] table[x=t, y=y2] {data/trace_starlink_ul.dat};
+\addplot[cFR, thick] table[x=t, y=frmed] {data/trace_starlink_ul.dat};
+\nextgroupplot[title={5G UL}]
+\addplot[name path=hi5, draw=none, forget plot] table[x=t, y=frhi] {data/trace_quectel_ul.dat};
+\addplot[name path=lo5, draw=none, forget plot] table[x=t, y=frlo] {data/trace_quectel_ul.dat};
+\addplot[cFR!25] fill between[of=hi5 and lo5];
+\addplot[black, thin] table[x=t, y=truth] {data/trace_quectel_ul.dat};
+\addplot[mPrev, mark=none] table[x=t, y=y2] {data/trace_quectel_ul.dat};
+\addplot[cFR, thick] table[x=t, y=frmed] {data/trace_quectel_ul.dat};
+\end{groupplot}
+\node at ($(group c1r3.south)!0.5!(group c2r3.south)+(0,-1.3cm)$) {\pgfplotslegendfromname{legtr}};
+\end{tikzpicture}

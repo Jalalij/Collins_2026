@@ -1,0 +1,55 @@
+{
+ "oneweb_dl": {
+  "files": 65,
+  "rows": 170565,
+  "hours": 9.475833333333334,
+  "days": 10,
+  "first_day": "20250826",
+  "last_day": "20250909"
+ },
+ "oneweb_ul": {
+  "files": 65,
+  "rows": 169583,
+  "hours": 9.421277777777778,
+  "days": 10,
+  "first_day": "20250826",
+  "last_day": "20250909"
+ },
+ "starlink_dl": {
+  "files": 53,
+  "rows": 154101,
+  "hours": 8.561166666666667,
+  "days": 6,
+  "first_day": "20260514",
+  "last_day": "20260519"
+ },
+ "starlink_ul": {
+  "files": 53,
+  "rows": 154253,
+  "hours": 8.569611111111112,
+  "days": 6,
+  "first_day": "20260514",
+  "last_day": "20260519"
+ },
+ "quectel_dl": {
+  "files": 381,
+  "rows": 1131132,
+  "hours": 62.84066666666667,
+  "days": 13,
+  "first_day": "20260513",
+  "last_day": "20260525"
+ },
+ "quectel_ul": {
+  "files": 379,
+  "rows": 1122095,
+  "hours": 62.33861111111111,
+  "days": 13,
+  "first_day": "20260513",
+  "last_day": "20260525"
+ },
+ "total": {
+  "files": 996,
+  "rows": 2901729,
+  "hours": 161.20716666666667
+ }
+}

@@ -29,8 +29,8 @@ ad = pd.read_csv(S / "analysis_adaptivity.csv")
 rows = [f"{NICE[r.dataset]} & {r.spearman_width_abs_err:.2f} & {r.width_p10:.1f} & {r.width_p50:.1f} & {r.width_p90:.1f} & {r.S2S_width:.1f} \\\\" for r in ad.itertuples()]
 (OUT / "tab2_adaptivity.tex").write_text("\n".join(rows) + "\n")
 for r in ad.itertuples():
-    mac[f"BiasYtwo{K[r.dataset]}"] = f"{r.S2S_median_signed_err_h5:+.1f}"
-    mac[f"BiasYthree{K[r.dataset]}"] = f"{r.DS2S_median_signed_err_h5:+.2f}"
+    mac[f"BiasPrev{K[r.dataset]}"] = f"{r.S2S_median_signed_err_h5:+.1f}"
+    mac[f"BiasFR{K[r.dataset]}"] = f"{r.DS2S_median_signed_err_h5:+.2f}"
 mac["RhoMin"], mac["RhoMax"] = f"{ad.spearman_width_abs_err.min():.2f}", f"{ad.spearman_width_abs_err.max():.2f}"
 
 se = pd.read_csv(S / "analysis_sessions.csv")
@@ -51,8 +51,8 @@ rows = [f"{NICE[r.dataset]} & {100*r.frac_windows:.1f} & {r.S2S_MAE_event:.2f} &
 
 # per-horizon appendix tables (seed means; RTT/jitter/loss; MAE, RMSE, MIS)
 hz = pd.read_csv(S / "horizon_mean.csv")
-MN = [("persistence", "Pers."), ("snaive", "Seas."), ("ridge_y3", "Ridge-E"), ("y2_seq2seq", "Initial"),
-      ("y3_resid", "+res."), ("y3_full", "+data"), ("y3_dist", "Final"), ("y3_dist_ens", "Final ens.")]
+MN = [("persistence", "Pers."), ("snaive", "Seas."), ("ridge_fr", "Ridge-E"), ("prev_seq2seq", "Initial"),
+      ("fr_resid", "+res."), ("fr_full", "+data"), ("fr_dist", "Final"), ("fr_dist_ens", "Final ens.")]
 for ds in LINKS:
     for t in (["rtt"] if ds == "oneweb_ul" else ["rtt", "jitter", "loss"]):
         rows = []
@@ -70,7 +70,7 @@ for ds in LINKS:
 # training cost
 rows = []
 for ds in LINKS:
-    for m, lab in [("y2_seq2seq", "Initial"), ("y3_resid", "+residual"), ("y3_full", "+data"), ("y3_dist", "Final")]:
+    for m, lab in [("prev_seq2seq", "Initial"), ("fr_resid", "+residual"), ("fr_full", "+data"), ("fr_dist", "Final")]:
         js = [json.load(open(f)) for f in sorted((ROOT / "results_final/main" / ds).glob(f"{m}_s*.json"))]
         ep = [j["epochs"] for j in js]; sec = [j["seconds"] for j in js]
         rows.append(f"{NICE[ds]} & {lab} & {js[0]['params']:,} & {np.mean(ep):.1f} & {np.mean(sec)/60:.1f} \\\\".replace(",", "{,}"))

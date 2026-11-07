@@ -75,8 +75,8 @@ def main():
 
     rows = []
     for ds, nm in LINKS:
-        block = [("y2_seq2seq", "Initial (retrained)", True), ("y3_dist", "Final", True),
-                 ("y2_seq2seq_ens", "Initial ensemble", False), ("y3_dist_ens", "Final ensemble", False)]
+        block = [("prev_seq2seq", "Initial (retrained)", True), ("fr_dist", "Final", True),
+                 ("prev_seq2seq_ens", "Initial ensemble", False), ("fr_dist_ens", "Final ensemble", False)]
         for i, (m, lab, has_std) in enumerate(block):
             cells = [pm(g(ds, m, c), gs(ds, m, c) if has_std else None, d)
                      for c, d in [("rtt_MAE", 2), ("rtt_RMSE", 2), ("rtt_R2", 3), ("rtt_MIS", 1), ("rtt_PICP", 3)]]
@@ -89,27 +89,27 @@ def main():
     for ds, nm in LINKS:
         r = Y2_REPORT[ds]
         rows.append(f"\\multirow{{3}}{{*}}{{{nm}}} & MD report & {r[0]:.2f} & {r[1]:.2f} & {r[2]:.3f} & {r[3]:.1f} & -- \\\\")
-        for m, lab in [("y2_seq2seq", "Initial (retrained)"), ("y3_dist_ens", "Final ensemble")]:
+        for m, lab in [("prev_seq2seq", "Initial (retrained)"), ("fr_dist_ens", "Final ensemble")]:
             rows.append(f" & {lab} & {f(g(ds, m, 'AGG_MAE'))} & {f(g(ds, m, 'AGG_RMSE'))} & {f(g(ds, m, 'AGG_R2'), 3)} & "
                         f"{f(g(ds, m, 'AGG_MIS_y2style'), 1)} & {f(g(ds, m, 'AGG_MIS'), 1)} \\\\")
         rows.append("\\midrule")
     (out / "tab_y2compare.tex").write_text("\n".join(rows[:-1]) + "\n")
 
     rows = []
-    steps = [("y3_resid", "1: residual decoder"), ("y3_full", "1+2: + data pipeline"),
-             ("y3_dist", "1+2+3: + distrib. heads"), ("y3_dist_ens", "1--4: + 3-seed ensemble")]
+    steps = [("fr_resid", "1: residual decoder"), ("fr_full", "1+2: + data pipeline"),
+             ("fr_dist", "1+2+3: + distrib. heads"), ("fr_dist_ens", "1--4: + 3-seed ensemble")]
     for m, lab in steps:
         cells = []
         for ds, _ in LINKS:
             for c in ["rtt_MAE", "rtt_RMSE", "rtt_MIS"]:
-                cells.append(f"{pct(g(ds, m, c), g(ds, 'y2_seq2seq', c)):+.1f}")
+                cells.append(f"{pct(g(ds, m, c), g(ds, 'prev_seq2seq', c)):+.1f}")
         rows.append(f"{lab} & " + " & ".join(cells) + " \\\\")
     (out / "tab_ablation.tex").write_text("\n".join(rows) + "\n")
 
     rows = []
     for m, lab in [("persistence", "Persistence"), ("snaive", "Seasonal repeat (1\\,s)"), ("ridge", "Ridge"),
-                   ("ridge_y3", "Ridge-E"), ("y2_seq2seq", "Initial Seq2Seq-GRU"), ("y3_dist", "Final"),
-                   ("y3_dist_ens", "Final ensemble")]:
+                   ("ridge_fr", "Ridge-E"), ("prev_seq2seq", "Initial Seq2Seq-GRU"), ("fr_dist", "Final"),
+                   ("fr_dist_ens", "Final ensemble")]:
         cells = []
         for ds, _ in LINKS:
             v = g(ds, m, "rtt_MAE")
@@ -121,7 +121,7 @@ def main():
     for ds, nm in LINKS:
         if ds == "oneweb_ul":
             continue  # constant zero targets
-        for i, (m, lab) in enumerate([("y2_seq2seq", "Initial"), ("y3_dist", "Final"), ("y3_dist_ens", "Final ens.")]):
+        for i, (m, lab) in enumerate([("prev_seq2seq", "Initial"), ("fr_dist", "Final"), ("fr_dist_ens", "Final ens.")]):
             first = f"\\multirow{{3}}{{*}}{{{nm}}}" if i == 0 else ""
             cells = [f(g(ds, m, f"{t}_{c}"), 3) for t in ["jitter", "loss"] for c in ["MAE", "RMSE", "MIS"]]
             rows.append(f"{first} & {lab} & " + " & ".join(cells) + " \\\\")
@@ -130,8 +130,8 @@ def main():
 
     rows = []
     for ds, nm in LINKS:
-        a2, b2 = g(ds, "y2_seq2seq", "rtt_MIS_y2style"), g(ds, "y3_dist", "rtt_MIS_y2style")
-        a3, b3 = g(ds, "y2_seq2seq", "rtt_MIS"), g(ds, "y3_dist", "rtt_MIS")
+        a2, b2 = g(ds, "prev_seq2seq", "rtt_MIS_y2style"), g(ds, "fr_dist", "rtt_MIS_y2style")
+        a3, b3 = g(ds, "prev_seq2seq", "rtt_MIS"), g(ds, "fr_dist", "rtt_MIS")
         rows.append(f"{nm} & {a2:.1f} & {b2:.1f} & {pct(b2, a2):+.1f} & {a3:.1f} & {b3:.1f} & {pct(b3, a3):+.1f} \\\\")
     (out / "tab_isproto.tex").write_text("\n".join(rows) + "\n")
 
@@ -140,48 +140,48 @@ def main():
     for ds, _ in LINKS:
         k = K[ds]
         for c, nm in [("rtt_MAE", "MAE"), ("rtt_RMSE", "RMSE"), ("rtt_MIS", "MIS")]:
-            v = pct(g(ds, "y3_dist", c), g(ds, "y2_seq2seq", c))
-            ve = pct(g(ds, "y3_dist_ens", c), g(ds, "y2_seq2seq_ens", c))
+            v = pct(g(ds, "fr_dist", c), g(ds, "prev_seq2seq", c))
+            ve = pct(g(ds, "fr_dist_ens", c), g(ds, "prev_seq2seq_ens", c))
             mac[f"Chg{nm}{k}"] = f"{v:.1f}"
             mac[f"ChgEns{nm}{k}"] = f"{ve:.1f}"
             acc[nm].append(v); acc["E" + nm].append(ve)
-        mac[f"PICP{k}"] = f(g(ds, "y3_dist", "rtt_PICP"), 3)
-        mac[f"PICPEns{k}"] = f(g(ds, "y3_dist_ens", "rtt_PICP"), 3)
-        mac[f"PICPYtwo{k}"] = f(g(ds, "y2_seq2seq", "rtt_PICP"), 3)
-        mac[f"SkillYthreeEns{k}"] = f(100 * g(ds, "y3_dist_ens", "rtt_skill"), 1)
-        mac[f"SkillRidge{k}"] = f(100 * g(ds, "ridge_y3", "rtt_skill"), 1)
+        mac[f"PICP{k}"] = f(g(ds, "fr_dist", "rtt_PICP"), 3)
+        mac[f"PICPEns{k}"] = f(g(ds, "fr_dist_ens", "rtt_PICP"), 3)
+        mac[f"PICPPrev{k}"] = f(g(ds, "prev_seq2seq", "rtt_PICP"), 3)
+        mac[f"SkillFREns{k}"] = f(100 * g(ds, "fr_dist_ens", "rtt_skill"), 1)
+        mac[f"SkillRidge{k}"] = f(100 * g(ds, "ridge_fr", "rtt_skill"), 1)
     for nm in ["MAE", "RMSE", "MIS"]:
         arr, arre = acc[nm], acc["E" + nm]
         mac[f"Chg{nm}Best"], mac[f"Chg{nm}Worst"], mac[f"Chg{nm}Mean"] = f"{min(arr):.1f}", f"{max(arr):.1f}", f"{np.mean(arr):.1f}"
         mac[f"ChgEns{nm}Best"], mac[f"ChgEns{nm}Worst"], mac[f"ChgEns{nm}Mean"] = f"{min(arre):.1f}", f"{max(arre):.1f}", f"{np.mean(arre):.1f}"
-    picps = [g(ds, "y3_dist", "rtt_PICP") for ds, _ in LINKS]
+    picps = [g(ds, "fr_dist", "rtt_PICP") for ds, _ in LINKS]
     mac["PICPMin"], mac["PICPMax"] = f"{min(picps):.3f}", f"{max(picps):.3f}"
-    picps = [g(ds, "y3_dist_ens", "rtt_PICP") for ds, _ in LINKS]
+    picps = [g(ds, "fr_dist_ens", "rtt_PICP") for ds, _ in LINKS]
     mac["PICPEnsMin"], mac["PICPEnsMax"] = f"{min(picps):.3f}", f"{max(picps):.3f}"
-    ratio = [g(ds, "y2_seq2seq", "rtt_RMSE") / g(ds, "y2_seq2seq", "rtt_MAE") for ds, _ in LINKS]
+    ratio = [g(ds, "prev_seq2seq", "rtt_RMSE") / g(ds, "prev_seq2seq", "rtt_MAE") for ds, _ in LINKS]
     mac["RatioRMSEMAEMin"], mac["RatioRMSEMAEMax"] = f"{min(ratio):.1f}", f"{max(ratio):.1f}"
     sp = spike.groupby(["dataset", "score"]).auroc.mean()
     for ds, _ in LINKS:
         k = K[ds]
-        mac[f"AUCYtwo{k}"] = f"{sp.loc[(ds, 'y2_seq2seq_ens')]:.3f}"
-        mac[f"AUCYthree{k}"] = f"{sp.loc[(ds, 'y3_dist_ens_q975')]:.3f}"
-        mac[f"AUCRidge{k}"] = f"{sp.loc[(ds, 'ridge_y3')]:.3f}"
+        mac[f"AUCPrev{k}"] = f"{sp.loc[(ds, 'prev_seq2seq_ens')]:.3f}"
+        mac[f"AUCFR{k}"] = f"{sp.loc[(ds, 'fr_dist_ens_q975')]:.3f}"
+        mac[f"AUCRidge{k}"] = f"{sp.loc[(ds, 'ridge_fr')]:.3f}"
         mac[f"AUCPers{k}"] = f"{sp.loc[(ds, 'persistence')]:.3f}"
     rd = real[real.dataset == "starlink_dl"].set_index("method")
     mac["InterpFracSLDL"] = f"{100 * rd.loc['persistence', 'interp_frac']:.1f}"
     ru = real[real.dataset == "starlink_ul"].set_index("method")
     mac["InterpFracSLUL"] = f"{100 * ru.loc['persistence', 'interp_frac']:.1f}"
-    for m, nm in [("y2_seq2seq_ens", "Ytwo"), ("y3_dist_ens", "Ythree")]:
+    for m, nm in [("prev_seq2seq_ens", "Prev"), ("fr_dist_ens", "FR")]:
         mac[f"RealMAE{nm}SLDL"] = f"{rd.loc[m, 'MAE_real']:.2f}"
         mac[f"RealRMSE{nm}SLDL"] = f"{rd.loc[m, 'RMSE_real']:.2f}"
         mac[f"AllMAE{nm}SLDL"] = f"{rd.loc[m, 'MAE_all']:.2f}"
         mac[f"AllRMSE{nm}SLDL"] = f"{rd.loc[m, 'RMSE_all']:.2f}"
     tm = json.load(open(S / "timing.json"))
     mac["TimeSSCPU"], mac["TimeDSCPU"] = f"{tm['S2S_cpu_1thread']:.1f}", f"{tm['DS2S_cpu_1thread']:.1f}"
-    mac["JitISSLDLDS"] = f(g("starlink_dl", "y3_dist", "jitter_MIS"), 1)
-    mac["JitISSLDLS"] = f(g("starlink_dl", "y2_seq2seq", "jitter_MIS"), 1)
+    mac["JitISSLDLDS"] = f(g("starlink_dl", "fr_dist", "jitter_MIS"), 1)
+    mac["JitISSLDLS"] = f(g("starlink_dl", "prev_seq2seq", "jitter_MIS"), 1)
     eps = [json.load(open(js))["epochs"] for ds, _ in LINKS
-           for js in (ROOT / "results_final/main" / ds).glob("y*_s*.json")]
+           for m in ("prev_seq2seq", "fr_resid", "fr_full", "fr_dist") for js in (ROOT / "results_final/main" / ds).glob(f"{m}_s*.json")]
     mac["EpochsMin"], mac["EpochsMax"], mac["EpochsMedian"] = str(min(eps)), str(max(eps)), f"{np.median(eps):.0f}"
     mac["NRuns"] = str(len(eps))
     mac["BestEpochMax"] = str(max(eps) - 15)

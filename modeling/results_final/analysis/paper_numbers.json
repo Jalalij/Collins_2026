@@ -1,0 +1,618 @@
+{
+ "DataSessions": {
+  "value": "996",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataRows": {
+  "value": "2.90",
+  "source": "results_final/analysis/dataset_stats.json (million rows)"
+ },
+ "DataHours": {
+  "value": "161",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataDaysOW": {
+  "value": "10",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataDaysSL": {
+  "value": "6",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataDaysQ": {
+  "value": "13",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataHoursOWDL": {
+  "value": "9.5",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataHoursOWUL": {
+  "value": "9.4",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataHoursSLDL": {
+  "value": "8.6",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataHoursSLUL": {
+  "value": "8.6",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataHoursQDL": {
+  "value": "62.8",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "DataHoursQUL": {
+  "value": "62.3",
+  "source": "results_final/analysis/dataset_stats.json"
+ },
+ "MaxRMSEGain": {
+  "value": "5",
+  "source": "results_final/summary/summary.csv (largest RMSE reduction vs S2S-E, any model, any link)"
+ },
+ "PersRatioLo": {
+  "value": "1.3",
+  "source": "results_final/summary/summary.csv"
+ },
+ "PersRatioHi": {
+  "value": "2.4",
+  "source": "results_final/summary/summary.csv"
+ },
+ "IsProtoMaxAbs": {
+  "value": "2.3",
+  "source": "results_final/summary/summary.csv rtt_MIS_y2style (test-residual intervals)"
+ },
+ "VolDmaxAbs": {
+  "value": "0.12",
+  "source": "results_final/analysis/volatility/acf_summary.csv d_max_abs_lag0p4to10s"
+ },
+ "VolAbsdLo": {
+  "value": "0.08",
+  "source": "results_final/analysis/volatility/acf_summary.csv absd_1s_measured_within"
+ },
+ "VolAbsdHi": {
+  "value": "0.10",
+  "source": "results_final/analysis/volatility/acf_summary.csv"
+ },
+ "VolSLDLlevel": {
+  "value": "0.84",
+  "source": "results_final/analysis/volatility/acf_summary.csv rtt_1s_measured_within"
+ },
+ "VolSLDLlevelMin": {
+  "value": "0.76",
+  "source": "results_final/analysis/volatility/acf_summary.csv rtt_1s_sessions_min"
+ },
+ "VolSLDLnSess": {
+  "value": "37",
+  "source": "results_final/analysis/volatility/acf_summary.csv"
+ },
+ "VolSignRevLo": {
+  "value": "64",
+  "source": "results_final/analysis/volatility/window_corr.csv"
+ },
+ "VolSignRevHi": {
+  "value": "74",
+  "source": "results_final/analysis/volatility/window_corr.csv"
+ },
+ "VolSignNNLo": {
+  "value": "63",
+  "source": "results_final/analysis/volatility/window_corr.csv"
+ },
+ "VolSignNNHi": {
+  "value": "78",
+  "source": "results_final/analysis/volatility/window_corr.csv"
+ },
+ "VolWithinLo": {
+  "value": "0.00",
+  "source": "results_final/analysis/volatility/window_corr.csv corr_inputsd_abs_err_s2s_e_within"
+ },
+ "VolWithinHi": {
+  "value": "0.03",
+  "source": "results_final/analysis/volatility/window_corr.csv"
+ },
+ "VolBetweenLo": {
+  "value": "0.48",
+  "source": "results_final/analysis/volatility/window_corr.csv corr_inputsd_abs_err_s2s_e_between"
+ },
+ "VolBetweenHi": {
+  "value": "0.89",
+  "source": "results_final/analysis/volatility/window_corr.csv"
+ },
+ "VolSLDLrv": {
+  "value": "0.73",
+  "source": "results_final/analysis/volatility/window_corr.csv corr_input_rv_horizon_rv_within"
+ },
+ "SkewQUL": {
+  "value": "3.5",
+  "source": "results_final/main/quectel_ul/preds (S2S-E calibration-session error at 1 s, q.975 / |q.025|)"
+ },
+ "SkewOWDL": {
+  "value": "3.0",
+  "source": "results_final/main/oneweb_dl/preds (S2S-E calibration-session error at 1 s, q.975 / |q.025|)"
+ },
+ "CovConstCalmLo": {
+  "value": "0.948",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovConstCalmHi": {
+  "value": "0.996",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovConstVolLo": {
+  "value": "0.856",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovConstVolHi": {
+  "value": "0.947",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovConstSLDLdOne": {
+  "value": "0.996",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovConstSLDLdTen": {
+  "value": "0.947",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovConstQULdOne": {
+  "value": "0.963",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovConstQULdTen": {
+  "value": "0.936",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovNormOWDLdOne": {
+  "value": "0.772",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "GapDSSLDL": {
+  "value": "0.026",
+  "source": "results_final/analysis/condcov/summary.csv maxdev"
+ },
+ "GapConstSLDL": {
+  "value": "0.048",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "GapDSQDL": {
+  "value": "0.006",
+  "source": "results_final/analysis/condcov/summary.csv maxdev"
+ },
+ "GapConstQDL": {
+  "value": "0.027",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "GapDSQUL": {
+  "value": "0.003",
+  "source": "results_final/analysis/condcov/summary.csv maxdev"
+ },
+ "GapConstQUL": {
+  "value": "0.014",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "WidRatioOWDL": {
+  "value": "1.30",
+  "source": "results_final/analysis/condcov/summary.csv wid_ratio_d10_d1"
+ },
+ "CovDSOWDLdTen": {
+  "value": "0.888",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovNormTunedOWDLdTen": {
+  "value": "0.952",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "ErrRatioOWDL": {
+  "value": "4.3",
+  "source": "reports/final_report/data/fr_condcov_wid_oneweb_dl.dat (per-decile calibrated width at 1 s, d10/d1)"
+ },
+ "WidRatioOWUL": {
+  "value": "1.04",
+  "source": "results_final/analysis/condcov/summary.csv wid_ratio_d10_d1"
+ },
+ "CovDSOWULdTen": {
+  "value": "0.899",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "CovNormTunedOWULdTen": {
+  "value": "0.951",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "ErrRatioOWUL": {
+  "value": "2.0",
+  "source": "reports/final_report/data/fr_condcov_wid_oneweb_ul.dat (per-decile calibrated width at 1 s, d10/d1)"
+ },
+ "WidConstSLDL": {
+  "value": "163",
+  "source": "reports/final_report/data/fr_condcov_wid_starlink_dl.dat"
+ },
+ "WidDSSLDLcalmLo": {
+  "value": "16",
+  "source": "fr_condcov_wid_starlink_dl.dat deciles 1-3"
+ },
+ "WidDSSLDLcalmHi": {
+  "value": "19",
+  "source": "fr_condcov_wid_starlink_dl.dat deciles 1-3"
+ },
+ "WidDSSLDLloadLo": {
+  "value": "119",
+  "source": "fr_condcov_wid_starlink_dl.dat deciles 4-10"
+ },
+ "WidDSSLDLloadHi": {
+  "value": "134",
+  "source": "fr_condcov_wid_starlink_dl.dat deciles 4-10"
+ },
+ "DecCentreLo": {
+  "value": "$-$2.2",
+  "source": "results_final/analysis/condcov/summary.csv ds2s_meanconst vs s2s_const"
+ },
+ "DecCentreHi": {
+  "value": "0.9",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "DecWidthLoAbs": {
+  "value": "1.4",
+  "source": "results_final/analysis/condcov/summary.csv s2s_ds2swidth vs s2s_const"
+ },
+ "DecWidthHiAbs": {
+  "value": "29.7",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "DecAsymLoAbs": {
+  "value": "4.3",
+  "source": "results_final/analysis/condcov/summary.csv ds2s_cqr vs s2s_ds2swidth"
+ },
+ "DecAsymHiAbs": {
+  "value": "27.3",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "AsymQULratio": {
+  "value": "10",
+  "source": "results_final/analysis/condcov/summary.json info.ds2s_cqr.asym_h5"
+ },
+ "ExtBestPointLoAbs": {
+  "value": "6",
+  "source": "results_final/analysis/condcov/summary.csv best point-forecast interval vs ds2s_cqr"
+ },
+ "ExtBestPointHiAbs": {
+  "value": "44",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "ExtFrfullLo": {
+  "value": "$-$3.1",
+  "source": "results_final/analysis/condcov/summary.csv frfull_const vs s2s_const"
+ },
+ "ExtFrfullHi": {
+  "value": "0.7",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "ExtLQRMaxAbs": {
+  "value": "6.2",
+  "source": "results_final/analysis/condcov/summary.csv |lqr_cqr vs ds2s_cqr|"
+ },
+ "GaussSentence": {
+  "value": "Third, Gaussian heads do not recover the gain. GS2S-E, whose quantiles are symmetric, has a higher interval score than DS2S-E on 6 of the six links ($+$4.3\\% to $+$32.5\\%), with the largest gap on 5G UL.",
+  "source": "results_final/analysis/condcov/summary.csv gauss_cqr vs ds2s_cqr"
+ },
+ "GaussSeedNote": {
+  "value": "uses 3 seeds",
+  "source": "results_final/analysis/condcov/summary.csv"
+ },
+ "BSISWorstAbs": {
+  "value": "9.4",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv"
+ },
+ "BSISBestAbs": {
+  "value": "41.1",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv"
+ },
+ "BSBestMAEAbs": {
+  "value": "17.8",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv"
+ },
+ "BSMAEsigLoAbs": {
+  "value": "1.6",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv"
+ },
+ "BSMAEsigHiAbs": {
+  "value": "17.8",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv"
+ },
+ "BSRMSEMaxAbs": {
+  "value": "5.0",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv"
+ },
+ "BSnSessTot": {
+  "value": "156",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv"
+ },
+ "BSWidRatioLo": {
+  "value": "2.2",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv width_ratio_session_vs_naive (main rows)"
+ },
+ "BSWidRatioHi": {
+  "value": "15.2",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv"
+ },
+ "BSLooMax": {
+  "value": "2.4",
+  "source": "results_final/analysis/bootstrap/bootstrap_summary.csv loo_min_pct / loo_max_pct (IS)"
+ },
+ "BSnWinTot": {
+  "value": "444{,}844",
+  "source": "results_final/main/*/preds/truth.npz"
+ },
+ "MeanMAELo": {
+  "value": "$-$0.7",
+  "source": "preds npz (MAE of the DS2S-E mean vs S2S-E)"
+ },
+ "MeanMAEHi": {
+  "value": "3.1",
+  "source": "preds npz"
+ },
+ "MedMAELo": {
+  "value": "$-$17.8",
+  "source": "preds npz (MAE of the DS2S-E median vs S2S-E)"
+ },
+ "MedMAEHi": {
+  "value": "$-$1.6",
+  "source": "preds npz"
+ },
+ "MeanMAESLDL": {
+  "value": "$-$11.6",
+  "source": "preds npz"
+ },
+ "LQRRMSELoAbs": {
+  "value": "0.2",
+  "source": "results_final/analysis/bootstrap/main_vs_others.csv (against lqr_fr)"
+ },
+ "LQRRMSEHiAbs": {
+  "value": "11.4",
+  "source": "results_final/analysis/bootstrap/main_vs_others.csv (against lqr_fr)"
+ },
+ "LQRsigLo": {
+  "value": "2",
+  "source": "results_final/analysis/bootstrap/main_vs_others.csv (against lqr_fr)"
+ },
+ "LQRsigHi": {
+  "value": "6",
+  "source": "results_final/analysis/bootstrap/main_vs_others.csv (against lqr_fr)"
+ },
+ "LQRsigLinks": {
+  "value": "Starlink DL, 5G DL, 5G UL",
+  "source": "results_final/analysis/bootstrap/main_vs_others.csv (against lqr_fr)"
+ },
+ "LeakOptDSMAEhOne": {
+  "value": "20",
+  "source": "results_final/analysis/leak/leak_summary.json"
+ },
+ "LeakOptDSMAEavg": {
+  "value": "6.8",
+  "source": "results_final/analysis/leak/leak_summary.json"
+ },
+ "LeakOptDSRMSEhOne": {
+  "value": "11",
+  "source": "results_final/analysis/leak/leak_summary.json"
+ },
+ "LeakOptSSMAEhOne": {
+  "value": "5.4",
+  "source": "results_final/analysis/leak/leak_summary.json"
+ },
+ "LeakDSAhOne": {
+  "value": "14.6",
+  "source": "results_final/analysis/leak/leak_summary.json"
+ },
+ "LeakDSBhOne": {
+  "value": "17.5",
+  "source": "results_final/analysis/leak/leak_summary.json"
+ },
+ "LeakDSChOne": {
+  "value": "15.0",
+  "source": "results_final/analysis/leak/leak_summary.json"
+ },
+ "TraceWidS": {
+  "value": "163",
+  "source": "results_final/analysis/trace/trace_starlink_dl.json"
+ },
+ "TraceWidDCalm": {
+  "value": "14",
+  "source": "results_final/analysis/trace/trace_starlink_dl.json"
+ },
+ "TraceWidDLoad": {
+  "value": "144",
+  "source": "results_final/analysis/trace/trace_starlink_dl.json"
+ },
+ "SchedDSLDL": {
+  "value": "198",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSSdupSLDL": {
+  "value": "33.2",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSSmissSLDL": {
+  "value": "1.74",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedDSdupSLDL": {
+  "value": "15.1",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedDSmissSLDL": {
+  "value": "1.53",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSaveSLDL": {
+  "value": "55",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSaveSLDLlo": {
+  "value": "49",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSaveSLDLhi": {
+  "value": "59",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSaveSLUL": {
+  "value": "$-$1.6",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSaveOWUL": {
+  "value": "$+$0.4",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedDSdupOWDL": {
+  "value": "50.2",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSSdupOWDL": {
+  "value": "51.3",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedDSdupCurveOWDL": {
+  "value": "56.7",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedDSmissOWDL": {
+  "value": "1.03",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSSmissOWDL": {
+  "value": "0.83",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedFFdupSLDL": {
+  "value": "24.8",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedDSdupCurveSLDL": {
+  "value": "13.4",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSSdupCurveSLDL": {
+  "value": "34.2",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "SchedSaveFFSLDL": {
+  "value": "46",
+  "source": "results_final/analysis/scheduler/headline.csv (D90, one95)"
+ },
+ "GaussSchedSentence": {
+  "value": "GS2S-E, whose quantiles are symmetric, needs 25.6\\% at the same miss rate, close to the point forecaster S2S-AE-E, so a symmetric spread adds little.",
+  "source": "results_final/analysis/scheduler/link_starlink_dl.json decomposition_at_s2s95_miss.gauss"
+ },
+ "BackupDLmax": {
+  "value": "0.01",
+  "source": "results_final/analysis/scheduler/backup_check.csv"
+ },
+ "BackupQULSL": {
+  "value": "7.8",
+  "source": "results_final/analysis/scheduler/backup_check.csv"
+ },
+ "BackupSSmissSLUL": {
+  "value": "1.45",
+  "source": "results_final/analysis/scheduler/backup_check.csv"
+ },
+ "BackupSSmissCorrSLUL": {
+  "value": "1.70",
+  "source": "results_final/analysis/scheduler/backup_check.csv"
+ },
+ "BackupDSmissSLUL": {
+  "value": "1.56",
+  "source": "results_final/analysis/scheduler/backup_check.csv"
+ },
+ "BackupDSmissCorrSLUL": {
+  "value": "1.80",
+  "source": "results_final/analysis/scheduler/backup_check.csv"
+ },
+ "RiskMeanLo": {
+  "value": "91",
+  "source": "results_final/analysis/scheduler/riskmap_starlink_dl.csv (mean decile 5)"
+ },
+ "RiskMeanHi": {
+  "value": "93",
+  "source": "results_final/analysis/scheduler/riskmap_starlink_dl.csv (mean decile 5)"
+ },
+ "RiskLowPct": {
+  "value": "0.7",
+  "source": "results_final/analysis/scheduler/riskmap_starlink_dl.csv (mean decile 5)"
+ },
+ "RiskHighPct": {
+  "value": "12.3",
+  "source": "results_final/analysis/scheduler/riskmap_starlink_dl.csv (mean decile 5)"
+ },
+ "BoundCovLo": {
+  "value": "0.936",
+  "source": "results_final/analysis/scheduler/calibrated_<link>.csv coverage_of_U"
+ },
+ "BoundCovHi": {
+  "value": "0.960",
+  "source": "results_final/analysis/scheduler/calibrated_<link>.csv coverage_of_U"
+ },
+ "GradLastLo": {
+  "value": "42",
+  "source": "results_final/analysis/attention/attn_summary.csv grad_sum_change_mass_last1s"
+ },
+ "GradLastHi": {
+  "value": "66",
+  "source": "results_final/analysis/attention/attn_summary.csv"
+ },
+ "AttnAblMax": {
+  "value": "0.8",
+  "source": "results_final/analysis/attention/attn_summary.csv"
+ },
+ "AttnAblOWDL": {
+  "value": "12",
+  "source": "results_final/analysis/attention/attn_summary.csv"
+ },
+ "AttnAblOWULmap": {
+  "value": "17",
+  "source": "results_final/analysis/attention/attn_summary.csv"
+ },
+ "AttnSinkLo": {
+  "value": "45",
+  "source": "attn_summary.json profile_over_steps_x30[29]/30"
+ },
+ "AttnSinkHi": {
+  "value": "63",
+  "source": "attn_summary.json"
+ },
+ "GradEngLo": {
+  "value": "34",
+  "source": "results_final/analysis/attention/attn_summary.csv grad_h15_eng_feature_share"
+ },
+ "GradEngHi": {
+  "value": "76",
+  "source": "results_final/analysis/attention/attn_summary.csv"
+ },
+ "SweepISLoAbs": {
+  "value": "7",
+  "source": "results_final/summary/sweeps.csv"
+ },
+ "SweepISHiAbs": {
+  "value": "41",
+  "source": "results_final/summary/sweeps.csv"
+ },
+ "SweepRMSELo": {
+  "value": "$-$7.8",
+  "source": "results_final/summary/sweeps.csv"
+ },
+ "SweepRMSEHi": {
+  "value": "2.1",
+  "source": "results_final/summary/sweeps.csv"
+ },
+ "WeightPrefLinks": {
+  "value": "OneWeb DL, OneWeb UL, Starlink DL, Starlink UL, 5G DL, 5G UL",
+  "source": "preds npz (calibration-session pinball loss)"
+ },
+ "WeightSentence": {
+  "value": "A pinball weight $\\omega=4$, which the calibration sessions prefer on all six links, changes the MAE of DS2S by $-$10.7\\% to $-$0.3\\%, the interval score by $-$4.4\\% to $+$1.1\\%, and the RMSE by $-$0.7\\% to $+$1.2\\% (means of 3 seeds).",
+  "source": "results_final/summary/runs.csv (fr_dist_w4 vs fr_dist)"
+ },
+ "JitISRatio": {
+  "value": "3.0",
+  "source": "reports/final_report/data/numbers_results.tex JitIS*"
+ }
+}

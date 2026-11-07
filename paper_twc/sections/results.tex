@@ -1,177 +1,96 @@
 \section{Results}
 \label{sec:results}
-\subsection{RTT Accuracy and Uncertainty}
-Table~\ref{tab:main} gives the RTT results per link. Against S2S, DS2S lowers the interval score on all six links by \ChgMISWorst\% to \ChgMISBest\% (mean \ChgMISMean\%) and the MAE by \ChgMAEWorst\% to \ChgMAEBest\% (mean \ChgMAEMean\%). The RMSE changes by \ChgRMSEBest\% to $+$\ChgRMSEWorst\% (mean \ChgRMSEMean\%), which is within the seed spread on most links. With three-seed ensembles on both sides, the interval score improves by \ChgEnsMISWorst\% to \ChgEnsMISBest\% and the MAE by \ChgEnsMAEWorst\% to \ChgEnsMAEBest\%. The largest MAE gains are on 5G UL (\ChgMAEQUL\%), Starlink DL (\ChgMAESLDL\%), and OneWeb DL (\ChgMAEOWDL\%). By Proposition~\ref{prop:optimal}, the median is the optimal absolute-error forecast, and it differs from the mean learned by the scalar model whenever the conditional distribution is skewed.
+\subsection{Accuracy and Calibration at a Glance}
+Table~\ref{tab:main} compares DS2S-E with S2S-E, the forecaster of our earlier deployment, on the RTT of the test sessions. The interval score improves on all six links, by \BSISWorstAbs\% to \BSISBestAbs\%, and the session-bootstrap interval of every change excludes zero. DS2S-E has the lower interval score in each of the \BSnSessTot{} test sessions. Both forecasters keep their marginal coverage close to 95\%, lowest on Starlink UL for both. Their difference therefore lies in the width of the intervals, not in how often they cover. Fig.~\ref{fig:heat} shows that the gain holds at every horizon step. It is largest at short horizons on the satellite links and flat on 5G.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
-\caption{RTT on the test sessions, averaged over 0.2--3\,s. Mean $\pm$ std over three seeds and three-seed ensembles (-E). MAE, RMSE, and IS in ms. IS and PICP refer to the calibrated 95\% interval.}
+\caption{RTT on the test sessions, averaged over 0.2--3\,s, for the three-seed ensembles S2S-E and DS2S-E. Changes of DS2S-E against S2S-E with 95\% session-bootstrap intervals (2000 replicates). Bold: the interval excludes zero. MAE uses the median of DS2S-E, RMSE the means. IS and PICP refer to the calibrated 95\% interval.}
 \label{tab:main}
-\scriptsize
-\setlength{\tabcolsep}{1.6pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{llccccc}
+\footnotesize
+\setlength{\tabcolsep}{2.9pt}
+\begin{tabular}{l rrr rrr rrr cc}
 \toprule
-Link & Model & MAE & RMSE & $R^2$ & IS & PICP \\
+ & \multicolumn{3}{c}{Interval score (ms)} & \multicolumn{3}{c}{MAE (ms)} & \multicolumn{3}{c}{RMSE (ms)} & \multicolumn{2}{c}{PICP} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-12}
+Link & S2S-E & DS2S-E & $\Delta$\% [95\% CI] & S2S-E & DS2S-E & $\Delta$\% [95\% CI] & S2S-E & DS2S-E & $\Delta$\% [95\% CI] & S2S-E & DS2S-E \\
 \midrule
-\tabinput{figs/data/tab_main_paper.tex}
+\tabinput{figs/data/tab_main_boot.tex}
 \bottomrule
-\end{tabular}}
-\end{table}
-
-Both models reach the nominal coverage after calibration. The measured RTT coverage of DS2S is \PICPMin{} to \PICPMax{} across links (S2S: \PICPYtwoSLUL{} to \PICPYtwoOWDL), and Fig.~\ref{fig:coverage} shows that it holds at every step. The coverage is lowest on Starlink UL for both models, which points to a difference between the calibration and test sessions of that link. The gain in interval score therefore comes from width, not from coverage. Fig.~\ref{fig:trace} shows why. The DS2S interval widens before and during RTT bursts and narrows in quiet periods, while a constant-width interval must be as wide as the bursts at all times to reach the same coverage.
+\end{tabular}
+\end{table*}
 
 \begin{figure}[t]
   \centering
-  \input{figs/fig_coverage.tex}
-  \caption{Measured coverage of the calibrated 95\% RTT interval of DS2S-E on the test sessions, per horizon step.}
-  \label{fig:coverage}
+  \input{figs/fr_heat_col.tex}
+  \caption{Change (\%) of the RTT MAE and of the calibrated 95\% interval score of DS2S-E against S2S-E per link and horizon step. Blue: DS2S-E is better. Right of each row: the change over all steps.}
+  \label{fig:heat}
 \end{figure}
 
-\begin{figure}[t]
-  \centering
-  \resizebox{\columnwidth}{!}{\input{figs/fig_trace.tex}}
-  \caption{One minute of a Starlink DL test session, forecast 1\,s ahead ($h=5$), with the calibrated DS2S-E interval.}
-  \label{fig:trace}
-\end{figure}
+The point accuracy changes much less. The MAE improves significantly on five links, and the RMSE changes by at most \BSRMSEMaxAbs\%. This is what Section~\ref{sec:predictable} leads one to expect, since the level of the next RTT is hard to forecast. Almost all of the MAE gain comes from reporting the median instead of the mean. On the five links other than Starlink DL, the mean of DS2S-E changes the MAE by \MeanMAELo\% to $+$\MeanMAEHi\%, against \MedMAELo\% to \MedMAEHi\% for its median. Under right-skewed errors the median is closer to a typical outcome, and by Proposition~\ref{prop:optimal} it is the optimal forecast for the absolute error. Starlink DL is the one link where the mean also improves (\MeanMAESLDL\%), because its sawtooth is partly predictable.
 
-The evaluation protocol decides whether this gain is visible. Table~\ref{tab:isproto} scores the same models with two kinds of 95\% intervals. The first takes the empirical 2.5\% and 97.5\% quantiles of the test residuals around the mean forecast, a common practice that yields 95\% coverage by construction. The second is the calibrated interval of Section~\ref{sec:method}. Under the first protocol DS2S and S2S are within 2\% of each other on every link, because both intervals have a constant width and the mean forecasts are similar. Under the calibrated protocol DS2S is 8\% to 39\% better. Test-residual intervals hide the value of an input-dependent width, and they also overstate the coverage that can be expected in operation.
-
-\begin{table}[t]
-\centering
-\caption{RTT interval score (ms, seed means) with test-residual intervals around the mean (left) and with calibrated intervals (right).}
-\label{tab:isproto}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lrrrrrr}
-\toprule
- & \multicolumn{3}{c}{Test-residual interval} & \multicolumn{3}{c}{Calibrated interval} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-Link & S2S & DS2S & $\Delta$\% & S2S & DS2S & $\Delta$\% \\
-\midrule
-\tabinput{figs/data/tab_isproto_paper.tex}
-\bottomrule
-\end{tabular}
-\end{table}
-
-Fig.~\ref{fig:horizon} shows the MAE and the interval score per step. On Starlink DL the persistence error is not monotone in the horizon. It is lower at 1\,s and 2\,s than at 0.2\,s, because the downlink RTT under the 1\,Hz iperf load has a one-second pattern. The seasonal reference captures this pattern alone and reaches 28\% RMSE skill on that link (Table~\ref{tab:baselines}). The learned models absorb the pattern, and their errors grow smoothly with the horizon. The DS2S gain in MAE and interval score is present at every step on all links.
+\subsection{Why the Interval Improves}
+Fig.~\ref{fig:condcov} breaks the coverage down by the volatility of the input window and the horizon. The constant interval of S2S-E is blue in the calm deciles and red in the volatile ones. It over-covers quiet windows and under-covers volatile ones. It covers the calmest tenth of the windows at \CovConstSLDLdOne{} and the most volatile tenth at \CovConstSLDLdTen{} on Starlink DL, and at \CovConstQULdOne{} and \CovConstQULdTen{} on 5G UL. Scaling the interval in proportion to the input SD, with a small floor, reverses the error (bottom row). The future error grows much more slowly than the input SD, and the calmest windows are now under-covered (OneWeb DL: \CovNormOWDLdOne). The DS2S-E interval is close to white on Starlink DL and 5G UL. Its coverage gap is \GapDSSLDL{} on Starlink DL, \GapDSQDL{} on 5G DL, and \GapDSQUL{} on 5G UL, against \GapConstSLDL{}, \GapConstQDL{}, and \GapConstQUL{} for the constant interval. The reduction is significant on these three links and on Starlink UL. On Starlink DL the constant interval is \WidConstSLDL\,ms wide at 1\,s ahead in every window. The DS2S-E interval is \WidDSSLDLcalmLo{} to \WidDSSLDLcalmHi\,ms wide in the three calmest deciles, where the link is idle, and \WidDSSLDLloadLo{} to \WidDSSLDLloadHi\,ms in the loaded ones.
 
 \begin{figure*}[t]
   \centering
-  \resizebox{0.49\textwidth}{!}{\input{figs/fig_rtt_mae.tex}}\hfill
-  \resizebox{0.49\textwidth}{!}{\input{figs/fig_rtt_mis.tex}}
-  \caption{RTT MAE (left) and calibrated 95\% interval score (right) per horizon step on the six links. Lower is better.}
-  \label{fig:horizon}
+  \input{figs/fr_condcov.tex}
+  \caption{Conditional coverage of the calibrated 95\% RTT intervals on the test sessions. A cell is the coverage among the windows whose input SD lies in that decile (edges from the calibration sessions) at that horizon step. White: nominal 0.95. Blue: the interval is wider than needed. Red: it is too narrow. Values below 0.85 share the darkest red. Bottom row: interval scaled by the input SD with a small floor.}
+  \label{fig:condcov}
 \end{figure*}
 
-\subsection{Ablation}
-Table~\ref{tab:ablation} adds the design steps one at a time. Anchoring the decoder (S2S-A) and adding the extended features (S2S-AE) do not lower the MAE, and on OneWeb DL they raise it by 9.8\% and 19.0\%. A squared-error model anchored on a spiky last value follows the spikes. The extended features do carry information about the conditional mean, and S2S-AE has the lowest RMSE of all single models on three links. The MAE and interval-score gains appear only with the distributional heads, and the ensemble adds up to 6.4 points on Starlink DL. The design choice that matters is therefore the output, not the decoder initialization or the features.
+The OneWeb links show the limit of DS2S-E. Its coverage gap there is not smaller than that of the constant interval. DS2S-E widens its interval only \WidRatioOWDL{} times (DL) and \WidRatioOWUL{} times (UL) from the calmest to the most volatile tenth, while the calibrated error grows \ErrRatioOWDL{} and \ErrRatioOWUL{} times, and it covers that tenth only at \CovDSOWDLdTen{} and \CovDSOWULdTen{}. The input carries the warning, since an SD-scaled interval covers the same tenth at \CovNormTunedOWDLdTen{} and \CovNormTunedOWULdTen. DS2S-E under-reacts to the rare OneWeb bursts.
+
+Where does the gain in interval score come from? We built intermediate intervals that change one ingredient at a time, all calibrated on the same sessions. Moving a constant interval from the S2S-E mean to the DS2S-E mean changes the score by \DecCentreLo\% to $+$\DecCentreHi\%. The better center is not the source. Giving the S2S-E forecast the per-window width of DS2S-E, placed symmetrically, gains \DecWidthLoAbs\% to \DecWidthHiAbs\%. Placing the interval asymmetrically, as DS2S-E does, gains another \DecAsymLoAbs\% to \DecAsymHiAbs\%. The adaptive width carries most of the gain on Starlink DL and OneWeb UL. The skew carries most of it on 5G UL, where the raw DS2S-E interval at 1\,s reaches \AsymQULratio{} times further above its median than below it.
+
+\subsection{How Specific Is the Gain to DS2S?}
+Table~\ref{tab:extent} lists the interval score and the coverage gap of every interval we built. It bounds how much of the gain requires our model. First, no interval around the S2S-E point forecast comes close to the quantile forecasters. The asymmetric interval helps where the skew is strong and the SD-scaled one where the regime shows in the input SD, but the best of them is still \ExtBestPointLoAbs\% to \ExtBestPointHiAbs\% worse than DS2S-E on every link. The SD-scaled interval balances the decile coverage well on OneWeb because it is scaled by the variable that defines the deciles, and it pays for this with a higher interval score. Second, the new inputs and the anchored decoder do not explain the gain. S2S-AE-E shares them with DS2S-E but outputs a mean, and it changes the interval score of S2S-E by only \ExtFrfullLo\% to $+$\ExtFrfullHi\%. \GaussSentence{} Fourth, the linear quantile model LQR does almost as well as DS2S-E. It is within \ExtLQRMaxAbs\% of DS2S-E on every link and better on OneWeb UL and Starlink UL, and DS2S-E is significantly better only on Starlink DL, 5G DL, and 5G UL, by \LQRsigLo\% to \LQRsigHi\%.
 
 \begin{table*}[t]
 \centering
-\caption{Ablation: change (\%) of the RTT MAE, RMSE, and calibrated interval score against S2S (seed means, DS2S-E against the S2S seed mean). Negative is better.}
-\label{tab:ablation}
+\caption{Interval score (IS, ms) and coverage gap $\max_d|\mathrm{cov}_d-0.95|$ over input-SD deciles of all 95\% RTT intervals on the test sessions. All intervals are calibrated on the calibration sessions. SD-scaled: floor tuned on the calibration sessions. S2S-AE-E: the inputs and decoder of DS2S-E with a scalar output. Bold: lowest IS of the link. GS2S-E \GaussSeedNote.}
+\label{tab:extent}
 \footnotesize
-\setlength{\tabcolsep}{3.2pt}
-\begin{tabular}{l*{18}{r}}
+\setlength{\tabcolsep}{2.7pt}
+\begin{tabular}{ll*{12}{r}}
 \toprule
- & \multicolumn{3}{c}{OneWeb DL} & \multicolumn{3}{c}{OneWeb UL} & \multicolumn{3}{c}{Starlink DL} & \multicolumn{3}{c}{Starlink UL} & \multicolumn{3}{c}{5G DL} & \multicolumn{3}{c}{5G UL} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}\cmidrule(lr){14-16}\cmidrule(lr){17-19}
-Model & MAE & RMSE & IS & MAE & RMSE & IS & MAE & RMSE & IS & MAE & RMSE & IS & MAE & RMSE & IS & MAE & RMSE & IS \\
+ & & \multicolumn{2}{c}{OneWeb DL} & \multicolumn{2}{c}{OneWeb UL} & \multicolumn{2}{c}{Starlink DL} & \multicolumn{2}{c}{Starlink UL} & \multicolumn{2}{c}{5G DL} & \multicolumn{2}{c}{5G UL} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(lr){9-10}\cmidrule(lr){11-12}\cmidrule(lr){13-14}
+Forecast & Interval & IS & gap & IS & gap & IS & gap & IS & gap & IS & gap & IS & gap \\
 \midrule
-\tabinput{figs/data/tab_ablation_paper.tex}
+\tabinput{figs/data/tab_extent.tex}
 \bottomrule
 \end{tabular}
 \end{table*}
 
-\subsection{Comparison with Simple References}
-Table~\ref{tab:baselines} compares all methods. Persistence is a poor RTT forecast at 5\,Hz because single pings are noisy, and every neural model and Ridge-E has a positive skill against it on every link. Ridge-E is within one point of the S2S skill on OneWeb DL, both Starlink links, and 5G UL, in line with the finding that linear forecasters are strong references~\cite{zeng2023transformers}. Ridge on the base features fails on 5G UL ($-43\%$ skill) because of unremoved logger sentinels, which the extended pipeline treats as missing. DS2S-E has the lowest MAE on every link and the highest skill on every link, tied with Ridge-E and DS2S on 5G UL. On RMSE skill, the margin of DS2S-E over the best linear model ranges from zero (5G UL) to 9.8 points (OneWeb UL).
+The source of the gain is therefore the distributional output calibrated across sessions, which a linear model can exploit too. What the recurrent network adds is a better point forecast. Against LQR, DS2S-E lowers the RMSE on all six links (\LQRRMSELoAbs\% to \LQRRMSEHiAbs\%, all significant), and it lowers the interval score further on the three links where the RTT has the most structure.
 
-\begin{table*}[t]
-\centering
-\caption{RTT MAE (ms) and RMSE skill against persistence (\%) of all methods (seed means for the neural models).}
-\label{tab:baselines}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{l*{12}{r}}
-\toprule
- & \multicolumn{2}{c}{OneWeb DL} & \multicolumn{2}{c}{OneWeb UL} & \multicolumn{2}{c}{Starlink DL} & \multicolumn{2}{c}{Starlink UL} & \multicolumn{2}{c}{5G DL} & \multicolumn{2}{c}{5G UL} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}\cmidrule(lr){10-11}\cmidrule(lr){12-13}
-Method & MAE & skill & MAE & skill & MAE & skill & MAE & skill & MAE & skill & MAE & skill \\
-\midrule
-\tabinput{figs/data/tab_baselines_paper.tex}
-\bottomrule
-\end{tabular}
-\end{table*}
+\subsection{Can the Results Be Trusted?}
+Four checks support these results. First, the session is the unit of evidence. A bootstrap over windows treats the \BSnWinTot{} overlapping test windows as independent. It gives intervals \BSWidRatioLo{} to \BSWidRatioHi{} times narrower than the session bootstrap and would call two inconclusive changes significant, the RMSE on OneWeb DL and the MAE on OneWeb UL. Second, no single session drives a result. Leaving out any one test session moves the interval-score change by at most \BSLooMax{} points. Third, the gain is visible only with calibration on held-out sessions. With intervals from the empirical quantiles of the test residuals, a common practice that yields 95\% coverage by construction, DS2S-E and S2S-E are within \IsProtoMaxAbs\% of each other on every link, because both intervals then have a constant width. Fourth, the inputs are causal (Section~\ref{sec:causal}), every tuning choice uses the calibration sessions only, and on Starlink DL the comparison holds on the measured targets alone (MAE \RealMAEFRSLDL{} against \RealMAEPrevSLDL\,ms).
 
-\subsection{Significance and Adaptivity}
-Windows of one session are correlated. We therefore also compare the ensembles session by session (Table~\ref{tab:sess}). DS2S-E has the lower RTT MAE in \SessWinsTotal{} of the \SessNTotal{} test sessions, and a two-sided Wilcoxon signed-rank test over sessions gives $p<0.01$ on five links. OneWeb UL, with 11 sessions and \SessWinsOWUL{} wins, is not significant ($p=\SessPOWUL$). The same table gives the Spearman correlation between the width of the DS2S-E 95\% interval and the absolute error of its median over all test windows. It is positive on every link, from \RhoMin{} on Starlink UL to \RhoMax{} on Starlink DL, which confirms that the interval widens when the forecast is likely to be wrong. The adaptivity is largest on the links whose RTT alternates between calm periods and bursts.
-
-\begin{table}[t]
-\centering
-\caption{Per-session comparison of the RTT MAE (DS2S-E against S2S-E) and adaptivity of the DS2S-E 95\% interval.}
-\label{tab:sess}
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{lrrrrr}
-\toprule
-Link & Sessions & Wins & Median $\Delta$ (\%) & Wilcoxon $p$ & $\rho$(width, $|e|$) \\
-\midrule
-\tabinput{figs/data/tab_sessadapt_paper.tex}
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Jitter and Loss}
-Jitter and loss are one-second iperf reports with long runs of zeros and rare large values. For these targets the point accuracy of DS2S and S2S is similar, with differences in both directions: the loss MAE of DS2S is higher on OneWeb DL and lower on Starlink DL and both 5G links. The calibrated interval score of DS2S is lower for both targets on all five links where they vary, by a factor of up to three (Starlink DL jitter: \JitISSLDLDS{} against \JitISSLDLS\,ms). Table~\ref{tab:targets} lists the values.
-
-\begin{table}[t]
-\centering
-\caption{Jitter (ms) and loss (\%) on the test sessions (seed means, OneWeb UL omitted since both are always zero). IS uses the calibrated 95\% interval.}
-\label{tab:targets}
-\scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\begin{tabular}{llcccccc}
-\toprule
- & & \multicolumn{3}{c}{Jitter} & \multicolumn{3}{c}{Loss} \\
-\cmidrule(lr){3-5}\cmidrule(lr){6-8}
-Link & Model & MAE & RMSE & IS & MAE & RMSE & IS \\
-\midrule
-\tabinput{figs/data/tab_targets_paper.tex}
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{RTT Spike Warning}
-A scheduler may only need to know whether a path is about to degrade. We label a spike when the RTT at $t+h$ exceeds the 90th percentile of the calibration sessions and score each method by the area under the ROC curve (AUROC), using the upper quantile $\hat{q}_{0.975}$ of DS2S-E and the mean of S2S-E. Averaged over the steps, DS2S-E is the best warning signal on Starlink DL (AUROC \AUCYthreeSLDL{} against \AUCYtwoSLDL), slightly better on Starlink UL (\AUCYthreeSLUL{} against \AUCYtwoSLUL), 5G DL, and 5G UL, about equal on OneWeb UL, and worse on OneWeb DL (\AUCYthreeOWDL{} against \AUCYtwoOWDL). OneWeb DL spikes are short and isolated, and a mean forecast that follows the last value reacts to them faster than an upper quantile that is already wide. Fig.~\ref{fig:spike} shows the AUROC per step.
+\subsection{Value for a Deadline-Aware Scheduler}
+We emulate deadline-aware packet duplication on the test sessions of the four satellite links, with the satellite path as primary and the 5G path of the same direction as backup. At time $t$ the scheduler plans the packets that it will send at $t+h$, $h\in\{0.2,\dots,3\}$\,s. A packet on the primary misses its deadline $D$ if the measured RTT at $t+h$ exceeds $D$, which we set to the 90th percentile of the calibration-session RTT (\SchedDSLDL\,ms on Starlink DL). The scheduler duplicates a packet on the backup when its forecast bound exceeds $D$. We count the share of duplicated packets, which costs backup capacity, and the share of packets that are late and were not duplicated (misses). The backup meets the downlink deadlines in all but \BackupDLmax\% of the 5G DL samples. The 5G UL exceeds the Starlink UL deadline in \BackupQULSL\% of its samples. If the two paths are independent, this raises the miss rate of the S2S-E bound on Starlink UL from \BackupSSmissSLUL\% to \BackupSSmissCorrSLUL\% and that of DS2S-E from \BackupDSmissSLUL\% to \BackupDSmissCorrSLUL\%.
 
 \begin{figure*}[t]
   \centering
-  \resizebox{0.8\textwidth}{!}{\input{figs/fig_spike.tex}}
-  \caption{RTT spike warning: AUROC for detecting that the RTT at $t+h$ exceeds the 90th percentile of the calibration sessions. DS2S-E scores with its upper quantile, the others with their point forecast.}
-  \label{fig:spike}
+  \resizebox{\textwidth}{!}{\input{figs/fr_scheduler.tex}}
+  \caption{Deadline-aware duplication on the test sessions: share of late, non-duplicated packets against the share of duplicated packets, pooled over 0.2--3\,s ($D$: 90th percentile of the calibration-session RTT). Curves sweep the knob of each policy. Markers: one-sided bounds calibrated at levels of 0.80 to 0.99, circled at 0.95. Insets: low duplication. S2S-E adapt.\ scales its margin by the input volatility.}
+  \label{fig:sched}
 \end{figure*}
 
-\subsection{Sensitivity to the Design Settings}
-We repeated the comparison on the four satellite links with two seeds for a 3\,s and a 12\,s input window and a 6\,s horizon, and varied the hidden size (64, 256) and the pinball weight in~\eqref{eq:loss} (0.25, 4) for DS2S. Table~\ref{tab:sweep} shows that the advantage of DS2S over S2S holds in every window and horizon setting: the interval score improves by 7\% to 41\% and the MAE improves on every link, while the RMSE changes by $-7.8\%$ to $+2.1\%$. For DS2S itself, a pinball weight of 4 lowers the MAE and the interval score on all four links (OneWeb DL MAE $-10.4\%$) at an RMSE change of at most $+0.4\%$, which indicates that the main results with weight 1 understate what the model can reach. The best input window depends on the link: 12\,s lowers the OneWeb UL MAE by 9.4\% and raises the OneWeb DL MAE by 11.2\%.
+Each policy has one knob, and sweeping it traces a curve in Fig.~\ref{fig:sched}. A deployed scheduler must set the knob in advance. For S2S-E we use the one-sided 95\% conformal upper bound calibrated on the calibration sessions. For DS2S-E we set the knob on the calibration sessions so that its miss rate there equals that of the S2S-E bound. On Starlink DL, the S2S-E bound duplicates \SchedSSdupSLDL\% of the packets and misses \SchedSSmissSLDL\%. DS2S-E duplicates \SchedDSdupSLDL\% and misses \SchedDSmissSLDL\%, which is \SchedSaveSLDL\% less duplication (95\% CI \SchedSaveSLDLlo{} to \SchedSaveSLDLhi\%) with no more misses. On Starlink UL and OneWeb UL the two schedulers tie (duplication change \SchedSaveSLUL\% and \SchedSaveOWUL\%). On OneWeb DL, DS2S-E needs \SchedDSdupCurveOWDL\% duplication to reach the miss rate of the S2S-E bound, which duplicates \SchedSSdupOWDL\%, and with its knob set on the calibration sessions it misses \SchedDSmissOWDL\% of the packets against \SchedSSmissOWDL\%. Every forecaster with the anchored decoder loses there, including the point forecaster S2S-AE-E. The loss therefore comes from the decoder family and not from the distributional output.
 
-\begin{table*}[t]
-\centering
-\caption{Change (\%) of DS2S against S2S trained with the same input window and horizon (RTT, two seeds, all horizon steps of the setting). Negative is better.}
-\label{tab:sweep}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{l*{12}{r}}
-\toprule
- & \multicolumn{3}{c}{OneWeb DL} & \multicolumn{3}{c}{OneWeb UL} & \multicolumn{3}{c}{Starlink DL} & \multicolumn{3}{c}{Starlink UL} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
-Setting & MAE & RMSE & IS & MAE & RMSE & IS & MAE & RMSE & IS & MAE & RMSE & IS \\
-\midrule
-\tabinput{figs/data/tab3_sweeps_vs_paper.tex}
-\bottomrule
-\end{tabular}
-\end{table*}
+On Starlink DL the gain has two parts. With the same inputs and decoder, the point forecaster S2S-AE-E needs \SchedFFdupSLDL\% duplication at the miss rate of the S2S-E bound, and DS2S-E needs \SchedDSdupCurveSLDL\% (S2S-E: \SchedSSdupCurveSLDL\%). About half of the gain thus comes from the new inputs and decoder and half from the predictive distribution. With both knobs set on the calibration sessions, DS2S-E needs \SchedSaveFFSLDL\% less duplication than S2S-AE-E. \GaussSchedSentence{} Fig.~\ref{fig:risk} shows what a point forecast misses. It groups the test windows by the S2S-E mean forecast and, within each group, by the spread that DS2S-E predicts. At the same mean forecast of \RiskMeanLo{} to \RiskMeanHi\,ms on Starlink DL, \RiskLowPct\% of the packets are late when DS2S-E predicts a narrow spread and \RiskHighPct\% when it predicts a wide one. A scheduler that sees only the mean must treat these windows alike.
 
-\subsection{Robustness and Cost}
-\label{sec:robust}
-About \InterpFracSLDL\% of the Starlink DL test targets are interpolated by the parser (Section~\ref{sec:causal}). Restricted to the measured targets, the RTT MAE is \RealMAEYthreeSLDL\,ms for DS2S-E and \RealMAEYtwoSLDL\,ms for S2S-E, against \AllMAEYthreeSLDL{} and \AllMAEYtwoSLDL\,ms on all targets. The comparison does not depend on them. The selected checkpoints were reached after at most \BestEpochMax{} epochs in all runs, well inside the epoch budget. On one CPU thread of the laptop, one forecast of all 15 steps and three targets takes \TimeDSCPU\,ms for DS2S and \TimeSSCPU\,ms for S2S, far below the 200\,ms between measurements.
+\begin{figure*}[t]
+  \centering
+  \input{figs/fr_scheduler_risk.tex}
+  \caption{Same mean, different risk. Share of late packets ($D$ as in Fig.~\ref{fig:sched}, log color scale) when the test windows are grouped by the S2S-E mean forecast (deciles, x) and, within each decile, by the predicted DS2S-E spread $\hat{q}_{0.975}-\hat{q}_{0.5}$ (quintiles, y).}
+  \label{fig:risk}
+\end{figure*}
+
+\subsection{Sensitivity, Other Targets, and Cost}
+\label{sec:sens}
+The advantage of DS2S over S2S holds for 3\,s and 12\,s input windows and for a 6\,s horizon on the four satellite links (two seeds each). The interval score improves by \SweepISLoAbs\% to \SweepISHiAbs\% and the MAE improves on every link in every setting, while the RMSE changes by \SweepRMSELo\% to $+$\SweepRMSEHi\%. \WeightSentence{} For jitter and loss, which are one-second iperf reports with long runs of zeros, the point accuracy of DS2S and S2S is similar, and the interval score of DS2S is lower for both targets on all five links where they vary, by up to a factor of \JitISRatio{} (Starlink DL jitter).
+
+What does DS2S use? Its forecast is most sensitive to the newest second of input, which receives \GradLastLo\% to \GradLastHi\% of the input gradient of the learned change (17\% if uniform). Its attention weights look elsewhere. Replacing them by uniform weights raises the RTT MAE by at most \AttnAblMax\% on Starlink and 5G and matters only on OneWeb (OneWeb DL: $+$\AttnAblOWDL\%). The gain therefore does not come from where the model attends. On one CPU thread, a forecast of all 15 steps and three targets takes \TimeDSCPU\,ms, far below the 200\,ms between measurements.

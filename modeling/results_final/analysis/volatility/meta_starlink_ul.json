@@ -1,0 +1,16 @@
+{
+ "link": "starlink_ul",
+ "n_train_sessions": 37,
+ "n_train_rows": 107793,
+ "n_test_sessions": 9,
+ "n_val_sessions": 7,
+ "train_interp_share": 0.013043518595827187,
+ "row_dt_median_s": 0.20015811920166016,
+ "row_dt_p90_s": 0.20806884765625,
+ "row_dt_share_over_0p5s": 0.0030624744793793387,
+ "rtt_train_mean_ms": 38.16753387451172,
+ "rtt_train_sd_ms": 8.93289852142334,
+ "n_pairs_d_lag1_measured": 103939,
+ "n_boot": 2000,
+ "boot_seed": 0
+}

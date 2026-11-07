@@ -1,12 +1,12 @@
 """
-experiments/final_aggregate.py - Collect y3_benchmark results into tables and figure data.
+experiments/final_aggregate.py - Collect final_benchmark results into tables and figure data.
 
 Reads   results_final/main/<provider>_<direction>/{<method>_s<seed>.csv, preds/*.npz}
 Writes  results_final/summary/*.csv            (machine-readable summaries)
         <fig_dir>/*.dat                     (pgfplots data for the report and paper)
         <fig_dir>/*.tex                     (booktabs table bodies)
 
-Point-forecast convention for the distributional model (y3_dist): RMSE and R2
+Point-forecast convention for the distributional model (fr_dist): RMSE and R2
 use its mean output, MAE uses its median output (the optimal point forecast for
 each loss, Gneiting 2011). Every other method has a single output used for all.
 
@@ -30,11 +30,13 @@ from final_benchmark import metrics  # noqa: E402
 DATASETS = ["oneweb_dl", "oneweb_ul", "starlink_dl", "starlink_ul", "quectel_dl", "quectel_ul"]
 NICE = {"oneweb_dl": "OneWeb DL", "oneweb_ul": "OneWeb UL", "starlink_dl": "Starlink DL",
         "starlink_ul": "Starlink UL", "quectel_dl": "5G DL", "quectel_ul": "5G UL"}
-METHODS = ["persistence", "snaive", "ridge", "ridge_y3", "y2_seq2seq", "y3_resid", "y3_full", "y3_dist"]
-MNICE = {"persistence": "Persistence", "ridge": "Ridge (direct)", "y2_seq2seq": "Initial Seq2Seq-GRU",
-         "y3_resid": "+ residual decoder", "y3_full": "+ data pipeline",
-         "y3_dist": "+ distributional heads", "y3_dist_ens": "Final (3-seed ensemble)",
-         "y2_seq2seq_ens": "Initial (3-seed ensemble)"}
+METHODS = ["persistence", "snaive", "ridge", "ridge_fr", "lqr_fr", "prev_seq2seq", "fr_resid", "fr_full", "fr_dist",
+           "fr_dist_w4", "fr_gauss"]
+ENS = ["prev_seq2seq", "fr_dist", "fr_dist_w4", "fr_gauss"]
+MNICE = {"persistence": "Persistence", "ridge": "Ridge (direct)", "prev_seq2seq": "Initial Seq2Seq-GRU",
+         "fr_resid": "+ residual decoder", "fr_full": "+ data pipeline",
+         "fr_dist": "+ distributional heads", "fr_dist_ens": "Final (3-seed ensemble)",
+         "prev_seq2seq_ens": "Initial (3-seed ensemble)"}
 TARGETS = ["rtt", "jitter", "loss"]
 
 
@@ -95,7 +97,7 @@ def main():
         ddir = res / ds
         if not ddir.exists():
             continue
-        for m in METHODS + ["y2_seq2seq_ens", "y3_dist_ens"]:
+        for m in METHODS + [e + "_ens" for e in ENS]:
             if m.endswith("_ens"):
                 df, n = ensemble_rows(ddir, m[:-4])
                 if df is None:
@@ -130,8 +132,10 @@ def main():
     rel = []
     for ds in summ.dataset.unique():
         s = summ[summ.dataset == ds].set_index("method")
-        for a_, b_ in [("y2_seq2seq", "y3_dist"), ("y2_seq2seq", "y3_dist_ens"), ("y2_seq2seq_ens", "y3_dist_ens"),
-                       ("y2_seq2seq", "y3_resid"), ("y2_seq2seq", "y3_full")]:
+        for a_, b_ in [("prev_seq2seq", "fr_dist"), ("prev_seq2seq", "fr_dist_ens"), ("prev_seq2seq_ens", "fr_dist_ens"),
+                       ("prev_seq2seq", "fr_dist_w4"), ("prev_seq2seq_ens", "fr_dist_w4_ens"), ("prev_seq2seq", "fr_gauss"),
+                       ("prev_seq2seq_ens", "fr_gauss_ens"), ("prev_seq2seq", "lqr_fr"),
+                       ("prev_seq2seq", "fr_resid"), ("prev_seq2seq", "fr_full")]:
             if a_ in s.index and b_ in s.index:
                 r = {"dataset": ds, "baseline": a_, "method": b_}
                 for c in ["AGG_MAE", "AGG_RMSE", "AGG_MIS", "rtt_MAE", "rtt_RMSE", "rtt_MIS",
@@ -143,7 +147,7 @@ def main():
     pd.DataFrame(rel).to_csv(out / "relative_change.csv", index=False)
 
     # Horizon curves for figures: seed-mean RTT RMSE / MAE / skill per method
-    hs = hz[~hz.method.str.endswith("_ens") | hz.method.isin(["y3_dist_ens", "y2_seq2seq_ens"])]
+    hs = hz[~hz.method.str.endswith("_ens") | hz.method.isin([e + "_ens" for e in ENS])]
     hm = hs.groupby(["dataset", "method", "target", "h"])[["MAE", "RMSE", "R2", "RMSE_persist", "MIS", "PICP"]].mean().reset_index()
     hm["skill"] = 1 - hm.RMSE / hm.RMSE_persist
     hm.to_csv(out / "horizon_mean.csv", index=False)

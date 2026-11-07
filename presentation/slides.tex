@@ -276,7 +276,7 @@ def causal_ping_fix(df, provider):
   \begin{itemize}
     \item Encoder and attention are \textbf{unchanged} from the initial model, so the comparison isolates the decoder and the output
     \item Each step is evaluated separately (ablation, slide 23)
-    \item New model: \texttt{models/seq2seq\_dist.py}, \ParamsDist{} parameters (initial model: \ParamsYtwo)
+    \item New model: \texttt{models/seq2seq\_dist.py}, \ParamsDist{} parameters (initial model: \ParamsPrev)
   \end{itemize}
 \end{frame}
 
@@ -435,7 +435,7 @@ lo, hi = q_lo_test - c, q_hi_test + c
     symbolic x coords={OneWeb DL,OneWeb UL,Starlink DL,Starlink UL,5G DL,5G UL}, xtick=data,
     ylabel={change vs.\ the initial model (\%)}, legend style={at={(0.5,1.02)}, anchor=south, legend columns=3, font=\footnotesize},
     tick label style={font=\footnotesize}, ymajorgrids, grid style={gray!25}, nodes near coords, every node near coord/.append style={font=\tiny, anchor=north}]
-  \addplot[fill=cYthree] coordinates {(OneWeb DL,\ChgMISOWDL) (OneWeb UL,\ChgMISOWUL) (Starlink DL,\ChgMISSLDL) (Starlink UL,\ChgMISSLUL) (5G DL,\ChgMISQDL) (5G UL,\ChgMISQUL)};
+  \addplot[fill=cFR] coordinates {(OneWeb DL,\ChgMISOWDL) (OneWeb UL,\ChgMISOWUL) (Starlink DL,\ChgMISSLDL) (Starlink UL,\ChgMISSLUL) (5G DL,\ChgMISQDL) (5G UL,\ChgMISQUL)};
   \addplot[fill=cRidge] coordinates {(OneWeb DL,\ChgMAEOWDL) (OneWeb UL,\ChgMAEOWUL) (Starlink DL,\ChgMAESLDL) (Starlink UL,\ChgMAESLUL) (5G DL,\ChgMAEQDL) (5G UL,\ChgMAEQUL)};
   \addplot[fill=cPers, nodes near coords={}] coordinates {(OneWeb DL,\ChgRMSEOWDL) (OneWeb UL,\ChgRMSEOWUL) (Starlink DL,\ChgRMSESLDL) (Starlink UL,\ChgRMSESLUL) (5G DL,\ChgRMSEQDL) (5G UL,\ChgRMSEQUL)};
   \legend{95\% interval score, MAE, RMSE}
@@ -619,8 +619,8 @@ lo, hi = q_lo_test - c, q_hi_test + c
   \end{itemize}
   \textbf{Spike warning} (RTT $>$ 90th pct., AUROC)
   \begin{itemize}\small
-    \item Starlink DL: \good{\AUCYthreeSLDL} (Final) vs.\ \AUCYtwoSLDL{} (Initial)
-    \item similar on 4 links, worse on OneWeb DL\\(\AUCYthreeOWDL{} vs.\ \AUCYtwoOWDL)
+    \item Starlink DL: \good{\AUCFRSLDL} (Final) vs.\ \AUCPrevSLDL{} (Initial)
+    \item similar on 4 links, worse on OneWeb DL\\(\AUCFROWDL{} vs.\ \AUCPrevOWDL)
   \end{itemize}
   \end{column}
   \begin{column}{0.47\textwidth}

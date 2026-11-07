@@ -1,0 +1,23 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 2, horizontal sep=1.3cm, vertical sep=1.6cm}, frbase, width=5.3cm, height=4.0cm]
+\nextgroupplot[title={OneWeb DL}, xlabel={measured RTT (ms)}, only marks, ylabel={forecast at 1\,s (ms)}, legend to name=legscat, legend columns=2]
+\addplot[cPrev, mark=o, mark size=0.6pt] table[x=y, y=s2s] {data/scat_oneweb_dl.dat}; \addlegendentry{Initial ensemble (mean)}
+\addplot[cFR, mark=*, mark size=0.6pt] table[x=y, y=ds2s] {data/scat_oneweb_dl.dat}; \addlegendentry{Final ensemble (median)}
+\nextgroupplot[title={Starlink DL}, xlabel={measured RTT (ms)}, only marks]
+\addplot[cPrev, mark=o, mark size=0.6pt] table[x=y, y=s2s] {data/scat_starlink_dl.dat};
+\addplot[cFR, mark=*, mark size=0.6pt] table[x=y, y=ds2s] {data/scat_starlink_dl.dat};
+\nextgroupplot[title={5G DL}, xlabel={measured RTT (ms)}, only marks]
+\addplot[cPrev, mark=o, mark size=0.6pt] table[x=y, y=s2s] {data/scat_quectel_dl.dat};
+\addplot[cFR, mark=*, mark size=0.6pt] table[x=y, y=ds2s] {data/scat_quectel_dl.dat};
+\nextgroupplot[title={OneWeb UL}, xlabel={measured RTT (ms)}, only marks, ylabel={forecast at 1\,s (ms)}]
+\addplot[cPrev, mark=o, mark size=0.6pt] table[x=y, y=s2s] {data/scat_oneweb_ul.dat};
+\addplot[cFR, mark=*, mark size=0.6pt] table[x=y, y=ds2s] {data/scat_oneweb_ul.dat};
+\nextgroupplot[title={Starlink UL}, xlabel={measured RTT (ms)}, only marks]
+\addplot[cPrev, mark=o, mark size=0.6pt] table[x=y, y=s2s] {data/scat_starlink_ul.dat};
+\addplot[cFR, mark=*, mark size=0.6pt] table[x=y, y=ds2s] {data/scat_starlink_ul.dat};
+\nextgroupplot[title={5G UL}, xlabel={measured RTT (ms)}, only marks]
+\addplot[cPrev, mark=o, mark size=0.6pt] table[x=y, y=s2s] {data/scat_quectel_ul.dat};
+\addplot[cFR, mark=*, mark size=0.6pt] table[x=y, y=ds2s] {data/scat_quectel_ul.dat};
+\end{groupplot}
+\node at ($(group c2r2.south)+(0,-1.3cm)$) {\pgfplotslegendfromname{legscat}};
+\end{tikzpicture}

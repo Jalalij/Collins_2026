@@ -1,0 +1,22 @@
+\section{Causality of the Measurement Pipeline}
+\label{sec:causal}
+The collectors run on independent clocks. When a ping is missing at row $t$, a common merging step fills it by time interpolation between the neighboring real pings. Let $y_{t-1}$ and $y_{t+1}$ be the real pings around a single missing row and let the parser write $\tilde{y}_t=(1-w)\,y_{t-1}+w\,y_{t+1}$, with $w\in(0,1)$ the relative time position of row $t$ ($w=1/2$ for evenly spaced rows). The forecast origin $\tilde{y}_t$ then contains part of the first target $y_{t+1}$.
+
+\begin{proposition}
+\label{prop:leak}
+For a window whose last row is interpolated as above, the one-step persistence error with the interpolated origin is $y_{t+1}-\tilde{y}_t=(1-w)\,(y_{t+1}-y_{t-1})$, which is $(1-w)$ times the error with the causal origin $y_{t-1}$. Its squared error is therefore $(1-w)^2$ times the causal one for any realization of the process, a factor of four for $w=1/2$. If a fraction $p$ of the windows have an interpolated origin with $w=1/2$, and the causal one-step errors of these windows have the same mean square as the others, the one-step RMSE of persistence is understated by the factor $\sqrt{1-3p/4}$.
+\end{proposition}
+\begin{IEEEproof}
+Substitute $\tilde{y}_t$ into $y_{t+1}-\tilde{y}_t$ for the first statement. For the second, the mean squared error over all windows is $(1-p)\,m+p\,m/4=m(1-3p/4)$, where $m$ is the causal mean squared error.
+\end{IEEEproof}
+
+In our Starlink DL data, \InterpFracSLDL\% of the test RTT samples are interpolated. Replacing every interpolated input by the last real ping raises the one-step persistence RMSE by \AuditPersHonePct\%, from \AuditPersLegacyHone{} to \AuditPersCausalHone\,ms. This is more than the 5\% that Proposition~\ref{prop:leak} predicts under equal errors, because the windows with an interpolated origin have larger one-step errors than the others. The 5G and OneWeb RTT series contain no interpolated values.
+
+\begin{figure}[t]
+  \centering
+  \input{figs/fr_leak.tex}
+  \caption{Effect of the interpolation leak on a trained forecaster (DS2S, Starlink DL, mean of three seeds). Trained and tested on interpolated inputs, the model reports a lower error than it reaches when it is deployed on the causal inputs available online. Inset: the first 0.6\,s.}
+  \label{fig:leak}
+\end{figure}
+
+The leak is not limited to persistence. Every model that reads the last input value, including anchored decoders and rolling features, can exploit it. Fig.~\ref{fig:leak} measures the effect on a trained model. We trained S2S and DS2S of Section~\ref{sec:setup} on Starlink DL with interpolated inputs and, separately, with causal inputs that hold the last real ping, three seeds each, and tested the models trained on interpolated inputs on both versions of the test inputs. The targets are the same measured series in all cases. Trained and tested on interpolated inputs, DS2S reports a 0.2\,s MAE of \LeakDSAhOne\,ms. On causal inputs, which are all that a deployed forecaster sees, the same model reaches \LeakDSBhOne\,ms, \LeakOptDSMAEhOne\% worse (RMSE: \LeakOptDSRMSEhOne\%). The model trained on causal inputs reaches \LeakDSChOne\,ms. Causal training thus also gives the better deployed model. The gap shrinks with the horizon (\LeakOptDSMAEavg\% over 0.2 to 3\,s) and is smaller for S2S (\LeakOptSSMAEhOne\% at 0.2\,s), whose decoder does not start from the last observation. The leak therefore inflates the short-horizon accuracy on which a packet scheduler relies most. All other results in this paper use causal inputs and measured targets.

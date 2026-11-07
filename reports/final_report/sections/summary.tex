@@ -9,10 +9,19 @@ This report covers the final work on forecasting the state of satellite and terr
 
 \paragraph{What changed in the final report.} Every method now uses causal inputs. The final forecaster keeps the initial encoder and attention but anchors the decoder on the last observation, adds causal context features, and, most importantly, predicts a mean and five quantiles for every target and step instead of a single value. Intervals are calibrated on held-out sessions with conformalized quantile regression, and three seeds are combined into an ensemble.
 
-\paragraph{Results (test sessions, 3 seeds, against the initial model retrained on the same corrected data).}
+\paragraph{Results (test sessions, three-seed ensembles, against the previous model retrained on the same corrected data).}
 \begin{itemize}[leftmargin=*]
-  \item \textbf{Calibrated uncertainty:} the 95\% interval score of the RTT forecasts improves on all six links, by \ChgMISWorst\% to \ChgMISBest\% (mean \ChgMISMean\%), with measured coverage of \PICPMin--\PICPMax{} on unseen sessions. Jitter and loss intervals improve on every link as well.
-  \item \textbf{Absolute error:} the RTT MAE drops on all six links, by \ChgMAEWorst\% to \ChgMAEBest\% (mean \ChgMAEMean\%). The gains are largest on the links with spiky RTT (5G UL \ChgMAEQUL\%, Starlink DL \ChgMAESLDL\%, OneWeb DL \ChgMAEOWDL\%).
-  \item \textbf{Squared error:} RMSE and $R^2$ are essentially unchanged (RMSE \ChgRMSEBest\% to $+$\ChgRMSEWorst\%). We did not find a change that reliably lowers the RTT RMSE by more than a few percent. A tuned linear model reaches a similar RMSE skill as the initial network on four of the six links.
+  \item \textbf{Calibrated uncertainty:} the 95\% interval score of the RTT forecasts improves on all six links, by \BSISWorstAbs\% to \BSISBestAbs\%, significantly at the session level on every link, with measured coverage of \PICPEnsMin{} to \PICPEnsMax{} on unseen sessions. Jitter and loss intervals improve on every link where these targets vary.
+  \item \textbf{Absolute error:} the RTT MAE improves significantly on five links, by \BSMAEsigLoAbs\% to \BSMAEsigHiAbs\% (largest on 5G UL, Starlink DL, and OneWeb DL), and is unchanged within the uncertainty on OneWeb UL.
+  \item \textbf{Squared error:} the RTT RMSE changes by at most \BSRMSEMaxAbs\%. We did not find a change that lowers the RTT RMSE by more than a few percent. A tuned linear model reaches a similar RMSE skill as the previous network on four of the six links.
 \end{itemize}
 The improvement is therefore not in the squared error of the point forecast, which appears close to what the 6\,s window can support, but in the robustness of the point forecast to RTT spikes and in calibrated, input-dependent uncertainty. For the multipath scheduler this means a per-path risk bound that is tighter when a path is calm and widens when it is about to become unstable.
+
+\paragraph{New analyses in this version.} Section~\ref{sec:improved} lists everything that changed since the previous report. The main additions are:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{What is predictable} (Section~\ref{sec:predictable}): past RTT changes hardly predict the next change, but the spread of the RTT depends on a link state that a few seconds of input reveal, and the errors are skewed upward. This is why the RMSE hardly moves while calibrated intervals improve a lot.
+  \item \textbf{Effect of the leak on a trained model} (Section~\ref{sec:leakmodel}): trained and tested on the previous interpolated inputs, the final model reaches a 0.2\,s error \LeakOptDSMAEhOne\% higher in deployment than the one it reports.
+  \item \textbf{Why the interval improves} (Section~\ref{sec:why}): the constant-width interval of the previous model over-covers calm windows and under-covers volatile ones. The final model adapts the width and places the interval above the forecast. A linear quantile model calibrated in the same way recovers most of the gain.
+  \item \textbf{Statistical validity} (Section~\ref{sec:validity}): with three-seed ensembles on both sides, the interval score improves by \BSISWorstAbs\% to \BSISBestAbs\%, significantly on every link at the session level.
+  \item \textbf{Value for scheduling} (Section~\ref{sec:dup}): in an emulated deadline-aware duplication scheduler, the final model needs \SchedSaveSLDL\% less duplication on Starlink DL with no more late packets.
+\end{itemize}

@@ -29,7 +29,7 @@ rows = []
 for cfg, _ in CFGS:
     base = ROOT / ("results_final/main" if cfg == "base" else f"results_final/sweeps/{cfg}")
     for ds in LINKS:
-        for m in ["y2_seq2seq", "y3_dist"]:
+        for m in ["prev_seq2seq", "fr_dist"]:
             for seed in [0, 1]:
                 f = base / ds / f"{m}_s{seed}.csv"
                 if not f.exists(): continue
@@ -53,8 +53,8 @@ for cfg, lab in CFGS:
     cells = []
     for ds in LINKS:
         try:
-            b = g[(g.cfg == "base") & (g.dataset == ds) & (g.method == "y3_dist")].iloc[0]
-            x = g[(g.cfg == c) & (g.dataset == ds) & (g.method == "y3_dist")].iloc[0]
+            b = g[(g.cfg == "base") & (g.dataset == ds) & (g.method == "fr_dist")].iloc[0]
+            x = g[(g.cfg == c) & (g.dataset == ds) & (g.method == "fr_dist")].iloc[0]
             if cfg == "base":
                 cells += [f"{x.MAE:.2f}", f"{x.RMSE:.2f}", f"{x.MIS:.1f}"]
             else:
@@ -71,8 +71,8 @@ for cfg, lab in CFGS[:4]:
     cells = []
     for ds in LINKS:
         try:
-            a = g[(g.cfg == c) & (g.dataset == ds) & (g.method == "y2_seq2seq")].iloc[0]
-            b = g[(g.cfg == c) & (g.dataset == ds) & (g.method == "y3_dist")].iloc[0]
+            a = g[(g.cfg == c) & (g.dataset == ds) & (g.method == "prev_seq2seq")].iloc[0]
+            b = g[(g.cfg == c) & (g.dataset == ds) & (g.method == "fr_dist")].iloc[0]
             cells += [f"{100*(b.MAE/a.MAE-1):+.1f}", f"{100*(b.RMSE/a.RMSE-1):+.1f}", f"{100*(b.MIS/a.MIS-1):+.1f}"]
         except IndexError:
             cells += ["--"] * 3
@@ -84,20 +84,20 @@ for ds in LINKS:
     lines = []
     for L, cfg in [(15, "L15"), (30, "base"), (60, "L60")]:
         vals = {}
-        for m in ["y2_seq2seq", "y3_dist"]:
+        for m in ["prev_seq2seq", "fr_dist"]:
             x = g[(g.cfg == cfg) & (g.dataset == ds) & (g.method == m)]
             vals[m] = (x.MAE.iloc[0], x.MIS.iloc[0]) if len(x) else (np.nan, np.nan)
-        lines.append(f"{L*0.2:.0f} {vals['y2_seq2seq'][0]:.4f} {vals['y3_dist'][0]:.4f} {vals['y2_seq2seq'][1]:.4f} {vals['y3_dist'][1]:.4f}")
+        lines.append(f"{L*0.2:.0f} {vals['prev_seq2seq'][0]:.4f} {vals['fr_dist'][0]:.4f} {vals['prev_seq2seq'][1]:.4f} {vals['fr_dist'][1]:.4f}")
     (OUT / f"sweepL_{ds}.dat").write_text("Ls s2smae ds2smae s2smis ds2smis\n" + "\n".join(lines) + "\n")
 # horizon-30 per-step curves (seed mean)
 for ds in LINKS:
     out = {}
-    for m in ["y2_seq2seq", "y3_dist"]:
+    for m in ["prev_seq2seq", "fr_dist"]:
         fs = [ROOT / f"results_final/sweeps/H30/{ds}/{m}_s{s}.csv" for s in [0, 1]]
         fs = [f for f in fs if f.exists()]
         if not fs: continue
         dd = pd.concat([pd.read_csv(f) for f in fs]); dd = dd[dd.target == "rtt"]
-        col_mae = "MAE_median" if m == "y3_dist" else "MAE"; col_mis = "MIS_cqr" if m == "y3_dist" else "MIS"
+        col_mae = "MAE_median" if m == "fr_dist" else "MAE"; col_mis = "MIS_cqr" if m == "fr_dist" else "MIS"
         out[m + "_mae"] = dd.groupby("h")[col_mae].mean(); out[m + "_mis"] = dd.groupby("h")[col_mis].mean()
     if out:
         pd.DataFrame(out).rename_axis("h").reset_index().to_csv(OUT / f"sweepH_{ds}.dat", sep=" ", index=False, float_format="%.4f")

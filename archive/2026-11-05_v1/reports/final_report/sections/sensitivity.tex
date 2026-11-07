@@ -1,0 +1,54 @@
+This section tests how sensitive the results are to the main design choices. Each setting was trained with seeds 0 and 1 on the four satellite links, with all other settings as in Section~\ref{sec:protocol}, and evaluated on the same test sessions (80 additional runs, \texttt{results\_\allowbreak{}final/\allowbreak{}sweeps/}, summarized by \texttt{experiments/\allowbreak{}final\_\allowbreak{}sweeps.py}). The settings are a shorter (15 rows, 3\,s) and a longer (60 rows, 12\,s) input window, a longer horizon (30 steps, 6\,s), a smaller (64) and a larger (256) hidden size, and a pinball-loss weight of 0.25 and 4 instead of 1 in~\eqref{eq:loss}.
+
+\subsection{Does the final gain depend on the setting?}
+Table~\ref{tab:sweepvs} compares the final and initial models trained with the same window and horizon. The interval-score gain holds in every setting and on every link, from 7\% to 41\%. The MAE gain also holds everywhere, and it is larger on OneWeb UL with the shorter or longer window than with the default. The RMSE changes by $-7.8\%$ to $+2.1\%$, with the largest reductions on OneWeb UL. The conclusions of Section~\ref{sec:results} therefore do not depend on the window or horizon chosen in the initial study.
+
+\begin{table}[h]
+\centering
+\caption{Change (\%) of the final model against the initial model trained with the same setting (RTT, seed means over two seeds, averaged over all horizon steps of the setting). Negative is better.}
+\label{tab:sweepvs}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{l*{12}{r}}
+\toprule
+ & \multicolumn{3}{c}{OneWeb DL} & \multicolumn{3}{c}{OneWeb UL} & \multicolumn{3}{c}{Starlink DL} & \multicolumn{3}{c}{Starlink UL} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
+Setting & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS \\
+\midrule
+\tabinput{data/tab3_sweeps_vs.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{How the final model responds to each setting}
+Table~\ref{tab:sweepds} gives the change of the final model under each setting relative to its default (first row, absolute values in ms). For the 30-step horizon, only the first 15 steps are scored. The numbers therefore compare the same 0.2--3\,s targets.
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Input window.} A 12\,s window helps OneWeb UL (MAE $-9.4\%$) and hurts OneWeb DL (MAE $+11.2\%$). The 6\,s default is a reasonable compromise, and a per-link window is an easy gain for deployment.
+  \item \textbf{Horizon.} Training for 6\,s costs little at 0.2--3\,s on three links (within about $\pm5\%$) but raises the Starlink DL MAE by 7.8\%. Figure~\ref{fig:sweepH} shows that the errors grow smoothly to 6\,s and that the final interval score stays below the initial one at every step.
+  \item \textbf{Model size.} A hidden size of 64 is worse on the downlinks (up to $+7.9\%$ MAE). A size of 256 changes the results by a few percent in both directions. The default of 128 is adequate.
+  \item \textbf{Pinball weight.} A weight of 4 on the quantile loss improves the final model on every link and metric except the OneWeb DL RMSE ($+0.4\%$). The OneWeb DL MAE drops by 10.4\% and the interval score by 1.6\% to 5.9\%. A weight of 0.25 is worse on most links. The default weight of 1 used in the main study is therefore not the best choice, and the main results understate what the distributional model can reach. A weight of 4 is recommended for the next round.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{final model under each setting: absolute RTT values for the default (first row, ms) and change (\%) against the default for the others (two seeds). The 6\,s horizon is scored on its first 15 steps.}
+\label{tab:sweepds}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{l*{12}{r}}
+\toprule
+ & \multicolumn{3}{c}{OneWeb DL} & \multicolumn{3}{c}{OneWeb UL} & \multicolumn{3}{c}{Starlink DL} & \multicolumn{3}{c}{Starlink UL} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
+Setting & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS \\
+\midrule
+\tabinput{data/tab3_sweeps_ds2s.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \resizebox{\linewidth}{!}{\input{figs/fig_sweepH.tex}}
+  \caption{Models trained for a 6\,s horizon: RTT MAE (top) and calibrated interval score (bottom) per step (seed means over two seeds).}
+  \label{fig:sweepH}
+\end{figure}

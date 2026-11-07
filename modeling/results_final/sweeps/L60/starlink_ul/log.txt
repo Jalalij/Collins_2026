@@ -1,12 +1,12 @@
 [data y3] 41 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105055, 'val': 19880, 'test': 25396} (1s)
 
-=== starlink ul | y3_dist | seed 0 ===
+=== starlink ul | fr_dist | seed 0 ===
     ep   1 train=0.6197 val=0.7679 ema=0.7679 lr=1.0e-03 [99.3s]
     ep   2 train=0.5740 val=0.7721 ema=0.7691 lr=1.0e-03 [98.9s]
     ep   3 train=0.5674 val=0.7573 ema=0.7656 lr=1.0e-03 [95.6s]
 [data y2] 19 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105055, 'val': 19880, 'test': 25396} (1s)
 
-=== starlink ul | y2_seq2seq | seed 0 ===
+=== starlink ul | prev_seq2seq | seed 0 ===
     ep   4 train=0.5576 val=0.7656 ema=0.7656 lr=1.0e-03 [91.1s]
     ep   1 train=0.5838 val=0.6571 ema=0.6571 lr=1.0e-03 [68.8s]
     ep   5 train=0.5311 val=0.7519 ema=0.7615 lr=1.0e-03 [84.9s]
@@ -67,10 +67,10 @@ rtt    3.8583 7.2023 0.3306        9.5825 0.9360
   AGG MAE=1.4510 RMSE=3.2673 R2=0.1605 (1883s)
 [data y3] 41 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105055, 'val': 19880, 'test': 25396} (2s)
 
-=== starlink ul | y3_dist | seed 1 ===
+=== starlink ul | fr_dist | seed 1 ===
 [data y2] 19 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105055, 'val': 19880, 'test': 25396} (1s)
 
-=== starlink ul | y2_seq2seq | seed 1 ===
+=== starlink ul | prev_seq2seq | seed 1 ===
     ep   1 train=0.6166 val=0.7522 ema=0.7522 lr=1.0e-03 [86.5s]
     ep   1 train=0.5859 val=0.6646 ema=0.6646 lr=1.0e-03 [72.6s]
     ep   2 train=0.5690 val=0.7571 ema=0.7537 lr=1.0e-03 [86.1s]

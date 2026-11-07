@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 1, horizontal sep=0.45cm, yticklabels at=edge left},
+  width=7.0cm, height=4.6cm, enlargelimits=false, xmin=0.5, xmax=15.5, ymin=-0.5, ymax=5.5, ytick={0,...,5}, yticklabels={Starlink DL,OneWeb DL,5G UL,Starlink UL,OneWeb UL,5G DL},
+  xtick={1,5,10,15}, xticklabels={0.2,1,2,3}, xlabel={horizon (s)}, tick label style={font=\scriptsize}, label style={font=\scriptsize},
+  title style={font=\footnotesize}, colormap={bwr}{rgb255=(33,102,172) rgb255=(247,247,247) rgb255=(178,24,43)}, point meta min=-50.0, point meta max=50.0, y dir=reverse]
+\nextgroupplot[title={(a) RTT MAE change (\%)}]
+\addplot[matrix plot*, mesh/cols=15, point meta=explicit] table[x=x, y=y, meta=v] {data/fr_heat_MAE.dat};
+\nextgroupplot[title={(b) RTT interval-score change (\%)}, colorbar right, colorbar style={width=0.18cm, ytick={-50,-25,0,25,50}, yticklabel style={font=\scriptsize}}]
+\addplot[matrix plot*, mesh/cols=15, point meta=explicit] table[x=x, y=y, meta=v] {data/fr_heat_MIS.dat};
+\end{groupplot}
+\end{tikzpicture}

@@ -1,0 +1,109 @@
+link,method,against,against_label,against_role,against_seeds,metric,n_sessions,method_value,against_value,change_full_pct,boot_median_pct,boot_lo_pct,boot_hi_pct,frac_not_better,verdict,sessions_better
+oneweb_dl,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,MAE,11,15.936,14.354,11.0209,11.096,8.30094,13.4704,1,worse,0
+oneweb_dl,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,RMSE,11,66.6055,67.7353,-1.66795,-1.54785,-4.3907,2.09733,0.2895,inconclusive,4
+oneweb_dl,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,IS,11,258.982,249.35,3.86286,4.18157,-2.64801,10.2569,0.874,inconclusive,1
+oneweb_dl,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,MAE,11,15.936,29.8784,-46.664,-46.688,-49.6742,-43.7397,0,better,11
+oneweb_dl,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,RMSE,11,66.6055,75.6466,-11.9517,-11.9692,-14.4484,-9.77087,0,better,11
+oneweb_dl,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,IS,11,258.982,298.567,-13.2583,-13.2558,-15.8194,-9.98923,0,better,11
+oneweb_dl,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,MAE,11,15.936,19.2017,-17.0076,-17.0271,-20.8493,-12.7318,0,better,11
+oneweb_dl,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,RMSE,11,66.6055,67.7655,-1.71166,-1.62476,-3.1954,0.414138,0.0675,inconclusive,6
+oneweb_dl,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,IS,11,258.982,319.72,-18.9972,-18.8964,-22.0901,-15.811,0,better,11
+oneweb_dl,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,MAE,11,15.936,21.1731,-24.7349,-24.7158,-28.4752,-21.4773,0,better,11
+oneweb_dl,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,RMSE,11,66.6055,66.5173,0.132705,0.116122,-1.01001,0.863811,0.595,inconclusive,7
+oneweb_dl,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,IS,11,258.982,321.41,-19.4231,-19.4549,-21.9311,-16.3344,0,better,11
+oneweb_dl,fr_dist,lqr_fr,linear quantile model,ablation,1,MAE,11,15.936,15.1816,4.96868,4.95213,1.82638,9.14739,0.9995,worse,2
+oneweb_dl,fr_dist,lqr_fr,linear quantile model,ablation,1,RMSE,11,66.6055,69.4973,-4.161,-4.10062,-5.58263,-2.4293,0,better,11
+oneweb_dl,fr_dist,lqr_fr,linear quantile model,ablation,1,IS,11,258.982,263.707,-1.79149,-1.74396,-4.52348,0.781872,0.1025,inconclusive,8
+oneweb_dl,fr_dist,ridge_fr,"ridge, extended features",ablation,1,MAE,11,15.936,19.4222,-17.9495,-17.9354,-20.1824,-15.5763,0,better,11
+oneweb_dl,fr_dist,ridge_fr,"ridge, extended features",ablation,1,RMSE,11,66.6055,69.1329,-3.65576,-3.59463,-5.04466,-1.96454,0,better,11
+oneweb_dl,fr_dist,ridge_fr,"ridge, extended features",ablation,1,IS,11,258.982,338.64,-23.5227,-23.4044,-26.7623,-20.454,0,better,11
+oneweb_ul,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,MAE,11,67.5066,65.425,3.18178,3.05094,-0.269628,6.85826,0.963,inconclusive,4
+oneweb_ul,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,RMSE,11,145.352,145.146,0.142301,0.112202,-1.69939,2.01691,0.5465,inconclusive,6
+oneweb_ul,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,IS,11,756.901,773.865,-2.19208,-2.21849,-4.07454,-0.182076,0.017,better,9
+oneweb_ul,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,MAE,11,67.5066,81.7547,-17.4278,-17.4518,-21.5406,-13.5533,0,better,11
+oneweb_ul,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,RMSE,11,145.352,157.981,-7.99416,-7.90371,-12.5435,-2.50473,0.001,better,8
+oneweb_ul,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,IS,11,756.901,789.137,-4.08489,-4.12873,-12.0411,5.68067,0.1895,inconclusive,8
+oneweb_ul,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,MAE,11,67.5066,71.4456,-5.51325,-5.84641,-11.7956,2.1251,0.0695,inconclusive,10
+oneweb_ul,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,RMSE,11,145.352,150.72,-3.56123,-3.63077,-5.88768,-0.587591,0.0095,better,9
+oneweb_ul,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,IS,11,756.901,1076.98,-29.7198,-29.6724,-34.0066,-26.3496,0,better,11
+oneweb_ul,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,MAE,11,67.5066,68.5225,-1.48255,-1.64994,-4.88037,2.74284,0.1995,inconclusive,8
+oneweb_ul,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,RMSE,11,145.352,141.536,2.69585,2.71406,0.499066,4.79705,0.99,worse,3
+oneweb_ul,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,IS,11,756.901,994.934,-23.9244,-23.8997,-29.0792,-19.8076,0,better,11
+oneweb_ul,fr_dist,lqr_fr,linear quantile model,ablation,1,MAE,11,67.5066,81.7687,-17.442,-17.4003,-23.1258,-10.1959,0,better,10
+oneweb_ul,fr_dist,lqr_fr,linear quantile model,ablation,1,RMSE,11,145.352,163.962,-11.3504,-11.3471,-15.5403,-6.13956,0,better,10
+oneweb_ul,fr_dist,lqr_fr,linear quantile model,ablation,1,IS,11,756.901,742.124,1.99118,2.20949,-5.68636,9.78759,0.7095,inconclusive,4
+oneweb_ul,fr_dist,ridge_fr,"ridge, extended features",ablation,1,MAE,11,67.5066,87.9341,-23.2304,-23.2828,-27.5199,-19.2607,0,better,11
+oneweb_ul,fr_dist,ridge_fr,"ridge, extended features",ablation,1,RMSE,11,145.352,163.69,-11.2026,-11.2066,-15.3358,-6.02314,0,better,10
+oneweb_ul,fr_dist,ridge_fr,"ridge, extended features",ablation,1,IS,11,756.901,1138.79,-33.5344,-33.5157,-39.3796,-27.5297,0,better,11
+starlink_dl,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,MAE,9,18.4512,18.0859,2.01972,2.01779,0.893398,3.36591,1,worse,2
+starlink_dl,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,RMSE,9,35.2049,35.3027,-0.277032,-0.267233,-0.819501,0.37632,0.181,inconclusive,4
+starlink_dl,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,IS,9,143.4,139.388,2.87862,2.87831,1.76983,4.2126,1,worse,0
+starlink_dl,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,MAE,9,18.4512,28.0019,-34.1074,-34.0204,-38.7161,-29.793,0,better,9
+starlink_dl,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,RMSE,9,35.2049,41.6751,-15.5254,-15.4394,-18.8479,-12.7916,0,better,9
+starlink_dl,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,IS,9,143.4,176.519,-18.7624,-18.7639,-21.5876,-16.1051,0,better,9
+starlink_dl,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,MAE,9,18.4512,21.6221,-14.665,-14.6624,-18.9211,-10.6172,0,better,9
+starlink_dl,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,RMSE,9,35.2049,37.0183,-4.8986,-4.89747,-7.19223,-2.80329,0,better,9
+starlink_dl,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,IS,9,143.4,240.282,-40.3201,-40.3424,-42.4244,-38.3067,0,better,9
+starlink_dl,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,MAE,9,18.4512,20.0099,-7.78968,-7.80111,-10.0446,-5.73933,0,better,9
+starlink_dl,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,RMSE,9,35.2049,35.3344,-0.36658,-0.359066,-1.16037,0.313946,0.1605,inconclusive,6
+starlink_dl,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,IS,9,143.4,238.038,-39.7575,-39.7519,-41.3021,-38.478,0,better,9
+starlink_dl,fr_dist,lqr_fr,linear quantile model,ablation,1,MAE,9,18.4512,19.8058,-6.83963,-7.30707,-12.8986,1.8255,0.0635,inconclusive,7
+starlink_dl,fr_dist,lqr_fr,linear quantile model,ablation,1,RMSE,9,35.2049,37.608,-6.3899,-6.45886,-9.58598,-3.03203,0,better,8
+starlink_dl,fr_dist,lqr_fr,linear quantile model,ablation,1,IS,9,143.4,152.267,-5.82306,-5.77655,-8.30456,-4.01592,0,better,9
+starlink_dl,fr_dist,ridge_fr,"ridge, extended features",ablation,1,MAE,9,18.4512,23.0423,-19.9246,-20.061,-25.6403,-13.4443,0,better,8
+starlink_dl,fr_dist,ridge_fr,"ridge, extended features",ablation,1,RMSE,9,35.2049,37.5466,-6.23676,-6.31367,-9.42617,-2.81284,0,better,8
+starlink_dl,fr_dist,ridge_fr,"ridge, extended features",ablation,1,IS,9,143.4,245.818,-41.6641,-41.6434,-43.7718,-39.7697,0,better,9
+starlink_ul,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,MAE,9,3.75802,3.74232,0.41974,0.426036,0.0748916,0.730292,0.993,worse,2
+starlink_ul,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,RMSE,9,7.03708,7.01213,0.355927,0.350636,0.102417,0.695047,0.9995,worse,2
+starlink_ul,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,IS,9,34.6373,33.1452,4.50171,4.44082,2.49188,6.50114,1,worse,0
+starlink_ul,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,MAE,9,3.75802,4.55437,-17.4853,-17.4655,-20.7985,-13.7268,0,better,9
+starlink_ul,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,RMSE,9,7.03708,7.60736,-7.49642,-7.4689,-8.58671,-6.10937,0,better,9
+starlink_ul,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,IS,9,34.6373,36.4459,-4.96243,-4.98822,-7.24658,-2.80572,0,better,8
+starlink_ul,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,MAE,9,3.75802,3.87461,-3.0091,-2.9842,-3.99499,-1.9782,0,better,9
+starlink_ul,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,RMSE,9,7.03708,7.04777,-0.151676,-0.137024,-0.493504,0.110416,0.1805,inconclusive,6
+starlink_ul,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,IS,9,34.6373,38.3778,-9.74658,-9.68134,-11.9821,-7.51908,0,better,9
+starlink_ul,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,MAE,9,3.75802,3.85228,-2.44682,-2.42737,-3.10961,-1.78768,0,better,9
+starlink_ul,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,RMSE,9,7.03708,7.04677,-0.137494,-0.138764,-0.314928,0.0438815,0.0705,inconclusive,6
+starlink_ul,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,IS,9,34.6373,38.5077,-10.0511,-10.0012,-12.1013,-7.82903,0,better,9
+starlink_ul,fr_dist,lqr_fr,linear quantile model,ablation,1,MAE,9,3.75802,3.80515,-1.23841,-1.21947,-2.10533,-0.427692,0,better,8
+starlink_ul,fr_dist,lqr_fr,linear quantile model,ablation,1,RMSE,9,7.03708,7.12276,-1.20291,-1.1897,-1.63686,-0.706777,0,better,9
+starlink_ul,fr_dist,lqr_fr,linear quantile model,ablation,1,IS,9,34.6373,33.7868,2.51727,2.36276,-0.262471,6.25225,0.9345,inconclusive,4
+starlink_ul,fr_dist,ridge_fr,"ridge, extended features",ablation,1,MAE,9,3.75802,3.92174,-4.1746,-4.15926,-5.07196,-3.22568,0,better,9
+starlink_ul,fr_dist,ridge_fr,"ridge, extended features",ablation,1,RMSE,9,7.03708,7.10447,-0.948488,-0.931852,-1.37643,-0.460834,0,better,9
+starlink_ul,fr_dist,ridge_fr,"ridge, extended features",ablation,1,IS,9,34.6373,38.8199,-10.7744,-10.6212,-13.598,-7.97972,0,better,9
+quectel_dl,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,MAE,58,3.12498,3.08872,1.17397,1.17607,0.944177,1.41967,1,worse,6
+quectel_dl,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,RMSE,58,4.56655,4.55394,0.276726,0.278089,0.190629,0.362415,1,worse,8
+quectel_dl,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,IS,58,21.6783,21.4004,1.29886,1.2957,1.04004,1.5577,1,worse,5
+quectel_dl,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,MAE,58,3.12498,3.53141,-11.5091,-11.4915,-12.8175,-10.2171,0,better,58
+quectel_dl,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,RMSE,58,4.56655,4.86383,-6.11213,-6.10241,-6.6607,-5.62164,0,better,58
+quectel_dl,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,IS,58,21.6783,23.5259,-7.8533,-7.84989,-8.74668,-6.90887,0,better,57
+quectel_dl,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,MAE,58,3.12498,3.20428,-2.47495,-2.46191,-2.98025,-1.9855,0,better,55
+quectel_dl,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,RMSE,58,4.56655,4.62352,-1.23221,-1.21374,-1.61964,-0.892443,0,better,54
+quectel_dl,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,IS,58,21.6783,25.0201,-13.3562,-13.3341,-14.4728,-12.2073,0,better,58
+quectel_dl,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,MAE,58,3.12498,3.19251,-2.11553,-2.11261,-2.47275,-1.78691,0,better,56
+quectel_dl,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,RMSE,58,4.56655,4.58208,-0.3391,-0.336111,-0.424251,-0.25044,0,better,49
+quectel_dl,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,IS,58,21.6783,24.5784,-11.7993,-11.7967,-12.9186,-10.653,0,better,58
+quectel_dl,fr_dist,lqr_fr,linear quantile model,ablation,1,MAE,58,3.12498,3.34883,-6.68446,-6.68776,-7.67293,-5.69893,0,better,56
+quectel_dl,fr_dist,lqr_fr,linear quantile model,ablation,1,RMSE,58,4.56655,4.73606,-3.57923,-3.57579,-3.97923,-3.21203,0,better,58
+quectel_dl,fr_dist,lqr_fr,linear quantile model,ablation,1,IS,58,21.6783,22.382,-3.14407,-3.1317,-3.68567,-2.57138,0,better,53
+quectel_dl,fr_dist,ridge_fr,"ridge, extended features",ablation,1,MAE,58,3.12498,3.39052,-7.83195,-7.84001,-8.92091,-6.77419,0,better,58
+quectel_dl,fr_dist,ridge_fr,"ridge, extended features",ablation,1,RMSE,58,4.56655,4.72843,-3.42359,-3.42041,-3.82018,-3.05326,0,better,58
+quectel_dl,fr_dist,ridge_fr,"ridge, extended features",ablation,1,IS,58,21.6783,24.5834,-11.8173,-11.8075,-13.1753,-10.4435,0,better,58
+quectel_ul,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,MAE,58,10.1547,10.1278,0.265334,0.264854,0.204007,0.330723,1,worse,4
+quectel_ul,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,RMSE,58,19.8292,19.834,-0.0240698,-0.0226974,-0.0588982,0.00636197,0.0705,inconclusive,26
+quectel_ul,fr_dist,fr_dist_w4,DS2S-E (pinball weight 4),extra,3,IS,58,91.7048,91.546,0.173528,0.176191,0.0695596,0.27179,0.999,worse,14
+quectel_ul,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,MAE,58,10.1547,13.8202,-26.5229,-26.5382,-28.1976,-24.9164,0,better,58
+quectel_ul,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,RMSE,58,19.8292,20.1353,-1.52043,-1.51987,-1.72702,-1.34568,0,better,58
+quectel_ul,fr_dist,fr_gauss,DS2S-E (Gaussian head),extra,3,IS,58,91.7048,121.484,-24.5127,-24.5191,-24.9995,-24.0412,0,better,58
+quectel_ul,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,MAE,58,10.1547,12.4336,-18.3289,-18.3399,-19.6583,-16.9752,0,better,58
+quectel_ul,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,RMSE,58,19.8292,19.9008,-0.359838,-0.344454,-0.747239,-0.111476,0,better,43
+quectel_ul,fr_dist,fr_resid,residual decoder (3-seed ens.),ablation,3,IS,58,91.7048,127.727,-28.2023,-28.1999,-28.9255,-27.538,0,better,58
+quectel_ul,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,MAE,58,10.1547,12.3639,-17.8686,-17.8694,-18.5568,-17.1082,0,better,58
+quectel_ul,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,RMSE,58,19.8292,19.8314,-0.0112635,-0.0120448,-0.0269286,0.00531477,0.0925,inconclusive,39
+quectel_ul,fr_dist,fr_full,+ data pipeline (3-seed ens.),ablation,3,IS,58,91.7048,127.294,-27.9584,-27.959,-28.6466,-27.3244,0,better,58
+quectel_ul,fr_dist,lqr_fr,linear quantile model,ablation,1,MAE,58,10.1547,10.1749,-0.19893,-0.19777,-0.358853,-0.0632305,0.0005,better,30
+quectel_ul,fr_dist,lqr_fr,linear quantile model,ablation,1,RMSE,58,19.8292,19.8728,-0.219451,-0.219335,-0.271719,-0.166042,0,better,47
+quectel_ul,fr_dist,lqr_fr,linear quantile model,ablation,1,IS,58,91.7048,93.8502,-2.28592,-2.28372,-2.77718,-1.74561,0,better,43
+quectel_ul,fr_dist,ridge_fr,"ridge, extended features",ablation,1,MAE,58,10.1547,12.3584,-17.832,-17.83,-18.5099,-17.0819,0,better,58
+quectel_ul,fr_dist,ridge_fr,"ridge, extended features",ablation,1,RMSE,58,19.8292,19.8328,-0.0183677,-0.0182207,-0.0530931,0.0177997,0.166,inconclusive,32
+quectel_ul,fr_dist,ridge_fr,"ridge, extended features",ablation,1,IS,58,91.7048,127.427,-28.0335,-28.0397,-28.7077,-27.3943,0,better,58

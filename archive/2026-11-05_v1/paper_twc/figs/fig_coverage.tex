@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+\begin{axis}[frbase, width=\columnwidth, height=4.6cm, xmin=0.2, xmax=3, ymin=0.90, ymax=1.0, xtick={0.2,1,2,3}, xlabel={horizon (s)}, ylabel={RTT coverage (PICP)}, legend style={at={(0.5,1.02)}, anchor=south, legend columns=3, font=\scriptsize}]
+\addplot[black, dashed, forget plot] coordinates {(0.2,0.95) (3,0.95)};
+\addplot[cFR, thick, mark=*, mark size=1pt] table[x expr=\thisrow{h}*0.2, y=frdistens] {figs/data/h_oneweb_dl_rtt_PICP.dat}; \addlegendentry{OneWeb DL}
+\addplot[cFR, thick, dashed, mark=o, mark size=1pt] table[x expr=\thisrow{h}*0.2, y=frdistens] {figs/data/h_oneweb_ul_rtt_PICP.dat}; \addlegendentry{OneWeb UL}
+\addplot[cPrev, thick, mark=*, mark size=1pt] table[x expr=\thisrow{h}*0.2, y=frdistens] {figs/data/h_starlink_dl_rtt_PICP.dat}; \addlegendentry{Starlink DL}
+\addplot[cPrev, thick, dashed, mark=o, mark size=1pt] table[x expr=\thisrow{h}*0.2, y=frdistens] {figs/data/h_starlink_ul_rtt_PICP.dat}; \addlegendentry{Starlink UL}
+\addplot[cRidge, thick, mark=*, mark size=1pt] table[x expr=\thisrow{h}*0.2, y=frdistens] {figs/data/h_quectel_dl_rtt_PICP.dat}; \addlegendentry{5G DL}
+\addplot[cRidge, thick, dashed, mark=o, mark size=1pt] table[x expr=\thisrow{h}*0.2, y=frdistens] {figs/data/h_quectel_ul_rtt_PICP.dat}; \addlegendentry{5G UL}
+\end{axis}
+\end{tikzpicture}

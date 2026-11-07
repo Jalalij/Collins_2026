@@ -1,0 +1,130 @@
+"""
+experiments/fr_trace.py - Intuition figure: one minute of a test session with both calibrated bands.
+
+Shows, for one link and one horizon step, the measured RTT, the previous model's ensemble mean with
+its constant split-conformal 95% band, and the final model's ensemble median with its CQR 95% band.
+The stretch is picked automatically inside ONE test session so that it starts calm and turns
+volatile (input-SD deciles from validation windows), which is the situation the paper explains.
+
+Reads  results_final/main/<link>/preds/{truth, prev_seq2seq_s*, fr_dist_s*}.npz
+       results_final/analysis/condcov/inputs_<link>.npz   (input SD and session id per window)
+Writes results_final/analysis/trace/trace_<link>.json, <report>/data/fr_trace_<link>.dat,
+       <report>/figs/fr_trace.tex
+"""
+import argparse
+import json
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parent.parent
+K = 0  # RTT
+
+
+def conf_q(s, alpha=0.05):
+    n = s.shape[0]
+    return np.quantile(s, min(1.0, np.ceil((n + 1) * (1 - alpha)) / n), axis=0, method="higher")
+
+
+def ens(pdir, m):
+    zs = [np.load(pdir / f"{m}_s{k}.npz") for k in range(3) if (pdir / f"{m}_s{k}.npz").exists()]
+    out = {"p_te": np.mean([z["p_te"][:, :, K] for z in zs], 0), "p_va": np.mean([z["p_va"][:, :, K] for z in zs], 0)}
+    if "d_te" in zs[0].files:
+        out["d_te"] = np.mean([z["d_te"][:, :, K].astype(np.float64) for z in zs], 0)
+        out["d_va"] = np.mean([z["d_va"][:, :, K].astype(np.float64) for z in zs], 0)
+    return out, len(zs)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--link", default="starlink_dl")
+    ap.add_argument("--h", type=int, default=5, help="horizon step (5 = 1 s)")
+    ap.add_argument("--n", type=int, default=300, help="windows in the stretch (300 = 60 s)")
+    ap.add_argument("--report", default=str(ROOT.parent / "reports/final_report"))
+    a = ap.parse_args()
+    rep = Path(a.report)
+    pdir = ROOT / f"results_final/main/{a.link}/preds"
+    tr = np.load(pdir / "truth.npz")
+    y_te, y_va = tr["y_te"][:, :, K], tr["y_va"][:, :, K]
+    inp = np.load(ROOT / f"results_final/analysis/condcov/inputs_{a.link}.npz")
+    vol_te, vol_va, sid = inp["vol_te"], inp["vol_va"], inp["sid_te"]
+    s2s, ns = ens(pdir, "prev_seq2seq")
+    ds, nd = ens(pdir, "fr_dist")
+    h = a.h - 1
+    q = conf_q(np.abs(y_va - s2s["p_va"]))                                   # S2S-E constant half-width
+    c = conf_q(np.maximum(ds["d_va"][..., 1] - y_va, y_va - ds["d_va"][..., 5]))  # CQR offset
+    lo_d, hi_d = ds["d_te"][:, h, 1] - c[h], ds["d_te"][:, h, 5] + c[h]
+    lo_s, hi_s = s2s["p_te"][:, h] - q[h], s2s["p_te"][:, h] + q[h]
+
+    # stretch: inside one session, first 40% calm (deciles 1-3), last 40% volatile (deciles 6-10)
+    edges = np.quantile(vol_va, np.linspace(0, 1, 11))
+    dec = np.digitize(vol_te, edges[1:-1])
+    n, best = a.n, None
+    m = int(0.4 * n)
+    for i in range(0, len(y_te) - n, 5):
+        if sid[i] != sid[i + n - 1]:
+            continue
+        sc = np.mean(dec[i:i + m] <= 2) + np.mean(dec[i + n - m:i + n] >= 5)
+        if best is None or sc > best[0]:
+            best = (sc, i)
+    sc, i0 = best
+    idx = np.arange(i0, i0 + n)
+    t = np.arange(n) * 0.2
+    df = pd.DataFrame({"t": t, "truth": y_te[idx, h], "prev": s2s["p_te"][idx, h], "prevlo": lo_s[idx], "prevhi": hi_s[idx],
+                       "frmed": ds["d_te"][idx, h, 3], "frlo": lo_d[idx], "frhi": hi_d[idx]})
+    df.to_csv(rep / f"data/fr_trace_{a.link}.dat", sep=" ", index=False, float_format="%.4g")
+    calm = slice(0, m)
+    load = slice(n - m, n)
+    info = {"link": a.link, "h": a.h, "seeds_s2s": ns, "seeds_ds2s": nd, "start_window": int(i0), "score": float(sc),
+            "session": int(sid[i0]),
+            "s2s_width_ms": float(2 * q[h]),
+            "ds2s_width_calm_median_ms": float(np.median((hi_d - lo_d)[idx][calm])),
+            "ds2s_width_load_median_ms": float(np.median((hi_d - lo_d)[idx][load])),
+            "cover_s2s": float(np.mean((df.truth >= df.prevlo) & (df.truth <= df.prevhi))),
+            "cover_ds2s": float(np.mean((df.truth >= df.frlo) & (df.truth <= df.frhi))),
+            "input_sd_calm_median_ms": float(np.median(vol_te[idx][calm])),
+            "input_sd_load_median_ms": float(np.median(vol_te[idx][load]))}
+    od = ROOT / "results_final/analysis/trace"; od.mkdir(parents=True, exist_ok=True)
+    json.dump(info, open(od / f"trace_{a.link}.json", "w"), indent=1)
+    print(json.dumps(info, indent=1))
+
+    # zoom: 8 s of the calm part
+    z0, z1 = 2.0, 10.0
+    zz = df[(df.t >= z0) & (df.t <= z1)]
+    zlo = float(min(zz.truth.min(), zz.frlo.min())) - 3
+    zhi = float(max(zz.truth.max(), zz.frhi.max())) + 3
+    ymax = float(np.ceil(max(df.prevhi.max(), df.frhi.max(), df.truth.max()) / 50) * 50)
+    ymin = float(min(0, np.floor(min(df.prevlo.min(), df.frlo.min()) / 50) * 50))
+    f = f"data/fr_trace_{a.link}.dat"
+    tex = [r"% fr_trace.tex - generated by modeling/experiments/fr_trace.py, do not edit by hand.",
+           r"\begin{tikzpicture}",
+           rf"\begin{{axis}}[frbase, name=main, width=8.7cm, height=5.6cm, xmin=0, xmax={t[-1]:.1f}, ymin={ymin:.0f}, ymax={ymax:.0f},",
+           rf"  xlabel={{time (s)}}, ylabel={{RTT 1\,s ahead (ms)}}, legend cell align=left, legend style={{at={{(0.5,1.02)}}, anchor=south, legend columns=2, font=\scriptsize, draw=none}}]",
+           rf"\addplot[name path=sh, draw=none, forget plot] table[x=t, y=prevhi] {{{f}}};",
+           rf"\addplot[name path=sl, draw=none, forget plot] table[x=t, y=prevlo] {{{f}}};",
+           r"\addplot[cPrev!18] fill between[of=sh and sl]; \addlegendentry{S2S-E constant 95\% band}",
+           rf"\addplot[name path=dh, draw=none, forget plot] table[x=t, y=frhi] {{{f}}};",
+           rf"\addplot[name path=dl, draw=none, forget plot] table[x=t, y=frlo] {{{f}}};",
+           r"\addplot[cFR!45] fill between[of=dh and dl]; \addlegendentry{DS2S-E calibrated 95\% band}",
+           rf"\addplot[black, thin] table[x=t, y=truth] {{{f}}}; \addlegendentry{{measured RTT}}",
+           rf"\addplot[cFR, thick] table[x=t, y=frmed] {{{f}}}; \addlegendentry{{DS2S-E median}}",
+           rf"\draw[black!70] (axis cs:{z0},{zlo:.4g}) rectangle (axis cs:{z1},{zhi:.4g});",
+           rf"\coordinate (zt) at (axis cs:{(z0 + z1) / 2:.3g},{zhi:.4g});",
+           r"\end{axis}",
+           rf"\begin{{axis}}[at={{($(main.north west)+(0.75cm,-0.25cm)$)}}, anchor=north west, width=3.6cm, height=2.6cm,",
+           rf"  xmin={z0}, xmax={z1}, ymin={zlo:.4g}, ymax={zhi:.4g}, tick label style={{font=\tiny}}, axis background/.style={{fill=white}},",
+           r"  grid=major, grid style={gray!20}, name=ins]",
+           rf"\addplot[name path=dh2, draw=none, forget plot] table[x=t, y=frhi] {{{f}}};",
+           rf"\addplot[name path=dl2, draw=none, forget plot] table[x=t, y=frlo] {{{f}}};",
+           r"\addplot[cFR!45] fill between[of=dh2 and dl2, soft clip={domain=%g:%g}];" % (z0, z1),
+           rf"\addplot[black, thin, restrict x to domain={z0}:{z1}] table[x=t, y=truth] {{{f}}};",
+           rf"\addplot[cFR, thick, restrict x to domain={z0}:{z1}] table[x=t, y=frmed] {{{f}}};",
+           r"\end{axis}",
+           r"\draw[->, black!70] (zt) -- (ins.south east);",
+           r"\end{tikzpicture}"]
+    (rep / "figs/fr_trace.tex").write_text("\n".join(tex) + "\n")
+
+
+if __name__ == "__main__":
+    main()

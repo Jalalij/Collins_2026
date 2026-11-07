@@ -24,3 +24,18 @@ for name, reps in REN.items():
         s = s.replace(a, b)
     open(f"{dst}/{name.replace('.tex', '_paper.tex')}", "w").write(s)
 print("ok")
+
+# Figures generated for the report by the fr_*.py analysis scripts: copy them and point their
+# data paths at figs/data (the .dat files were copied above).
+import re
+FIGS = ["fr_trace", "fr_volatility", "fr_leak", "fr_heat_col", "fr_condcov", "fr_condwidth",
+        "fr_scheduler", "fr_scheduler_risk", "fr_scheduler_heat", "fr_bootstrap", "fr_attention"]
+for f in FIGS:
+    srcf = f"../reports/final_report/figs/{f}.tex"
+    if not os.path.exists(srcf):
+        print("missing", srcf); continue
+    s = open(srcf).read()
+    s = re.sub(r"(?<![\w/])data/", "figs/data/", s)
+    open(f"figs/{f}.tex", "w").write(s)
+shutil.copy("../reports/final_report/data/plotstyle.tex", "figs/plotstyle.tex")
+print("figures ok")

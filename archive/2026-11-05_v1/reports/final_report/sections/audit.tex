@@ -1,0 +1,24 @@
+Before changing any model we rebuilt the initial evaluation in a single script (\texttt{experiments/\allowbreak final\_benchmark.py}) that loads the data with the initial functions, uses the same session split, and trains the initial Seq2Seq-GRU with the initial optimizer settings. With the original data it reproduces the initial Starlink DL result (MAE \ReproSLMAE, RMSE \ReproSLRMSE, $R^2$ \ReproSLRtwo, against 8.55, 14.95, and 0.406 in the Modeling Dynamics report) and the OneWeb DL result (MAE \ReproOWMAE, RMSE \ReproOWRMSE, $R^2$ \ReproOWRtwo, against 6.12, 23.73, and 0.217). The small gaps are within the seed-to-seed spread reported in Section~\ref{sec:results}. The script was then reviewed by three independent reviewers, each finding was checked by two further reviewers who tried to refute it, and the surviving findings were fixed. Table~\ref{tab:audit} summarizes them.
+
+\begin{table}[t]
+\centering
+\caption{Issues found in the initial pipeline and how final handles them.}
+\label{tab:audit}
+\small
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{3.6cm}X>{\raggedright\arraybackslash}p{3.8cm}}
+\toprule
+Issue & Effect on initial numbers & final handling \\
+\midrule
+A1. Horizon unit & Steps of 200\,ms were labeled as seconds. The ``15\,s'' horizon is 3\,s. & Horizons reported as $h\times 0.2$\,s. \\
+A2. Interval coverage & Intervals were built from quantiles of the \emph{test} residuals. PICP$_{95}$ is therefore 0.95 by construction and says nothing about calibration. & Split conformal intervals calibrated on validation sessions, coverage measured on test sessions. \\
+A3. Starlink RTT interpolation & The parser fills missing server pings by time interpolation toward the \emph{next} real ping. In the test sessions \InterpFracSLDL\% of the Starlink DL and \InterpFracSLUL\% of the UL RTT targets are interpolated. The last input row can then contain part of the first target. & Interpolated inputs replaced by the last real ping for every method. Targets keep the measured series. \\
+A4. Constant targets & OneWeb UL jitter and loss are zero in every row. Modeling Dynamics reported $R^2=1$ and MAE 0 for them and averaged these into the aggregate. & $R^2$ undefined for constant targets and left out of averages. Per-target results reported. \\
+A5. ``Relative RMSE'' & The initial persistence ratio compared the model with a lag-1 shift of the flattened multi-target, multi-horizon series, not with a persistence forecast. Values above 1 for OneWeb did not mean the model was worse than persistence. & Skill against a proper persistence forecast $\hat{y}_{t+h}=y_t$ for each target and horizon. \\
+A6. One seed & Each model was trained once. The OneWeb UL Seq2Seq MAE differs between the report (22.81) and the stored run (23.93). & Three seeds per neural model, mean $\pm$ standard deviation, and seed ensembles. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Effect of A3.} Replacing the interpolated inputs raises the Starlink DL persistence RTT error at the first step by \AuditPersHonePct\%, from \AuditPersLegacyHone\,ms to \AuditPersCausalHone\,ms RMSE and the average over the horizon from \AuditPersLegacyAvg\,ms to \AuditPersCausalAvg\,ms. Every method that reads the last RTT value benefits from the leak, including the initial model. All final comparisons therefore use the corrected inputs for every method, and the initial model is retrained on them. The Modeling Dynamics report numbers for Starlink RTT are optimistic by a few percent at short horizons. The 5G and OneWeb RTT series have no interpolated values (all values lie on the ping resolution grid).
+
+\paragraph{Other observations.} The iperf3 collector stamps each one-second report at the start of its interval, and the parsers snap it to the nearest ping row. An iperf value at row $t$ can therefore describe traffic up to about one second after $t$. The same alignment is used for every method and in the initial study. It mainly affects the jitter and loss inputs, which are also targets and are shifted consistently. We keep it for comparability and list it as a limitation (Section~\ref{sec:limits}).

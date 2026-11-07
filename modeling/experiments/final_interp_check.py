@@ -14,10 +14,10 @@ import final_benchmark as B
 
 out = {}
 for d in ["dl", "ul"]:
-    data, meta = B.load_splits("starlink", d, "y2", 30, 15, torch.device("cpu"),
+    data, meta = B.load_splits("starlink", d, "base", 30, 15, torch.device("cpu"),
                                str(HERE.parent / "data/lsn-data"), causal_ping=False)
     # same files, same order: take the interpolation mask from the causal load
-    cdata, _ = B.load_splits("starlink", d, "y2", 30, 15, torch.device("cpu"),
+    cdata, _ = B.load_splits("starlink", d, "base", 30, 15, torch.device("cpu"),
                              str(HERE.parent / "data/lsn-data"), causal_ping=True)
     data["test"].M = cdata["test"].M
     te = data["test"]; t = meta["targets"].index("ping_server_rtt_ms"); fi = meta["target_idx"][t]

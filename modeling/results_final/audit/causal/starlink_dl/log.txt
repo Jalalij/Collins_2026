@@ -25,7 +25,7 @@ rtt    23.4333 38.2850 0.6213       64.3736 0.9510
   AGG MAE=8.8374 RMSE=15.2237 R2=0.4081 (0s)
 [data y3] 41 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (1s)
 
-=== starlink dl | ridge_y3 | seed 0 ===
+=== starlink dl | ridge_fr | seed 0 ===
            MAE    RMSE     R2  RMSE_persist   PICP
 target                                            
 jitter  0.2122  0.9485 0.2938        1.2658 0.9714

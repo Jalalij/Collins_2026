@@ -9,7 +9,7 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds}
 \usepackage{pgfplots}
-\usepgfplotslibrary{groupplots,fillbetween}
+\usepgfplotslibrary{groupplots,fillbetween,colormaps}
 \pgfplotsset{compat=1.18}
 \usepackage{subcaption}
 \usepackage{tabularx}
@@ -25,6 +25,7 @@
 \input{data/numbers_audit.tex}
 \input{data/numbers_results.tex}
 \input{data/numbers_analysis.tex}
+\input{data/numbers_story.tex}
 
 \begin{document}
 \sloppy
@@ -39,7 +40,7 @@
     \vspace{-1.5em}
     \raggedleft
     \includegraphics[width=\linewidth,height=1.5cm,keepaspectratio]{figures/wici_log3.png}%
-  \end{minipage}
+  \end{minipage}\par
   \centering
   \vspace*{\fill}
   {\LARGE\bfseries Collins Aerospace -- ISU WiCI \\[1em]
@@ -63,6 +64,11 @@
 \input{sections/summary.tex}
 
 % ==========================================================================
+\section{What Improved Since the Previous Report}
+\label{sec:improved}
+\input{sections/improved.tex}
+
+% ==========================================================================
 \section{Introduction}
 \input{sections/intro.tex}
 
@@ -71,12 +77,18 @@
 \input{sections/system.tex}
 
 % ==========================================================================
-\section{Audit of the initial Pipeline}
-\label{sec:audit}
-\input{sections/audit.tex}
+\section{What Is Predictable in Sub-Second Link State?}
+\label{sec:predictable}
+\input{sections/predictable.tex}
 
 % ==========================================================================
-\section{the final report Methods}
+\section{Audit of the Previous Pipeline}
+\label{sec:audit}
+\input{sections/audit.tex}
+\input{sections/leak_model.tex}
+
+% ==========================================================================
+\section{Methods of This Report}
 \label{sec:methods}
 \input{sections/methods.tex}
 
@@ -89,6 +101,16 @@
 \section{Results}
 \label{sec:results}
 \input{sections/results.tex}
+
+% ==========================================================================
+\section{Why the Interval Improves and How Specific the Gain Is}
+\label{sec:why}
+\input{sections/why.tex}
+
+% ==========================================================================
+\section{Statistical Validity}
+\label{sec:validity}
+\input{sections/validity.tex}
 
 % ==========================================================================
 \section{Extended Results}
@@ -104,6 +126,12 @@
 \section{Implications for Prediction-Aware Multipath Scheduling}
 \label{sec:sched}
 \input{sections/scheduling.tex}
+\input{sections/duplication.tex}
+
+% ==========================================================================
+\section{What the Model Uses}
+\label{sec:attention}
+\input{sections/attention.tex}
 
 % ==========================================================================
 \section{Limitations and Next Steps}

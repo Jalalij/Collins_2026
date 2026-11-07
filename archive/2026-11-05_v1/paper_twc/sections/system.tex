@@ -1,0 +1,46 @@
+\section{System Model and Problem Formulation}
+\label{sec:system}
+\subsection{Measurement System}
+Fig.~\ref{fig:system} shows the setup. A client node of the ARA wireless living lab~\cite{islam2025design} is connected to a Starlink user terminal, a OneWeb user terminal, and a 5G network through a cellular modem. In each measurement session the node pings a server at 5\,Hz over the link under test, runs an iperf3 UDP flow in the downlink (DL) or uplink (UL) direction that reports throughput, jitter, and loss once per second, and logs terminal telemetry and local weather. The telemetry is link specific: dish state, satellite geometry, signal-to-noise ratio, and handover events for Starlink, signal-to-interference-plus-noise ratio (SINR), elevation, azimuth, and handover events for OneWeb, and RSRP, RSRQ, and SINR for 5G. A parser merges all collectors on the ping time base, which gives one row every $\Delta=200$\,ms. The forecaster runs next to the multipath client and supplies per-path forecasts and intervals to its scheduler.
+
+\begin{figure*}[t]
+  \centering
+  \resizebox{\textwidth}{!}{\input{figs/system_detailed.tex}}
+  \caption{System model. (a) A client node on the ARA living lab reaches a measurement server over three access links: a Starlink user terminal (UT) served by a shell at about 550\,km that reallocates users every 15\,s, a OneWeb UT served by a bent-pipe shell at about 1200\,km, and a 5G user equipment (UE). Handovers between satellites change the path RTT. (b) Per link, the collectors are aligned causally on a 200\,ms grid, and a window of 30 rows feeds the distributional forecaster (DS2S), whose quantiles are calibrated with CQR on held-out sessions. (c) The per-path forecasts and calibrated upper bounds drive a prediction-aware MPQUIC scheduler that sends each packet on a path whose bound meets its deadline, and the new measurements update the window every 200\,ms.}
+  \label{fig:system}
+\end{figure*}
+
+\subsection{Forecasting Problem}
+For one link, let $\mathbf{x}_t\in\RR^{F}$ be the feature vector of row $t$ and $\mathbf{y}_t\in\RR^{K}$ the $K=3$ targets: RTT (ms), iperf jitter (ms), and iperf loss (\%). The targets are also part of $\mathbf{x}_t$. Given the window $\mathbf{X}_t=(\mathbf{x}_{t-L+1},\dots,\mathbf{x}_t)$ of $L=30$ rows (6\,s), the forecaster outputs, for every step $h\in\{1,\dots,H\}$ with $H=15$ (0.2--3\,s) and every target $k$, a point forecast and a $(1-\alpha)$ prediction interval $[\ell_{t,h,k},u_{t,h,k}]$. Sessions are the unit of independence. The model is trained on one set of sessions, selected and calibrated on a second set, and evaluated on a third.
+
+\subsection{Scoring Rules and Optimal Forecasts}
+A forecast is judged by a loss $S(\hat{y},y)$ averaged over test windows. Two losses are standard for link metrics, the squared error and the absolute error. For a $(1-\alpha)$ interval we use the interval score~\cite{gneiting2007strictly}
+\begin{equation}
+\mathrm{IS}_\alpha(\ell,u;y)=(u-\ell)+\tfrac{2}{\alpha}(\ell-y)^{+}+\tfrac{2}{\alpha}(y-u)^{+},
+\label{eq:is}
+\end{equation}
+with $(z)^+=\max\{z,0\}$, which rewards narrow intervals and penalizes each miss in proportion to its size. The following facts guide the design of the forecaster.
+
+\begin{proposition}
+\label{prop:optimal}
+Let $Y$ be the target given the input window, with finite variance. The expected squared error is minimized by $\E[Y]$, the expected absolute error by any median of $Y$, and the expected pinball loss $\rho_\tau(Y-q)$ with $\rho_\tau(e)=\max\{\tau e,(\tau-1)e\}$ by any $\tau$-quantile of $Y$. The expected interval score~\eqref{eq:is} is minimized by $\ell=q_{\alpha/2}$ and $u=q_{1-\alpha/2}$.
+\end{proposition}
+\begin{IEEEproof}
+These are standard results~\cite{gneiting2011making,koenker1978regression}. For the interval score, $\mathrm{IS}_\alpha(\ell,u;y)=\frac{2}{\alpha}\big[\rho_{\alpha/2}(y-\ell)+\rho_{1-\alpha/2}(y-u)\big]$, which can be checked case by case for $y<\ell$, $\ell\le y\le u$, and $y>u$. The two terms are minimized separately by the stated quantiles.
+\end{IEEEproof}
+
+For heavy-tailed link metrics the mean and the median differ, and a model trained only with the squared error is not the best forecast under the absolute error. In our test sessions the RTT RMSE of the retrained baseline is \RatioRMSEMAEMin{} to \RatioRMSEMAEMax{} times its MAE, a sign of heavy tails. Proposition~\ref{prop:optimal} also shows that a constant-width interval around a mean forecast cannot minimize the interval score when the spread of $Y$ depends on the input.
+
+\subsection{Causality of the Input Alignment}
+\label{sec:causal}
+The collectors run on independent clocks. When a ping is missing at row $t$, a common merging step fills it by time interpolation between the neighboring real pings. Let $y_{t-1}$ and $y_{t+1}$ be the real pings around a single missing row and let the parser write $\tilde{y}_t=(1-w)\,y_{t-1}+w\,y_{t+1}$ with $w\in(0,1)$ the relative time position of row $t$ ($w=1/2$ for evenly spaced rows). The forecast origin $\tilde{y}_t$ then contains part of the first target $y_{t+1}$.
+
+\begin{proposition}
+\label{prop:leak}
+For a window whose last row is interpolated as above, the one-step persistence error with the interpolated origin is $y_{t+1}-\tilde{y}_t=(1-w)\,(y_{t+1}-y_{t-1})$, which is $(1-w)$ times the error with the causal origin $y_{t-1}$. Its squared error is therefore $(1-w)^2$ times the causal one, a factor of four for $w=1/2$, for any realization of the process. If a fraction $p$ of the windows have an interpolated origin with $w=1/2$, and the causal one-step errors of these windows have the same mean square as the others, the one-step RMSE of persistence is understated by the factor $\sqrt{1-3p/4}$.
+\end{proposition}
+\begin{IEEEproof}
+Substitute $\tilde{y}_t$ into $y_{t+1}-\tilde{y}_t$ for the first statement. For the second, the mean squared error over all windows is $(1-p)\,m+p\,m/4=m(1-3p/4)$, where $m$ is the causal mean squared error.
+\end{IEEEproof}
+
+The leak is not limited to persistence. Every model that reads the last input value of a target, which includes residual decoders and rolling features, can exploit it. In our Starlink DL data, \InterpFracSLDL\% of the test RTT samples are interpolated, and Proposition~\ref{prop:leak} predicts a one-step RMSE understatement of about 5\%. Replacing every interpolated input by the last real ping raises the measured one-step persistence RMSE by \AuditPersHonePct\%, from \AuditPersLegacyHone\ to \AuditPersCausalHone\,ms. The larger measured effect means the equal-error assumption of Proposition~\ref{prop:leak} does not hold: windows whose origin is interpolated have larger one-step errors than the others. In every Starlink test window whose last row is interpolated, the input value lies strictly between the previous row and the first target, against 47\% of the windows with a real last ping (DL). The 5G and OneWeb RTT series contain no interpolated values. In the rest of the paper all inputs are causal and the targets are the measured series.

@@ -1,6 +1,6 @@
 [data y3] 41 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (1s)
 
-=== starlink dl | y3_dist | seed 0 ===
+=== starlink dl | fr_dist | seed 0 ===
     ep   1 train=0.4143 val=0.9498 ema=0.9498 lr=1.0e-03 [82.2s]
     ep   2 train=0.3586 val=0.9138 ema=0.9390 lr=1.0e-03 [78.8s]
     ep   3 train=0.3505 val=0.9721 ema=0.9489 lr=1.0e-03 [88.2s]
@@ -26,7 +26,7 @@ rtt    20.4495 36.2403 0.6601       64.3736 0.9454
   AGG MAE=7.8357 RMSE=14.5027 R2=0.4262 (1465s)
 [data y3] 41 features, sessions {'train': 37, 'val': 7, 'test': 9}, windows {'train': 105906, 'val': 20025, 'test': 25838} (1s)
 
-=== starlink dl | y3_dist | seed 1 ===
+=== starlink dl | fr_dist | seed 1 ===
     ep   1 train=0.4170 val=0.9690 ema=0.9690 lr=1.0e-03 [70.1s]
     ep   2 train=0.3616 val=0.9182 ema=0.9538 lr=1.0e-03 [69.8s]
     ep   3 train=0.3460 val=0.9313 ema=0.9470 lr=1.0e-03 [69.9s]

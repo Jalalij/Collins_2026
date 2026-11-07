@@ -1,0 +1,16 @@
+{
+ "link": "starlink_dl",
+ "h": 5,
+ "seeds_s2s": 3,
+ "seeds_ds2s": 3,
+ "start_window": 14940,
+ "score": 1.875,
+ "session": 5,
+ "s2s_width_ms": 162.6939239501953,
+ "ds2s_width_calm_median_ms": 13.710937499999982,
+ "ds2s_width_load_median_ms": 143.72395833333331,
+ "cover_s2s": 0.9,
+ "cover_ds2s": 0.9033333333333333,
+ "input_sd_calm_median_ms": 1.9447965392716262,
+ "input_sd_load_median_ms": 59.584575707966366
+}

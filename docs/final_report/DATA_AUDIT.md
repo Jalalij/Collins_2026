@@ -1,6 +1,6 @@
-# Audit of the initial pipeline
+# Audit of the previous pipeline
 
-The initial evaluation was rebuilt in `modeling/experiments/final_benchmark.py`. On the original data it reproduces the initial Seq2Seq-GRU results:
+The evaluation of the previous report was rebuilt in `modeling/experiments/final_benchmark.py`. On the original data it reproduces the Seq2Seq-GRU results of the previous report:
 
 | | Modeling Dynamics report (MAE / RMSE / R²) | Reproduced, seed 0 |
 |---|---|---|

@@ -1,0 +1,14 @@
+oneweb_dl fr_dist_w4 2
+starlink_dl fr_dist_w4 2
+oneweb_ul fr_dist_w4 2
+starlink_ul fr_dist_w4 2
+quectel_dl fr_gauss 1
+oneweb_dl fr_gauss 2
+starlink_dl fr_gauss 2
+oneweb_ul fr_gauss 2
+starlink_ul fr_gauss 2
+quectel_ul fr_gauss 1
+quectel_dl fr_dist_w4 2
+quectel_ul fr_dist_w4 2
+quectel_dl fr_gauss 2
+quectel_ul fr_gauss 2

@@ -1,5 +1,5 @@
 \documentclass[journal]{IEEEtran}
-% Calibrated distributional forecasting of LEO and 5G link state (IEEE Transactions on Wireless Communications).
+% Forecasting what is predictable in LEO link state (IEEE Transactions on Wireless Communications).
 \IEEEoverridecommandlockouts
 \usepackage{cite}
 \usepackage{iftex}
@@ -24,7 +24,7 @@
 \usepackage{tikz}
 \usetikzlibrary{svg.path,positioning,arrows.meta,calc,fit,backgrounds}
 \usepackage{pgfplots}
-\usepgfplotslibrary{groupplots,fillbetween}
+\usepgfplotslibrary{groupplots,fillbetween,colormaps}
 \pgfplotsset{compat=1.18}
 \usepackage{balance}
 \definecolor{orcidlogocol}{HTML}{A6CE39}
@@ -52,22 +52,25 @@ svg{M88.7,56.8c0,5.5-4.5,10.1-10.1,10.1c-5.6,0-10.1-4.6-10.1-10.1c0-5.6,4.5-10.1
 \input{figs/data/numbers_audit.tex}
 \input{figs/data/numbers_results.tex}
 \input{figs/data/numbers_analysis.tex}
+\input{figs/data/numbers_story.tex}
 
 \begin{document}
-\title{\huge Calibrated Distributional Forecasting of LEO and 5G Link State for Prediction-Aware Multipath Transport}
+\title{\huge Forecasting What Is Predictable in LEO Link State: Calibrated Distributional Prediction for Multipath Scheduling}
 
 \author{
 $\text{Jalal Jalali}^{\orcidicon{0000-0002-3609-6775}}$,\ \IEEEmembership{Member, IEEE}, Evan Gossling, Daji Qiao, and Hongwei Zhang
 \vspace{-2.0em}
 \thanks{The authors are with the Department of Electrical and Computer Engineering, Iowa State University, Ames, IA, USA. Jalal Jalali is also with the Wireless Communication Research Group, JuliaSpace LLC, Chicago, IL, USA. This work was supported in part by Collins Aerospace. The code, trained models, and result files are available at \href{https://github.com/Jalalij/Collins_2026}{\texttt{https://github.com/Jalalij/Collins\_2026}}.}
 }
-\markboth{IEEE Transactions on Wireless Communications}{Calibrated Distributional Forecasting of LEO and 5G Link State}
+\markboth{IEEE Transactions on Wireless Communications}{Forecasting What Is Predictable in LEO Link State}
 \maketitle
 
 \input{sections/abstract.tex}
 \input{sections/intro.tex}
 \input{sections/related.tex}
 \input{sections/system.tex}
+\input{sections/predictable.tex}
+\input{sections/causal.tex}
 \input{sections/method.tex}
 \input{sections/setup.tex}
 \input{sections/results.tex}

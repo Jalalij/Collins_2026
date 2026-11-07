@@ -1,0 +1,16 @@
+{
+ "link": "quectel_dl",
+ "n_train_sessions": 266,
+ "n_train_rows": 790602,
+ "n_test_sessions": 58,
+ "n_val_sessions": 57,
+ "train_interp_share": 0.0,
+ "row_dt_median_s": 0.2000129222869873,
+ "row_dt_p90_s": 0.20658302307128906,
+ "row_dt_share_over_0p5s": 1.2652846384322618e-06,
+ "rtt_train_mean_ms": 13.966435432434082,
+ "rtt_train_sd_ms": 5.563975811004639,
+ "n_pairs_d_lag1_measured": 790070,
+ "n_boot": 2000,
+ "boot_seed": 0
+}

@@ -1,0 +1,1351 @@
+
+=== fr_bootstrap 2026-11-06 16:56:47 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+  [sessions] oneweb_ul: 11 test sessions, 28125 windows (44s)
+  [skip] oneweb_ul fr_dist_w4: no prediction files
+  [skip] oneweb_ul fr_gauss: no prediction files
+  [skip] oneweb_ul lqr_fr: no prediction files
+[done] oneweb_ul: 11 sessions, 28125 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'ridge_fr'] (123s)
+  [sessions] starlink_ul: 9 test sessions, 25666 windows (42s)
+  [skip] starlink_ul fr_dist_w4: no prediction files
+  [skip] starlink_ul fr_gauss: no prediction files
+  [skip] starlink_ul lqr_fr: no prediction files
+[done] starlink_ul: 9 sessions, 25666 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'ridge_fr'] (92s)
+
+       link  method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_ul fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+starlink_ul fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+
+wrote /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/session_stats.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.json, /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex, /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+=== fr_bootstrap 2026-11-06 17:01:49 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+  [sessions] oneweb_dl: 11 test sessions, 27492 windows (44s)
+  [skip] oneweb_dl fr_dist_w4: no prediction files
+  [skip] oneweb_dl fr_gauss: no prediction files
+  [skip] oneweb_dl lqr_fr: no prediction files
+[done] oneweb_dl: 11 sessions, 27492 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'ridge_fr'] (141s)
+  [skip] oneweb_ul fr_dist_w4: no prediction files
+  [skip] oneweb_ul fr_gauss: no prediction files
+  [skip] oneweb_ul lqr_fr: no prediction files
+[done] oneweb_ul: 11 sessions, 28125 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'ridge_fr'] (49s)
+  [sessions] starlink_dl: 9 test sessions, 25838 windows (33s)
+  [skip] starlink_dl fr_dist_w4: no prediction files
+  [skip] starlink_dl fr_gauss: no prediction files
+  [skip] starlink_dl lqr_fr: no prediction files
+[done] starlink_dl: 9 sessions, 25838 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'ridge_fr'] (74s)
+  [skip] starlink_ul fr_dist_w4: no prediction files
+  [skip] starlink_ul fr_gauss: no prediction files
+  [skip] starlink_ul lqr_fr: no prediction files
+[done] starlink_ul: 9 sessions, 25666 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'ridge_fr'] (36s)
+  [sessions] quectel_dl: 58 test sessions, 169204 windows (151s)
+  [skip] quectel_dl fr_dist_w4: no prediction files
+  [skip] quectel_dl fr_gauss: no prediction files
+  [skip] quectel_dl lqr_fr: no prediction files
+[done] quectel_dl: 58 sessions, 169204 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'ridge_fr'] (22121s)
+  [sessions] quectel_ul: 58 test sessions, 168519 windows (22s)
+  [skip] quectel_ul fr_dist_w4: no prediction files
+  [skip] quectel_ul fr_gauss: no prediction files
+  [skip] quectel_ul lqr_fr: no prediction files
+[done] quectel_ul: 58 sessions, 168519 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'ridge_fr'] (33s)
+
+       link  method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_dl fr_dist    MAE          11           -10.21           -10.16       -12.87        -7.89             0.00               11       better        -10.73         -9.69
+  oneweb_dl fr_dist   RMSE          11            -2.29            -2.23        -5.01         0.73             0.25                3 inconclusive         -3.58         -1.01
+  oneweb_dl fr_dist     IS          11           -19.92           -19.83       -23.98       -15.87             0.00               11       better        -21.38        -18.43
+  oneweb_ul fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+starlink_dl fr_dist    MAE           9           -14.56           -14.58       -19.78        -9.11             0.00                8       better        -14.99        -14.11
+starlink_dl fr_dist   RMSE           9            -4.95            -4.95        -7.52        -2.54             0.00                8       better         -5.30         -4.58
+starlink_dl fr_dist     IS           9           -41.11           -41.12       -42.94       -39.38             0.00                9       better        -41.76        -40.46
+starlink_ul fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+ quectel_dl fr_dist    MAE          58            -1.58            -1.57        -1.96        -1.21             0.00               48       better         -1.62         -1.53
+ quectel_dl fr_dist   RMSE          58            -0.99            -0.98        -1.34        -0.65             0.00               43       better         -1.04         -0.94
+ quectel_dl fr_dist     IS          58           -13.91           -13.88       -15.06       -12.74             0.00               58       better        -14.07        -13.75
+ quectel_ul fr_dist    MAE          58           -17.79           -17.80       -19.03       -16.47             0.00               58       better        -17.87        -17.70
+ quectel_ul fr_dist   RMSE          58            -0.32            -0.31        -0.73        -0.08             0.00               39       better         -0.34         -0.30
+ quectel_ul fr_dist     IS          58           -28.29           -28.29       -29.04       -27.61             0.00               58       better        -28.37        -28.21
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_dl  fr_full    MAE            19.30        14.32        25.32        worse
+  oneweb_dl  fr_full   RMSE            -2.41        -5.61         1.25 inconclusive
+  oneweb_dl  fr_full     IS            -0.62        -3.45         2.55 inconclusive
+  oneweb_dl fr_resid    MAE             8.19         1.07        14.74        worse
+  oneweb_dl fr_resid   RMSE            -0.58        -2.32         1.98 inconclusive
+  oneweb_dl fr_resid     IS            -1.14        -3.41         1.74 inconclusive
+  oneweb_dl ridge_fr    MAE             9.43         4.42        14.22        worse
+  oneweb_dl ridge_fr   RMSE             1.42        -0.17         3.78 inconclusive
+  oneweb_dl ridge_fr     IS             4.71         2.37         7.65        worse
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_dl  fr_full    MAE            -7.34       -11.38        -3.20       better
+starlink_dl  fr_full   RMSE            -4.60        -6.57        -2.79       better
+starlink_dl  fr_full     IS            -2.25        -3.89        -0.25       better
+starlink_dl fr_resid    MAE             0.12        -2.48         2.82 inconclusive
+starlink_dl fr_resid   RMSE            -0.06        -1.38         1.83 inconclusive
+starlink_dl fr_resid     IS            -1.33        -2.29        -0.21       better
+starlink_dl ridge_fr    MAE             6.70         2.90        10.04        worse
+starlink_dl ridge_fr   RMSE             1.37        -0.58         2.93 inconclusive
+starlink_dl ridge_fr     IS             0.95        -0.51         2.62 inconclusive
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+ quectel_dl  fr_full    MAE             0.55         0.13         0.94        worse
+ quectel_dl  fr_full   RMSE            -0.65        -0.98        -0.34       better
+ quectel_dl  fr_full     IS            -2.40        -3.07        -1.73       better
+ quectel_dl fr_resid    MAE             0.92         0.64         1.22        worse
+ quectel_dl fr_resid   RMSE             0.25         0.03         0.45        worse
+ quectel_dl fr_resid     IS            -0.64        -0.97        -0.34       better
+ quectel_dl ridge_fr    MAE             6.79         5.74         7.84        worse
+ quectel_dl ridge_fr   RMSE             2.52         1.97         3.10        worse
+ quectel_dl ridge_fr     IS            -2.38        -3.42        -1.32       better
+ quectel_ul  fr_full    MAE             0.10        -1.20         1.52 inconclusive
+ quectel_ul  fr_full   RMSE            -0.31        -0.72        -0.07       better
+ quectel_ul  fr_full     IS            -0.46        -1.40         0.26 inconclusive
+ quectel_ul fr_resid    MAE             0.66         0.25         1.16        worse
+ quectel_ul fr_resid   RMSE             0.04        -0.01         0.09 inconclusive
+ quectel_ul fr_resid     IS            -0.12        -0.30         0.06 inconclusive
+ quectel_ul ridge_fr    MAE             0.05        -1.34         1.65 inconclusive
+ quectel_ul ridge_fr   RMSE            -0.30        -0.72        -0.05       better
+ quectel_ul ridge_fr     IS            -0.36        -1.45         0.46 inconclusive
+
+wrote /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/session_stats.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.json, /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex, /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+=== fr_bootstrap 2026-11-06 23:16:25 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+
+       link  method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_dl fr_dist    MAE          11           -10.21           -10.16       -12.87        -7.89             0.00               11       better        -10.73         -9.69
+  oneweb_dl fr_dist   RMSE          11            -2.29            -2.23        -5.01         0.73             0.25                3 inconclusive         -3.58         -1.01
+  oneweb_dl fr_dist     IS          11           -19.92           -19.83       -23.98       -15.87             0.00               11       better        -21.38        -18.43
+  oneweb_ul fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+starlink_dl fr_dist    MAE           9           -14.56           -14.58       -19.78        -9.11             0.00                8       better        -14.99        -14.11
+starlink_dl fr_dist   RMSE           9            -4.95            -4.95        -7.52        -2.54             0.00                8       better         -5.30         -4.58
+starlink_dl fr_dist     IS           9           -41.11           -41.12       -42.94       -39.38             0.00                9       better        -41.76        -40.46
+starlink_ul fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+ quectel_dl fr_dist    MAE          58            -1.58            -1.57        -1.96        -1.21             0.00               48       better         -1.62         -1.53
+ quectel_dl fr_dist   RMSE          58            -0.99            -0.98        -1.34        -0.65             0.00               43       better         -1.04         -0.94
+ quectel_dl fr_dist     IS          58           -13.91           -13.88       -15.06       -12.74             0.00               58       better        -14.07        -13.75
+ quectel_ul fr_dist    MAE          58           -17.79           -17.80       -19.03       -16.47             0.00               58       better        -17.87        -17.70
+ quectel_ul fr_dist   RMSE          58            -0.32            -0.31        -0.73        -0.08             0.00               39       better         -0.34         -0.30
+ quectel_ul fr_dist     IS          58           -28.29           -28.29       -29.04       -27.61             0.00               58       better        -28.37        -28.21
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_dl  fr_full    MAE            19.30        14.32        25.32        worse
+  oneweb_dl  fr_full   RMSE            -2.41        -5.61         1.25 inconclusive
+  oneweb_dl  fr_full     IS            -0.62        -3.45         2.55 inconclusive
+  oneweb_dl fr_resid    MAE             8.19         1.07        14.74        worse
+  oneweb_dl fr_resid   RMSE            -0.58        -2.32         1.98 inconclusive
+  oneweb_dl fr_resid     IS            -1.14        -3.41         1.74 inconclusive
+  oneweb_dl ridge_fr    MAE             9.43         4.42        14.22        worse
+  oneweb_dl ridge_fr   RMSE             1.42        -0.17         3.78 inconclusive
+  oneweb_dl ridge_fr     IS             4.71         2.37         7.65        worse
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_dl  fr_full    MAE            -7.34       -11.38        -3.20       better
+starlink_dl  fr_full   RMSE            -4.60        -6.57        -2.79       better
+starlink_dl  fr_full     IS            -2.25        -3.89        -0.25       better
+starlink_dl fr_resid    MAE             0.12        -2.48         2.82 inconclusive
+starlink_dl fr_resid   RMSE            -0.06        -1.38         1.83 inconclusive
+starlink_dl fr_resid     IS            -1.33        -2.29        -0.21       better
+starlink_dl ridge_fr    MAE             6.70         2.90        10.04        worse
+starlink_dl ridge_fr   RMSE             1.37        -0.58         2.93 inconclusive
+starlink_dl ridge_fr     IS             0.95        -0.51         2.62 inconclusive
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+ quectel_dl  fr_full    MAE             0.55         0.13         0.94        worse
+ quectel_dl  fr_full   RMSE            -0.65        -0.98        -0.34       better
+ quectel_dl  fr_full     IS            -2.40        -3.07        -1.73       better
+ quectel_dl fr_resid    MAE             0.92         0.64         1.22        worse
+ quectel_dl fr_resid   RMSE             0.25         0.03         0.45        worse
+ quectel_dl fr_resid     IS            -0.64        -0.97        -0.34       better
+ quectel_dl ridge_fr    MAE             6.79         5.74         7.84        worse
+ quectel_dl ridge_fr   RMSE             2.52         1.97         3.10        worse
+ quectel_dl ridge_fr     IS            -2.38        -3.42        -1.32       better
+ quectel_ul  fr_full    MAE             0.10        -1.20         1.52 inconclusive
+ quectel_ul  fr_full   RMSE            -0.31        -0.72        -0.07       better
+ quectel_ul  fr_full     IS            -0.46        -1.40         0.26 inconclusive
+ quectel_ul fr_resid    MAE             0.66         0.25         1.16        worse
+ quectel_ul fr_resid   RMSE             0.04        -0.01         0.09 inconclusive
+ quectel_ul fr_resid     IS            -0.12        -0.30         0.06 inconclusive
+ quectel_ul ridge_fr    MAE             0.05        -1.34         1.65 inconclusive
+ quectel_ul ridge_fr   RMSE            -0.30        -0.72        -0.05       better
+ quectel_ul ridge_fr     IS            -0.36        -1.45         0.46 inconclusive
+wrote /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex and /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+=== fr_bootstrap 2026-11-06 23:17:08 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+
+       link  method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_dl fr_dist    MAE          11           -10.21           -10.16       -12.87        -7.89             0.00               11       better        -10.73         -9.69
+  oneweb_dl fr_dist   RMSE          11            -2.29            -2.23        -5.01         0.73             0.25                3 inconclusive         -3.58         -1.01
+  oneweb_dl fr_dist     IS          11           -19.92           -19.83       -23.98       -15.87             0.00               11       better        -21.38        -18.43
+  oneweb_ul fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+starlink_dl fr_dist    MAE           9           -14.56           -14.58       -19.78        -9.11             0.00                8       better        -14.99        -14.11
+starlink_dl fr_dist   RMSE           9            -4.95            -4.95        -7.52        -2.54             0.00                8       better         -5.30         -4.58
+starlink_dl fr_dist     IS           9           -41.11           -41.12       -42.94       -39.38             0.00                9       better        -41.76        -40.46
+starlink_ul fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+ quectel_dl fr_dist    MAE          58            -1.58            -1.57        -1.96        -1.21             0.00               48       better         -1.62         -1.53
+ quectel_dl fr_dist   RMSE          58            -0.99            -0.98        -1.34        -0.65             0.00               43       better         -1.04         -0.94
+ quectel_dl fr_dist     IS          58           -13.91           -13.88       -15.06       -12.74             0.00               58       better        -14.07        -13.75
+ quectel_ul fr_dist    MAE          58           -17.79           -17.80       -19.03       -16.47             0.00               58       better        -17.87        -17.70
+ quectel_ul fr_dist   RMSE          58            -0.32            -0.31        -0.73        -0.08             0.00               39       better         -0.34         -0.30
+ quectel_ul fr_dist     IS          58           -28.29           -28.29       -29.04       -27.61             0.00               58       better        -28.37        -28.21
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_dl  fr_full    MAE            19.30        14.32        25.32        worse
+  oneweb_dl  fr_full   RMSE            -2.41        -5.61         1.25 inconclusive
+  oneweb_dl  fr_full     IS            -0.62        -3.45         2.55 inconclusive
+  oneweb_dl fr_resid    MAE             8.19         1.07        14.74        worse
+  oneweb_dl fr_resid   RMSE            -0.58        -2.32         1.98 inconclusive
+  oneweb_dl fr_resid     IS            -1.14        -3.41         1.74 inconclusive
+  oneweb_dl ridge_fr    MAE             9.43         4.42        14.22        worse
+  oneweb_dl ridge_fr   RMSE             1.42        -0.17         3.78 inconclusive
+  oneweb_dl ridge_fr     IS             4.71         2.37         7.65        worse
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_dl  fr_full    MAE            -7.34       -11.38        -3.20       better
+starlink_dl  fr_full   RMSE            -4.60        -6.57        -2.79       better
+starlink_dl  fr_full     IS            -2.25        -3.89        -0.25       better
+starlink_dl fr_resid    MAE             0.12        -2.48         2.82 inconclusive
+starlink_dl fr_resid   RMSE            -0.06        -1.38         1.83 inconclusive
+starlink_dl fr_resid     IS            -1.33        -2.29        -0.21       better
+starlink_dl ridge_fr    MAE             6.70         2.90        10.04        worse
+starlink_dl ridge_fr   RMSE             1.37        -0.58         2.93 inconclusive
+starlink_dl ridge_fr     IS             0.95        -0.51         2.62 inconclusive
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+ quectel_dl  fr_full    MAE             0.55         0.13         0.94        worse
+ quectel_dl  fr_full   RMSE            -0.65        -0.98        -0.34       better
+ quectel_dl  fr_full     IS            -2.40        -3.07        -1.73       better
+ quectel_dl fr_resid    MAE             0.92         0.64         1.22        worse
+ quectel_dl fr_resid   RMSE             0.25         0.03         0.45        worse
+ quectel_dl fr_resid     IS            -0.64        -0.97        -0.34       better
+ quectel_dl ridge_fr    MAE             6.79         5.74         7.84        worse
+ quectel_dl ridge_fr   RMSE             2.52         1.97         3.10        worse
+ quectel_dl ridge_fr     IS            -2.38        -3.42        -1.32       better
+ quectel_ul  fr_full    MAE             0.10        -1.20         1.52 inconclusive
+ quectel_ul  fr_full   RMSE            -0.31        -0.72        -0.07       better
+ quectel_ul  fr_full     IS            -0.46        -1.40         0.26 inconclusive
+ quectel_ul fr_resid    MAE             0.66         0.25         1.16        worse
+ quectel_ul fr_resid   RMSE             0.04        -0.01         0.09 inconclusive
+ quectel_ul fr_resid     IS            -0.12        -0.30         0.06 inconclusive
+ quectel_ul ridge_fr    MAE             0.05        -1.34         1.65 inconclusive
+ quectel_ul ridge_fr   RMSE            -0.30        -0.72        -0.05       better
+ quectel_ul ridge_fr     IS            -0.36        -1.45         0.46 inconclusive
+wrote /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex and /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+=== fr_bootstrap 2026-11-06 23:17:34 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+
+       link  method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_dl fr_dist    MAE          11           -10.21           -10.16       -12.87        -7.89             0.00               11       better        -10.73         -9.69
+  oneweb_dl fr_dist   RMSE          11            -2.29            -2.23        -5.01         0.73             0.25                3 inconclusive         -3.58         -1.01
+  oneweb_dl fr_dist     IS          11           -19.92           -19.83       -23.98       -15.87             0.00               11       better        -21.38        -18.43
+  oneweb_ul fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+starlink_dl fr_dist    MAE           9           -14.56           -14.58       -19.78        -9.11             0.00                8       better        -14.99        -14.11
+starlink_dl fr_dist   RMSE           9            -4.95            -4.95        -7.52        -2.54             0.00                8       better         -5.30         -4.58
+starlink_dl fr_dist     IS           9           -41.11           -41.12       -42.94       -39.38             0.00                9       better        -41.76        -40.46
+starlink_ul fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+ quectel_dl fr_dist    MAE          58            -1.58            -1.57        -1.96        -1.21             0.00               48       better         -1.62         -1.53
+ quectel_dl fr_dist   RMSE          58            -0.99            -0.98        -1.34        -0.65             0.00               43       better         -1.04         -0.94
+ quectel_dl fr_dist     IS          58           -13.91           -13.88       -15.06       -12.74             0.00               58       better        -14.07        -13.75
+ quectel_ul fr_dist    MAE          58           -17.79           -17.80       -19.03       -16.47             0.00               58       better        -17.87        -17.70
+ quectel_ul fr_dist   RMSE          58            -0.32            -0.31        -0.73        -0.08             0.00               39       better         -0.34         -0.30
+ quectel_ul fr_dist     IS          58           -28.29           -28.29       -29.04       -27.61             0.00               58       better        -28.37        -28.21
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_dl  fr_full    MAE            19.30        14.32        25.32        worse
+  oneweb_dl  fr_full   RMSE            -2.41        -5.61         1.25 inconclusive
+  oneweb_dl  fr_full     IS            -0.62        -3.45         2.55 inconclusive
+  oneweb_dl fr_resid    MAE             8.19         1.07        14.74        worse
+  oneweb_dl fr_resid   RMSE            -0.58        -2.32         1.98 inconclusive
+  oneweb_dl fr_resid     IS            -1.14        -3.41         1.74 inconclusive
+  oneweb_dl ridge_fr    MAE             9.43         4.42        14.22        worse
+  oneweb_dl ridge_fr   RMSE             1.42        -0.17         3.78 inconclusive
+  oneweb_dl ridge_fr     IS             4.71         2.37         7.65        worse
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_dl  fr_full    MAE            -7.34       -11.38        -3.20       better
+starlink_dl  fr_full   RMSE            -4.60        -6.57        -2.79       better
+starlink_dl  fr_full     IS            -2.25        -3.89        -0.25       better
+starlink_dl fr_resid    MAE             0.12        -2.48         2.82 inconclusive
+starlink_dl fr_resid   RMSE            -0.06        -1.38         1.83 inconclusive
+starlink_dl fr_resid     IS            -1.33        -2.29        -0.21       better
+starlink_dl ridge_fr    MAE             6.70         2.90        10.04        worse
+starlink_dl ridge_fr   RMSE             1.37        -0.58         2.93 inconclusive
+starlink_dl ridge_fr     IS             0.95        -0.51         2.62 inconclusive
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+ quectel_dl  fr_full    MAE             0.55         0.13         0.94        worse
+ quectel_dl  fr_full   RMSE            -0.65        -0.98        -0.34       better
+ quectel_dl  fr_full     IS            -2.40        -3.07        -1.73       better
+ quectel_dl fr_resid    MAE             0.92         0.64         1.22        worse
+ quectel_dl fr_resid   RMSE             0.25         0.03         0.45        worse
+ quectel_dl fr_resid     IS            -0.64        -0.97        -0.34       better
+ quectel_dl ridge_fr    MAE             6.79         5.74         7.84        worse
+ quectel_dl ridge_fr   RMSE             2.52         1.97         3.10        worse
+ quectel_dl ridge_fr     IS            -2.38        -3.42        -1.32       better
+ quectel_ul  fr_full    MAE             0.10        -1.20         1.52 inconclusive
+ quectel_ul  fr_full   RMSE            -0.31        -0.72        -0.07       better
+ quectel_ul  fr_full     IS            -0.46        -1.40         0.26 inconclusive
+ quectel_ul fr_resid    MAE             0.66         0.25         1.16        worse
+ quectel_ul fr_resid   RMSE             0.04        -0.01         0.09 inconclusive
+ quectel_ul fr_resid     IS            -0.12        -0.30         0.06 inconclusive
+ quectel_ul ridge_fr    MAE             0.05        -1.34         1.65 inconclusive
+ quectel_ul ridge_fr   RMSE            -0.30        -0.72        -0.05       better
+ quectel_ul ridge_fr     IS            -0.36        -1.45         0.46 inconclusive
+wrote /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex and /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+=== fr_bootstrap 2026-11-06 23:18:30 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+
+       link  method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_dl fr_dist    MAE          11           -10.21           -10.16       -12.87        -7.89             0.00               11       better        -10.73         -9.69
+  oneweb_dl fr_dist   RMSE          11            -2.29            -2.23        -5.01         0.73             0.25                3 inconclusive         -3.58         -1.01
+  oneweb_dl fr_dist     IS          11           -19.92           -19.83       -23.98       -15.87             0.00               11       better        -21.38        -18.43
+  oneweb_ul fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+starlink_dl fr_dist    MAE           9           -14.56           -14.58       -19.78        -9.11             0.00                8       better        -14.99        -14.11
+starlink_dl fr_dist   RMSE           9            -4.95            -4.95        -7.52        -2.54             0.00                8       better         -5.30         -4.58
+starlink_dl fr_dist     IS           9           -41.11           -41.12       -42.94       -39.38             0.00                9       better        -41.76        -40.46
+starlink_ul fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+ quectel_dl fr_dist    MAE          58            -1.58            -1.57        -1.96        -1.21             0.00               48       better         -1.62         -1.53
+ quectel_dl fr_dist   RMSE          58            -0.99            -0.98        -1.34        -0.65             0.00               43       better         -1.04         -0.94
+ quectel_dl fr_dist     IS          58           -13.91           -13.88       -15.06       -12.74             0.00               58       better        -14.07        -13.75
+ quectel_ul fr_dist    MAE          58           -17.79           -17.80       -19.03       -16.47             0.00               58       better        -17.87        -17.70
+ quectel_ul fr_dist   RMSE          58            -0.32            -0.31        -0.73        -0.08             0.00               39       better         -0.34         -0.30
+ quectel_ul fr_dist     IS          58           -28.29           -28.29       -29.04       -27.61             0.00               58       better        -28.37        -28.21
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_dl  fr_full    MAE            19.30        14.32        25.32        worse
+  oneweb_dl  fr_full   RMSE            -2.41        -5.61         1.25 inconclusive
+  oneweb_dl  fr_full     IS            -0.62        -3.45         2.55 inconclusive
+  oneweb_dl fr_resid    MAE             8.19         1.07        14.74        worse
+  oneweb_dl fr_resid   RMSE            -0.58        -2.32         1.98 inconclusive
+  oneweb_dl fr_resid     IS            -1.14        -3.41         1.74 inconclusive
+  oneweb_dl ridge_fr    MAE             9.43         4.42        14.22        worse
+  oneweb_dl ridge_fr   RMSE             1.42        -0.17         3.78 inconclusive
+  oneweb_dl ridge_fr     IS             4.71         2.37         7.65        worse
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_dl  fr_full    MAE            -7.34       -11.38        -3.20       better
+starlink_dl  fr_full   RMSE            -4.60        -6.57        -2.79       better
+starlink_dl  fr_full     IS            -2.25        -3.89        -0.25       better
+starlink_dl fr_resid    MAE             0.12        -2.48         2.82 inconclusive
+starlink_dl fr_resid   RMSE            -0.06        -1.38         1.83 inconclusive
+starlink_dl fr_resid     IS            -1.33        -2.29        -0.21       better
+starlink_dl ridge_fr    MAE             6.70         2.90        10.04        worse
+starlink_dl ridge_fr   RMSE             1.37        -0.58         2.93 inconclusive
+starlink_dl ridge_fr     IS             0.95        -0.51         2.62 inconclusive
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+ quectel_dl  fr_full    MAE             0.55         0.13         0.94        worse
+ quectel_dl  fr_full   RMSE            -0.65        -0.98        -0.34       better
+ quectel_dl  fr_full     IS            -2.40        -3.07        -1.73       better
+ quectel_dl fr_resid    MAE             0.92         0.64         1.22        worse
+ quectel_dl fr_resid   RMSE             0.25         0.03         0.45        worse
+ quectel_dl fr_resid     IS            -0.64        -0.97        -0.34       better
+ quectel_dl ridge_fr    MAE             6.79         5.74         7.84        worse
+ quectel_dl ridge_fr   RMSE             2.52         1.97         3.10        worse
+ quectel_dl ridge_fr     IS            -2.38        -3.42        -1.32       better
+ quectel_ul  fr_full    MAE             0.10        -1.20         1.52 inconclusive
+ quectel_ul  fr_full   RMSE            -0.31        -0.72        -0.07       better
+ quectel_ul  fr_full     IS            -0.46        -1.40         0.26 inconclusive
+ quectel_ul fr_resid    MAE             0.66         0.25         1.16        worse
+ quectel_ul fr_resid   RMSE             0.04        -0.01         0.09 inconclusive
+ quectel_ul fr_resid     IS            -0.12        -0.30         0.06 inconclusive
+ quectel_ul ridge_fr    MAE             0.05        -1.34         1.65 inconclusive
+ quectel_ul ridge_fr   RMSE            -0.30        -0.72        -0.05       better
+ quectel_ul ridge_fr     IS            -0.36        -1.45         0.46 inconclusive
+wrote /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex and /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+=== fr_bootstrap 2026-11-06 23:32:58 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+  [cache] sid_oneweb_dl.npz: time stamps rescaled to unix seconds
+  [skip] oneweb_dl fr_dist_w4: no prediction files
+  [skip] oneweb_dl fr_gauss: no prediction files
+[done] oneweb_dl: 11 sessions, 27492 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (3s)
+  [cache] sid_oneweb_ul.npz: time stamps rescaled to unix seconds
+  [skip] oneweb_ul fr_dist_w4: no prediction files
+  [skip] oneweb_ul fr_gauss: no prediction files
+[done] oneweb_ul: 11 sessions, 28125 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (3s)
+  [cache] sid_starlink_dl.npz: time stamps rescaled to unix seconds
+  [skip] starlink_dl fr_dist_w4: no prediction files
+  [skip] starlink_dl fr_gauss: no prediction files
+[done] starlink_dl: 9 sessions, 25838 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (3s)
+  [cache] sid_starlink_ul.npz: time stamps rescaled to unix seconds
+  [skip] starlink_ul fr_dist_w4: no prediction files
+  [skip] starlink_ul fr_gauss: no prediction files
+[done] starlink_ul: 9 sessions, 25666 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (3s)
+  [cache] sid_quectel_dl.npz: time stamps rescaled to unix seconds
+  [skip] quectel_dl fr_dist_w4: no prediction files
+  [skip] quectel_dl fr_gauss: no prediction files
+[done] quectel_dl: 58 sessions, 169204 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (21s)
+  [cache] sid_quectel_ul.npz: time stamps rescaled to unix seconds
+  [skip] quectel_ul fr_dist_w4: no prediction files
+  [skip] quectel_ul fr_gauss: no prediction files
+[done] quectel_ul: 58 sessions, 168519 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (20s)
+
+[interval-score decomposition, change vs S2S-E interval in %]
+variant      s2s_sym  s2s_asym  ds2s_med_sym  ds2s_med_asym  ds2s_cqr
+link                                                                 
+oneweb_dl        0.0      -6.3           2.0           -6.0     -19.9
+oneweb_ul        0.0      -1.7           1.1           -3.1     -26.3
+starlink_dl      0.0       1.1           2.2            4.2     -41.1
+starlink_ul      0.0      -3.6           3.5           -3.1      -9.4
+quectel_dl       0.0      -2.3           1.5           -2.6     -13.9
+quectel_ul       0.0     -24.1          11.6          -25.7     -28.3
+[point forecast and jumps]
+link                      oneweb_dl  oneweb_ul  starlink_dl  starlink_ul  quectel_dl  quectel_ul
+MAE_s2s_mean_ms              17.748     68.756       21.596        3.884       3.175      12.352
+MAE_ds2s_median_ms           15.936     67.507       18.451        3.758       3.125      10.155
+MAE_ds2s_mean_ms             18.293     68.943       19.094        3.856       3.169      12.326
+MAE_change_median_pct       -10.209     -1.817      -14.562       -3.255      -1.576     -17.789
+MAE_change_mean_pct           3.073      0.272      -11.587       -0.734      -0.194      -0.212
+calm_threshold_ms             1.900     25.200       30.878        3.300       4.000       5.530
+calm_share                    0.545      0.481        0.513        0.495       0.502       0.489
+calm_PICP_s2s                 0.998      0.993        0.988        0.988       0.990       0.998
+calm_width_s2s_ms            84.048    602.672      176.717       16.427      16.468      82.220
+calm_PICP_ds2s                0.986      0.992        0.973        0.986       0.985       0.978
+calm_width_ds2s_ms           71.976    305.694       67.146       16.485      15.219      63.719
+large_jump_threshold_ms     249.100    920.136      172.300       29.100      22.400      91.800
+large_jump_share              0.010      0.009        0.010        0.013       0.007       0.011
+large_jump_PICP_s2s           0.347      0.351        0.259        0.340       0.442       0.489
+large_jump_width_s2s_ms      84.378    722.231      181.560       16.433      16.528      82.219
+large_jump_PICP_ds2s          0.479      0.409        0.610        0.395       0.483       0.484
+large_jump_width_ds2s_ms    242.967    681.827      198.071       22.988      21.840      76.693
+
+       link  method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_dl fr_dist    MAE          11           -10.21           -10.16       -12.87        -7.89             0.00               11       better        -10.73         -9.69
+  oneweb_dl fr_dist   RMSE          11            -2.29            -2.23        -5.01         0.73             0.25                3 inconclusive         -3.58         -1.01
+  oneweb_dl fr_dist     IS          11           -19.92           -19.83       -23.98       -15.87             0.00               11       better        -21.38        -18.43
+  oneweb_ul fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+starlink_dl fr_dist    MAE           9           -14.56           -14.58       -19.78        -9.11             0.00                8       better        -14.99        -14.11
+starlink_dl fr_dist   RMSE           9            -4.95            -4.95        -7.52        -2.54             0.00                8       better         -5.30         -4.58
+starlink_dl fr_dist     IS           9           -41.11           -41.12       -42.94       -39.38             0.00                9       better        -41.76        -40.46
+starlink_ul fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+ quectel_dl fr_dist    MAE          58            -1.58            -1.57        -1.96        -1.21             0.00               48       better         -1.62         -1.53
+ quectel_dl fr_dist   RMSE          58            -0.99            -0.98        -1.34        -0.65             0.00               43       better         -1.04         -0.94
+ quectel_dl fr_dist     IS          58           -13.91           -13.88       -15.06       -12.74             0.00               58       better        -14.07        -13.75
+ quectel_ul fr_dist    MAE          58           -17.79           -17.80       -19.03       -16.47             0.00               58       better        -17.87        -17.70
+ quectel_ul fr_dist   RMSE          58            -0.32            -0.31        -0.73        -0.08             0.00               39       better         -0.34         -0.30
+ quectel_ul fr_dist     IS          58           -28.29           -28.29       -29.04       -27.61             0.00               58       better        -28.37        -28.21
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_dl  fr_full    MAE            19.30        14.32        25.32        worse
+  oneweb_dl  fr_full   RMSE            -2.41        -5.61         1.25 inconclusive
+  oneweb_dl  fr_full     IS            -0.62        -3.45         2.55 inconclusive
+  oneweb_dl fr_resid    MAE             8.19         1.07        14.74        worse
+  oneweb_dl fr_resid   RMSE            -0.58        -2.32         1.98 inconclusive
+  oneweb_dl fr_resid     IS            -1.14        -3.41         1.74 inconclusive
+  oneweb_dl   lqr_fr    MAE           -14.46       -18.65       -10.72       better
+  oneweb_dl   lqr_fr   RMSE             1.96         0.34         4.35        worse
+  oneweb_dl   lqr_fr     IS           -18.46       -23.04       -13.71       better
+  oneweb_dl ridge_fr    MAE             9.43         4.42        14.22        worse
+  oneweb_dl ridge_fr   RMSE             1.42        -0.17         3.78 inconclusive
+  oneweb_dl ridge_fr     IS             4.71         2.37         7.65        worse
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul   lqr_fr    MAE            18.93         5.49        31.64        worse
+  oneweb_ul   lqr_fr   RMSE            12.75         5.77        20.19        worse
+  oneweb_ul   lqr_fr     IS           -27.72       -34.26       -21.46       better
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_dl  fr_full    MAE            -7.34       -11.38        -3.20       better
+starlink_dl  fr_full   RMSE            -4.60        -6.57        -2.79       better
+starlink_dl  fr_full     IS            -2.25        -3.89        -0.25       better
+starlink_dl fr_resid    MAE             0.12        -2.48         2.82 inconclusive
+starlink_dl fr_resid   RMSE            -0.06        -1.38         1.83 inconclusive
+starlink_dl fr_resid     IS            -1.33        -2.29        -0.21       better
+starlink_dl   lqr_fr    MAE            -8.29       -13.96        -3.72       better
+starlink_dl   lqr_fr   RMSE             1.53        -0.29         3.05 inconclusive
+starlink_dl   lqr_fr     IS           -37.47       -38.96       -35.99       better
+starlink_dl ridge_fr    MAE             6.70         2.90        10.04        worse
+starlink_dl ridge_fr   RMSE             1.37        -0.58         2.93 inconclusive
+starlink_dl ridge_fr     IS             0.95        -0.51         2.62 inconclusive
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul   lqr_fr    MAE            -2.04        -4.16        -0.10       better
+starlink_ul   lqr_fr   RMSE             1.11         0.26         1.83        worse
+starlink_ul   lqr_fr     IS           -11.62       -16.15        -6.74       better
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+ quectel_dl  fr_full    MAE             0.55         0.13         0.94        worse
+ quectel_dl  fr_full   RMSE            -0.65        -0.98        -0.34       better
+ quectel_dl  fr_full     IS            -2.40        -3.07        -1.73       better
+ quectel_dl fr_resid    MAE             0.92         0.64         1.22        worse
+ quectel_dl fr_resid   RMSE             0.25         0.03         0.45        worse
+ quectel_dl fr_resid     IS            -0.64        -0.97        -0.34       better
+ quectel_dl   lqr_fr    MAE             5.47         4.54         6.42        worse
+ quectel_dl   lqr_fr   RMSE             2.69         2.13         3.27        worse
+ quectel_dl   lqr_fr     IS           -11.12       -12.38        -9.91       better
+ quectel_dl ridge_fr    MAE             6.79         5.74         7.84        worse
+ quectel_dl ridge_fr   RMSE             2.52         1.97         3.10        worse
+ quectel_dl ridge_fr     IS            -2.38        -3.42        -1.32       better
+ quectel_ul  fr_full    MAE             0.10        -1.20         1.52 inconclusive
+ quectel_ul  fr_full   RMSE            -0.31        -0.72        -0.07       better
+ quectel_ul  fr_full     IS            -0.46        -1.40         0.26 inconclusive
+ quectel_ul fr_resid    MAE             0.66         0.25         1.16        worse
+ quectel_ul fr_resid   RMSE             0.04        -0.01         0.09 inconclusive
+ quectel_ul fr_resid     IS            -0.12        -0.30         0.06 inconclusive
+ quectel_ul   lqr_fr    MAE           -17.62       -18.90       -16.28       better
+ quectel_ul   lqr_fr   RMSE            -0.10        -0.50         0.14 inconclusive
+ quectel_ul   lqr_fr     IS           -26.61       -27.62       -25.71       better
+ quectel_ul ridge_fr    MAE             0.05        -1.34         1.65 inconclusive
+ quectel_ul ridge_fr   RMSE            -0.30        -0.72        -0.05       better
+ quectel_ul ridge_fr     IS            -0.36        -1.45         0.46 inconclusive
+wrote /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex and /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+wrote /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/session_stats.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.json
+
+=== fr_bootstrap 2026-11-06 23:34:37 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+  [skip] oneweb_dl fr_dist_w4: no prediction files
+  [skip] oneweb_dl fr_gauss: no prediction files
+[done] oneweb_dl: 11 sessions, 27492 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (3s)
+  [skip] oneweb_ul fr_dist_w4: no prediction files
+  [skip] oneweb_ul fr_gauss: no prediction files
+[done] oneweb_ul: 11 sessions, 28125 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (3s)
+  [skip] starlink_dl fr_dist_w4: no prediction files
+  [skip] starlink_dl fr_gauss: no prediction files
+[done] starlink_dl: 9 sessions, 25838 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (3s)
+  [skip] starlink_ul fr_dist_w4: no prediction files
+  [skip] starlink_ul fr_gauss: no prediction files
+[done] starlink_ul: 9 sessions, 25666 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (3s)
+  [skip] quectel_dl fr_dist_w4: no prediction files
+  [skip] quectel_dl fr_gauss: no prediction files
+[done] quectel_dl: 58 sessions, 169204 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (20s)
+  [skip] quectel_ul fr_dist_w4: no prediction files
+  [skip] quectel_ul fr_gauss: no prediction files
+[done] quectel_ul: 58 sessions, 168519 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (20s)
+
+[final model against the other methods, paired session bootstrap, change in %]
+       link  against metric  change_full_pct  boot_lo_pct  boot_hi_pct  sessions_better      verdict
+  oneweb_dl fr_resid    MAE           -17.01       -20.85       -12.73               11       better
+  oneweb_dl fr_resid   RMSE            -1.71        -3.20         0.41                6 inconclusive
+  oneweb_dl fr_resid     IS           -19.00       -22.09       -15.81               11       better
+  oneweb_dl  fr_full    MAE           -24.73       -28.48       -21.48               11       better
+  oneweb_dl  fr_full   RMSE             0.13        -1.01         0.86                7 inconclusive
+  oneweb_dl  fr_full     IS           -19.42       -21.93       -16.33               11       better
+  oneweb_dl   lqr_fr    MAE             4.97         1.83         9.15                2        worse
+  oneweb_dl   lqr_fr   RMSE            -4.16        -5.58        -2.43               11       better
+  oneweb_dl   lqr_fr     IS            -1.79        -4.52         0.78                8 inconclusive
+  oneweb_dl ridge_fr    MAE           -17.95       -20.18       -15.58               11       better
+  oneweb_dl ridge_fr   RMSE            -3.66        -5.04        -1.96               11       better
+  oneweb_dl ridge_fr     IS           -23.52       -26.76       -20.45               11       better
+  oneweb_ul fr_resid    MAE            -5.51       -11.80         2.13               10 inconclusive
+  oneweb_ul fr_resid   RMSE            -3.56        -5.89        -0.59                9       better
+  oneweb_ul fr_resid     IS           -29.72       -34.01       -26.35               11       better
+  oneweb_ul  fr_full    MAE            -1.48        -4.88         2.74                8 inconclusive
+  oneweb_ul  fr_full   RMSE             2.70         0.50         4.80                3        worse
+  oneweb_ul  fr_full     IS           -23.92       -29.08       -19.81               11       better
+  oneweb_ul   lqr_fr    MAE           -17.44       -23.13       -10.20               10       better
+  oneweb_ul   lqr_fr   RMSE           -11.35       -15.54        -6.14               10       better
+  oneweb_ul   lqr_fr     IS             1.99        -5.69         9.79                4 inconclusive
+  oneweb_ul ridge_fr    MAE           -23.23       -27.52       -19.26               11       better
+  oneweb_ul ridge_fr   RMSE           -11.20       -15.34        -6.02               10       better
+  oneweb_ul ridge_fr     IS           -33.53       -39.38       -27.53               11       better
+starlink_dl fr_resid    MAE           -14.66       -18.92       -10.62                9       better
+starlink_dl fr_resid   RMSE            -4.90        -7.19        -2.80                9       better
+starlink_dl fr_resid     IS           -40.32       -42.42       -38.31                9       better
+starlink_dl  fr_full    MAE            -7.79       -10.04        -5.74                9       better
+starlink_dl  fr_full   RMSE            -0.37        -1.16         0.31                6 inconclusive
+starlink_dl  fr_full     IS           -39.76       -41.30       -38.48                9       better
+starlink_dl   lqr_fr    MAE            -6.84       -12.90         1.83                7 inconclusive
+starlink_dl   lqr_fr   RMSE            -6.39        -9.59        -3.03                8       better
+starlink_dl   lqr_fr     IS            -5.82        -8.30        -4.02                9       better
+starlink_dl ridge_fr    MAE           -19.92       -25.64       -13.44                8       better
+starlink_dl ridge_fr   RMSE            -6.24        -9.43        -2.81                8       better
+starlink_dl ridge_fr     IS           -41.66       -43.77       -39.77                9       better
+starlink_ul fr_resid    MAE            -3.01        -3.99        -1.98                9       better
+starlink_ul fr_resid   RMSE            -0.15        -0.49         0.11                6 inconclusive
+starlink_ul fr_resid     IS            -9.75       -11.98        -7.52                9       better
+starlink_ul  fr_full    MAE            -2.45        -3.11        -1.79                9       better
+starlink_ul  fr_full   RMSE            -0.14        -0.31         0.04                6 inconclusive
+starlink_ul  fr_full     IS           -10.05       -12.10        -7.83                9       better
+starlink_ul   lqr_fr    MAE            -1.24        -2.11        -0.43                8       better
+starlink_ul   lqr_fr   RMSE            -1.20        -1.64        -0.71                9       better
+starlink_ul   lqr_fr     IS             2.52        -0.26         6.25                4 inconclusive
+starlink_ul ridge_fr    MAE            -4.17        -5.07        -3.23                9       better
+starlink_ul ridge_fr   RMSE            -0.95        -1.38        -0.46                9       better
+starlink_ul ridge_fr     IS           -10.77       -13.60        -7.98                9       better
+ quectel_dl fr_resid    MAE            -2.47        -2.98        -1.99               55       better
+ quectel_dl fr_resid   RMSE            -1.23        -1.62        -0.89               54       better
+ quectel_dl fr_resid     IS           -13.36       -14.47       -12.21               58       better
+ quectel_dl  fr_full    MAE            -2.12        -2.47        -1.79               56       better
+ quectel_dl  fr_full   RMSE            -0.34        -0.42        -0.25               49       better
+ quectel_dl  fr_full     IS           -11.80       -12.92       -10.65               58       better
+ quectel_dl   lqr_fr    MAE            -6.68        -7.67        -5.70               56       better
+ quectel_dl   lqr_fr   RMSE            -3.58        -3.98        -3.21               58       better
+ quectel_dl   lqr_fr     IS            -3.14        -3.69        -2.57               53       better
+ quectel_dl ridge_fr    MAE            -7.83        -8.92        -6.77               58       better
+ quectel_dl ridge_fr   RMSE            -3.42        -3.82        -3.05               58       better
+ quectel_dl ridge_fr     IS           -11.82       -13.18       -10.44               58       better
+ quectel_ul fr_resid    MAE           -18.33       -19.66       -16.98               58       better
+ quectel_ul fr_resid   RMSE            -0.36        -0.75        -0.11               43       better
+ quectel_ul fr_resid     IS           -28.20       -28.93       -27.54               58       better
+ quectel_ul  fr_full    MAE           -17.87       -18.56       -17.11               58       better
+ quectel_ul  fr_full   RMSE            -0.01        -0.03         0.01               39 inconclusive
+ quectel_ul  fr_full     IS           -27.96       -28.65       -27.32               58       better
+ quectel_ul   lqr_fr    MAE            -0.20        -0.36        -0.06               30       better
+ quectel_ul   lqr_fr   RMSE            -0.22        -0.27        -0.17               47       better
+ quectel_ul   lqr_fr     IS            -2.29        -2.78        -1.75               43       better
+ quectel_ul ridge_fr    MAE           -17.83       -18.51       -17.08               58       better
+ quectel_ul ridge_fr   RMSE            -0.02        -0.05         0.02               32 inconclusive
+ quectel_ul ridge_fr     IS           -28.03       -28.71       -27.39               58       better
+
+[interval-score decomposition, change vs S2S-E interval in %]
+variant      s2s_sym  s2s_asym  ds2s_med_sym  ds2s_med_asym  ds2s_cqr
+link                                                                 
+oneweb_dl        0.0      -6.3           2.0           -6.0     -19.9
+oneweb_ul        0.0      -1.7           1.1           -3.1     -26.3
+starlink_dl      0.0       1.1           2.2            4.2     -41.1
+starlink_ul      0.0      -3.6           3.5           -3.1      -9.4
+quectel_dl       0.0      -2.3           1.5           -2.6     -13.9
+quectel_ul       0.0     -24.1          11.6          -25.7     -28.3
+[point forecast and jumps]
+link                      oneweb_dl  oneweb_ul  starlink_dl  starlink_ul  quectel_dl  quectel_ul
+MAE_s2s_mean_ms              17.748     68.756       21.596        3.884       3.175      12.352
+MAE_ds2s_median_ms           15.936     67.507       18.451        3.758       3.125      10.155
+MAE_ds2s_mean_ms             18.293     68.943       19.094        3.856       3.169      12.326
+MAE_change_median_pct       -10.209     -1.817      -14.562       -3.255      -1.576     -17.789
+MAE_change_mean_pct           3.073      0.272      -11.587       -0.734      -0.194      -0.212
+calm_threshold_ms             1.900     25.200       30.878        3.300       4.000       5.530
+calm_share                    0.545      0.481        0.513        0.495       0.502       0.489
+calm_PICP_s2s                 0.998      0.993        0.988        0.988       0.990       0.998
+calm_width_s2s_ms            84.048    602.672      176.717       16.427      16.468      82.220
+calm_PICP_ds2s                0.986      0.992        0.973        0.986       0.985       0.978
+calm_width_ds2s_ms           71.976    305.694       67.146       16.485      15.219      63.719
+large_jump_threshold_ms     249.100    920.136      172.300       29.100      22.400      91.800
+large_jump_share              0.010      0.009        0.010        0.013       0.007       0.011
+large_jump_PICP_s2s           0.347      0.351        0.259        0.340       0.442       0.489
+large_jump_width_s2s_ms      84.378    722.231      181.560       16.433      16.528      82.219
+large_jump_PICP_ds2s          0.479      0.409        0.610        0.395       0.483       0.484
+large_jump_width_ds2s_ms    242.967    681.827      198.071       22.988      21.840      76.693
+
+       link  method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_dl fr_dist    MAE          11           -10.21           -10.16       -12.87        -7.89             0.00               11       better        -10.73         -9.69
+  oneweb_dl fr_dist   RMSE          11            -2.29            -2.23        -5.01         0.73             0.25                3 inconclusive         -3.58         -1.01
+  oneweb_dl fr_dist     IS          11           -19.92           -19.83       -23.98       -15.87             0.00               11       better        -21.38        -18.43
+  oneweb_ul fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+starlink_dl fr_dist    MAE           9           -14.56           -14.58       -19.78        -9.11             0.00                8       better        -14.99        -14.11
+starlink_dl fr_dist   RMSE           9            -4.95            -4.95        -7.52        -2.54             0.00                8       better         -5.30         -4.58
+starlink_dl fr_dist     IS           9           -41.11           -41.12       -42.94       -39.38             0.00                9       better        -41.76        -40.46
+starlink_ul fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+ quectel_dl fr_dist    MAE          58            -1.58            -1.57        -1.96        -1.21             0.00               48       better         -1.62         -1.53
+ quectel_dl fr_dist   RMSE          58            -0.99            -0.98        -1.34        -0.65             0.00               43       better         -1.04         -0.94
+ quectel_dl fr_dist     IS          58           -13.91           -13.88       -15.06       -12.74             0.00               58       better        -14.07        -13.75
+ quectel_ul fr_dist    MAE          58           -17.79           -17.80       -19.03       -16.47             0.00               58       better        -17.87        -17.70
+ quectel_ul fr_dist   RMSE          58            -0.32            -0.31        -0.73        -0.08             0.00               39       better         -0.34         -0.30
+ quectel_ul fr_dist     IS          58           -28.29           -28.29       -29.04       -27.61             0.00               58       better        -28.37        -28.21
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_dl  fr_full    MAE            19.30        14.32        25.32        worse
+  oneweb_dl  fr_full   RMSE            -2.41        -5.61         1.25 inconclusive
+  oneweb_dl  fr_full     IS            -0.62        -3.45         2.55 inconclusive
+  oneweb_dl fr_resid    MAE             8.19         1.07        14.74        worse
+  oneweb_dl fr_resid   RMSE            -0.58        -2.32         1.98 inconclusive
+  oneweb_dl fr_resid     IS            -1.14        -3.41         1.74 inconclusive
+  oneweb_dl   lqr_fr    MAE           -14.46       -18.65       -10.72       better
+  oneweb_dl   lqr_fr   RMSE             1.96         0.34         4.35        worse
+  oneweb_dl   lqr_fr     IS           -18.46       -23.04       -13.71       better
+  oneweb_dl ridge_fr    MAE             9.43         4.42        14.22        worse
+  oneweb_dl ridge_fr   RMSE             1.42        -0.17         3.78 inconclusive
+  oneweb_dl ridge_fr     IS             4.71         2.37         7.65        worse
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul   lqr_fr    MAE            18.93         5.49        31.64        worse
+  oneweb_ul   lqr_fr   RMSE            12.75         5.77        20.19        worse
+  oneweb_ul   lqr_fr     IS           -27.72       -34.26       -21.46       better
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_dl  fr_full    MAE            -7.34       -11.38        -3.20       better
+starlink_dl  fr_full   RMSE            -4.60        -6.57        -2.79       better
+starlink_dl  fr_full     IS            -2.25        -3.89        -0.25       better
+starlink_dl fr_resid    MAE             0.12        -2.48         2.82 inconclusive
+starlink_dl fr_resid   RMSE            -0.06        -1.38         1.83 inconclusive
+starlink_dl fr_resid     IS            -1.33        -2.29        -0.21       better
+starlink_dl   lqr_fr    MAE            -8.29       -13.96        -3.72       better
+starlink_dl   lqr_fr   RMSE             1.53        -0.29         3.05 inconclusive
+starlink_dl   lqr_fr     IS           -37.47       -38.96       -35.99       better
+starlink_dl ridge_fr    MAE             6.70         2.90        10.04        worse
+starlink_dl ridge_fr   RMSE             1.37        -0.58         2.93 inconclusive
+starlink_dl ridge_fr     IS             0.95        -0.51         2.62 inconclusive
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul   lqr_fr    MAE            -2.04        -4.16        -0.10       better
+starlink_ul   lqr_fr   RMSE             1.11         0.26         1.83        worse
+starlink_ul   lqr_fr     IS           -11.62       -16.15        -6.74       better
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+ quectel_dl  fr_full    MAE             0.55         0.13         0.94        worse
+ quectel_dl  fr_full   RMSE            -0.65        -0.98        -0.34       better
+ quectel_dl  fr_full     IS            -2.40        -3.07        -1.73       better
+ quectel_dl fr_resid    MAE             0.92         0.64         1.22        worse
+ quectel_dl fr_resid   RMSE             0.25         0.03         0.45        worse
+ quectel_dl fr_resid     IS            -0.64        -0.97        -0.34       better
+ quectel_dl   lqr_fr    MAE             5.47         4.54         6.42        worse
+ quectel_dl   lqr_fr   RMSE             2.69         2.13         3.27        worse
+ quectel_dl   lqr_fr     IS           -11.12       -12.38        -9.91       better
+ quectel_dl ridge_fr    MAE             6.79         5.74         7.84        worse
+ quectel_dl ridge_fr   RMSE             2.52         1.97         3.10        worse
+ quectel_dl ridge_fr     IS            -2.38        -3.42        -1.32       better
+ quectel_ul  fr_full    MAE             0.10        -1.20         1.52 inconclusive
+ quectel_ul  fr_full   RMSE            -0.31        -0.72        -0.07       better
+ quectel_ul  fr_full     IS            -0.46        -1.40         0.26 inconclusive
+ quectel_ul fr_resid    MAE             0.66         0.25         1.16        worse
+ quectel_ul fr_resid   RMSE             0.04        -0.01         0.09 inconclusive
+ quectel_ul fr_resid     IS            -0.12        -0.30         0.06 inconclusive
+ quectel_ul   lqr_fr    MAE           -17.62       -18.90       -16.28       better
+ quectel_ul   lqr_fr   RMSE            -0.10        -0.50         0.14 inconclusive
+ quectel_ul   lqr_fr     IS           -26.61       -27.62       -25.71       better
+ quectel_ul ridge_fr    MAE             0.05        -1.34         1.65 inconclusive
+ quectel_ul ridge_fr   RMSE            -0.30        -0.72        -0.05       better
+ quectel_ul ridge_fr     IS            -0.36        -1.45         0.46 inconclusive
+wrote /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex and /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+wrote /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/session_stats.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.json
+
+=== fr_bootstrap 2026-11-07 01:21:52 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+  [skip] oneweb_dl fr_dist_w4: incomplete: 2/3 seeds
+  [skip] oneweb_dl fr_gauss: incomplete: 2/3 seeds
+[done] oneweb_dl: 11 sessions, 27492 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (2s)
+  [skip] oneweb_ul fr_dist_w4: incomplete: 2/3 seeds
+  [skip] oneweb_ul fr_gauss: incomplete: 2/3 seeds
+[done] oneweb_ul: 11 sessions, 28125 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (2s)
+  [skip] starlink_dl fr_dist_w4: incomplete: 2/3 seeds
+  [skip] starlink_dl fr_gauss: incomplete: 2/3 seeds
+[done] starlink_dl: 9 sessions, 25838 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (2s)
+  [skip] starlink_ul fr_dist_w4: incomplete: 2/3 seeds
+  [skip] starlink_ul fr_gauss: incomplete: 2/3 seeds
+[done] starlink_ul: 9 sessions, 25666 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (2s)
+  [skip] quectel_dl fr_dist_w4: incomplete: 2/3 seeds
+  [skip] quectel_dl fr_gauss: incomplete: 1/3 seeds
+[done] quectel_dl: 58 sessions, 169204 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (13s)
+  [skip] quectel_ul fr_dist_w4: incomplete: 1/3 seeds
+  [skip] quectel_ul fr_gauss: incomplete: 1/3 seeds
+[done] quectel_ul: 58 sessions, 168519 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (12s)
+
+[final model against the other methods, paired session bootstrap, change in %]
+       link  against metric  change_full_pct  boot_lo_pct  boot_hi_pct  sessions_better      verdict
+  oneweb_dl fr_resid    MAE           -17.01       -20.85       -12.73               11       better
+  oneweb_dl fr_resid   RMSE            -1.71        -3.20         0.41                6 inconclusive
+  oneweb_dl fr_resid     IS           -19.00       -22.09       -15.81               11       better
+  oneweb_dl  fr_full    MAE           -24.73       -28.48       -21.48               11       better
+  oneweb_dl  fr_full   RMSE             0.13        -1.01         0.86                7 inconclusive
+  oneweb_dl  fr_full     IS           -19.42       -21.93       -16.33               11       better
+  oneweb_dl   lqr_fr    MAE             4.97         1.83         9.15                2        worse
+  oneweb_dl   lqr_fr   RMSE            -4.16        -5.58        -2.43               11       better
+  oneweb_dl   lqr_fr     IS            -1.79        -4.52         0.78                8 inconclusive
+  oneweb_dl ridge_fr    MAE           -17.95       -20.18       -15.58               11       better
+  oneweb_dl ridge_fr   RMSE            -3.66        -5.04        -1.96               11       better
+  oneweb_dl ridge_fr     IS           -23.52       -26.76       -20.45               11       better
+  oneweb_ul fr_resid    MAE            -5.51       -11.80         2.13               10 inconclusive
+  oneweb_ul fr_resid   RMSE            -3.56        -5.89        -0.59                9       better
+  oneweb_ul fr_resid     IS           -29.72       -34.01       -26.35               11       better
+  oneweb_ul  fr_full    MAE            -1.48        -4.88         2.74                8 inconclusive
+  oneweb_ul  fr_full   RMSE             2.70         0.50         4.80                3        worse
+  oneweb_ul  fr_full     IS           -23.92       -29.08       -19.81               11       better
+  oneweb_ul   lqr_fr    MAE           -17.44       -23.13       -10.20               10       better
+  oneweb_ul   lqr_fr   RMSE           -11.35       -15.54        -6.14               10       better
+  oneweb_ul   lqr_fr     IS             1.99        -5.69         9.79                4 inconclusive
+  oneweb_ul ridge_fr    MAE           -23.23       -27.52       -19.26               11       better
+  oneweb_ul ridge_fr   RMSE           -11.20       -15.34        -6.02               10       better
+  oneweb_ul ridge_fr     IS           -33.53       -39.38       -27.53               11       better
+starlink_dl fr_resid    MAE           -14.66       -18.92       -10.62                9       better
+starlink_dl fr_resid   RMSE            -4.90        -7.19        -2.80                9       better
+starlink_dl fr_resid     IS           -40.32       -42.42       -38.31                9       better
+starlink_dl  fr_full    MAE            -7.79       -10.04        -5.74                9       better
+starlink_dl  fr_full   RMSE            -0.37        -1.16         0.31                6 inconclusive
+starlink_dl  fr_full     IS           -39.76       -41.30       -38.48                9       better
+starlink_dl   lqr_fr    MAE            -6.84       -12.90         1.83                7 inconclusive
+starlink_dl   lqr_fr   RMSE            -6.39        -9.59        -3.03                8       better
+starlink_dl   lqr_fr     IS            -5.82        -8.30        -4.02                9       better
+starlink_dl ridge_fr    MAE           -19.92       -25.64       -13.44                8       better
+starlink_dl ridge_fr   RMSE            -6.24        -9.43        -2.81                8       better
+starlink_dl ridge_fr     IS           -41.66       -43.77       -39.77                9       better
+starlink_ul fr_resid    MAE            -3.01        -3.99        -1.98                9       better
+starlink_ul fr_resid   RMSE            -0.15        -0.49         0.11                6 inconclusive
+starlink_ul fr_resid     IS            -9.75       -11.98        -7.52                9       better
+starlink_ul  fr_full    MAE            -2.45        -3.11        -1.79                9       better
+starlink_ul  fr_full   RMSE            -0.14        -0.31         0.04                6 inconclusive
+starlink_ul  fr_full     IS           -10.05       -12.10        -7.83                9       better
+starlink_ul   lqr_fr    MAE            -1.24        -2.11        -0.43                8       better
+starlink_ul   lqr_fr   RMSE            -1.20        -1.64        -0.71                9       better
+starlink_ul   lqr_fr     IS             2.52        -0.26         6.25                4 inconclusive
+starlink_ul ridge_fr    MAE            -4.17        -5.07        -3.23                9       better
+starlink_ul ridge_fr   RMSE            -0.95        -1.38        -0.46                9       better
+starlink_ul ridge_fr     IS           -10.77       -13.60        -7.98                9       better
+ quectel_dl fr_resid    MAE            -2.47        -2.98        -1.99               55       better
+ quectel_dl fr_resid   RMSE            -1.23        -1.62        -0.89               54       better
+ quectel_dl fr_resid     IS           -13.36       -14.47       -12.21               58       better
+ quectel_dl  fr_full    MAE            -2.12        -2.47        -1.79               56       better
+ quectel_dl  fr_full   RMSE            -0.34        -0.42        -0.25               49       better
+ quectel_dl  fr_full     IS           -11.80       -12.92       -10.65               58       better
+ quectel_dl   lqr_fr    MAE            -6.68        -7.67        -5.70               56       better
+ quectel_dl   lqr_fr   RMSE            -3.58        -3.98        -3.21               58       better
+ quectel_dl   lqr_fr     IS            -3.14        -3.69        -2.57               53       better
+ quectel_dl ridge_fr    MAE            -7.83        -8.92        -6.77               58       better
+ quectel_dl ridge_fr   RMSE            -3.42        -3.82        -3.05               58       better
+ quectel_dl ridge_fr     IS           -11.82       -13.18       -10.44               58       better
+ quectel_ul fr_resid    MAE           -18.33       -19.66       -16.98               58       better
+ quectel_ul fr_resid   RMSE            -0.36        -0.75        -0.11               43       better
+ quectel_ul fr_resid     IS           -28.20       -28.93       -27.54               58       better
+ quectel_ul  fr_full    MAE           -17.87       -18.56       -17.11               58       better
+ quectel_ul  fr_full   RMSE            -0.01        -0.03         0.01               39 inconclusive
+ quectel_ul  fr_full     IS           -27.96       -28.65       -27.32               58       better
+ quectel_ul   lqr_fr    MAE            -0.20        -0.36        -0.06               30       better
+ quectel_ul   lqr_fr   RMSE            -0.22        -0.27        -0.17               47       better
+ quectel_ul   lqr_fr     IS            -2.29        -2.78        -1.75               43       better
+ quectel_ul ridge_fr    MAE           -17.83       -18.51       -17.08               58       better
+ quectel_ul ridge_fr   RMSE            -0.02        -0.05         0.02               32 inconclusive
+ quectel_ul ridge_fr     IS           -28.03       -28.71       -27.39               58       better
+
+[interval-score decomposition, change vs S2S-E interval in %]
+variant      s2s_sym  s2s_asym  ds2s_med_sym  ds2s_med_asym  ds2s_cqr
+link                                                                 
+oneweb_dl        0.0      -6.3           2.0           -6.0     -19.9
+oneweb_ul        0.0      -1.7           1.1           -3.1     -26.3
+starlink_dl      0.0       1.1           2.2            4.2     -41.1
+starlink_ul      0.0      -3.6           3.5           -3.1      -9.4
+quectel_dl       0.0      -2.3           1.5           -2.6     -13.9
+quectel_ul       0.0     -24.1          11.6          -25.7     -28.3
+[point forecast and jumps]
+link                      oneweb_dl  oneweb_ul  starlink_dl  starlink_ul  quectel_dl  quectel_ul
+MAE_s2s_mean_ms              17.748     68.756       21.596        3.884       3.175      12.352
+MAE_ds2s_median_ms           15.936     67.507       18.451        3.758       3.125      10.155
+MAE_ds2s_mean_ms             18.293     68.943       19.094        3.856       3.169      12.326
+MAE_change_median_pct       -10.209     -1.817      -14.562       -3.255      -1.576     -17.789
+MAE_change_mean_pct           3.073      0.272      -11.587       -0.734      -0.194      -0.212
+calm_threshold_ms             1.900     25.200       30.878        3.300       4.000       5.530
+calm_share                    0.545      0.481        0.513        0.495       0.502       0.489
+calm_PICP_s2s                 0.998      0.993        0.988        0.988       0.990       0.998
+calm_width_s2s_ms            84.048    602.672      176.717       16.427      16.468      82.220
+calm_PICP_ds2s                0.986      0.992        0.973        0.986       0.985       0.978
+calm_width_ds2s_ms           71.976    305.694       67.146       16.485      15.219      63.719
+large_jump_threshold_ms     249.100    920.136      172.300       29.100      22.400      91.800
+large_jump_share              0.010      0.009        0.010        0.013       0.007       0.011
+large_jump_PICP_s2s           0.347      0.351        0.259        0.340       0.442       0.489
+large_jump_width_s2s_ms      84.378    722.231      181.560       16.433      16.528      82.219
+large_jump_PICP_ds2s          0.479      0.409        0.610        0.395       0.483       0.484
+large_jump_width_ds2s_ms    242.967    681.827      198.071       22.988      21.840      76.693
+
+       link  method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_dl fr_dist    MAE          11           -10.21           -10.16       -12.87        -7.89             0.00               11       better        -10.73         -9.69
+  oneweb_dl fr_dist   RMSE          11            -2.29            -2.23        -5.01         0.73             0.25                3 inconclusive         -3.58         -1.01
+  oneweb_dl fr_dist     IS          11           -19.92           -19.83       -23.98       -15.87             0.00               11       better        -21.38        -18.43
+  oneweb_ul fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+starlink_dl fr_dist    MAE           9           -14.56           -14.58       -19.78        -9.11             0.00                8       better        -14.99        -14.11
+starlink_dl fr_dist   RMSE           9            -4.95            -4.95        -7.52        -2.54             0.00                8       better         -5.30         -4.58
+starlink_dl fr_dist     IS           9           -41.11           -41.12       -42.94       -39.38             0.00                9       better        -41.76        -40.46
+starlink_ul fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+ quectel_dl fr_dist    MAE          58            -1.58            -1.57        -1.96        -1.21             0.00               48       better         -1.62         -1.53
+ quectel_dl fr_dist   RMSE          58            -0.99            -0.98        -1.34        -0.65             0.00               43       better         -1.04         -0.94
+ quectel_dl fr_dist     IS          58           -13.91           -13.88       -15.06       -12.74             0.00               58       better        -14.07        -13.75
+ quectel_ul fr_dist    MAE          58           -17.79           -17.80       -19.03       -16.47             0.00               58       better        -17.87        -17.70
+ quectel_ul fr_dist   RMSE          58            -0.32            -0.31        -0.73        -0.08             0.00               39       better         -0.34         -0.30
+ quectel_ul fr_dist     IS          58           -28.29           -28.29       -29.04       -27.61             0.00               58       better        -28.37        -28.21
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_dl  fr_full    MAE            19.30        14.32        25.32        worse
+  oneweb_dl  fr_full   RMSE            -2.41        -5.61         1.25 inconclusive
+  oneweb_dl  fr_full     IS            -0.62        -3.45         2.55 inconclusive
+  oneweb_dl fr_resid    MAE             8.19         1.07        14.74        worse
+  oneweb_dl fr_resid   RMSE            -0.58        -2.32         1.98 inconclusive
+  oneweb_dl fr_resid     IS            -1.14        -3.41         1.74 inconclusive
+  oneweb_dl   lqr_fr    MAE           -14.46       -18.65       -10.72       better
+  oneweb_dl   lqr_fr   RMSE             1.96         0.34         4.35        worse
+  oneweb_dl   lqr_fr     IS           -18.46       -23.04       -13.71       better
+  oneweb_dl ridge_fr    MAE             9.43         4.42        14.22        worse
+  oneweb_dl ridge_fr   RMSE             1.42        -0.17         3.78 inconclusive
+  oneweb_dl ridge_fr     IS             4.71         2.37         7.65        worse
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul   lqr_fr    MAE            18.93         5.49        31.64        worse
+  oneweb_ul   lqr_fr   RMSE            12.75         5.77        20.19        worse
+  oneweb_ul   lqr_fr     IS           -27.72       -34.26       -21.46       better
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_dl  fr_full    MAE            -7.34       -11.38        -3.20       better
+starlink_dl  fr_full   RMSE            -4.60        -6.57        -2.79       better
+starlink_dl  fr_full     IS            -2.25        -3.89        -0.25       better
+starlink_dl fr_resid    MAE             0.12        -2.48         2.82 inconclusive
+starlink_dl fr_resid   RMSE            -0.06        -1.38         1.83 inconclusive
+starlink_dl fr_resid     IS            -1.33        -2.29        -0.21       better
+starlink_dl   lqr_fr    MAE            -8.29       -13.96        -3.72       better
+starlink_dl   lqr_fr   RMSE             1.53        -0.29         3.05 inconclusive
+starlink_dl   lqr_fr     IS           -37.47       -38.96       -35.99       better
+starlink_dl ridge_fr    MAE             6.70         2.90        10.04        worse
+starlink_dl ridge_fr   RMSE             1.37        -0.58         2.93 inconclusive
+starlink_dl ridge_fr     IS             0.95        -0.51         2.62 inconclusive
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul   lqr_fr    MAE            -2.04        -4.16        -0.10       better
+starlink_ul   lqr_fr   RMSE             1.11         0.26         1.83        worse
+starlink_ul   lqr_fr     IS           -11.62       -16.15        -6.74       better
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+ quectel_dl  fr_full    MAE             0.55         0.13         0.94        worse
+ quectel_dl  fr_full   RMSE            -0.65        -0.98        -0.34       better
+ quectel_dl  fr_full     IS            -2.40        -3.07        -1.73       better
+ quectel_dl fr_resid    MAE             0.92         0.64         1.22        worse
+ quectel_dl fr_resid   RMSE             0.25         0.03         0.45        worse
+ quectel_dl fr_resid     IS            -0.64        -0.97        -0.34       better
+ quectel_dl   lqr_fr    MAE             5.47         4.54         6.42        worse
+ quectel_dl   lqr_fr   RMSE             2.69         2.13         3.27        worse
+ quectel_dl   lqr_fr     IS           -11.12       -12.38        -9.91       better
+ quectel_dl ridge_fr    MAE             6.79         5.74         7.84        worse
+ quectel_dl ridge_fr   RMSE             2.52         1.97         3.10        worse
+ quectel_dl ridge_fr     IS            -2.38        -3.42        -1.32       better
+ quectel_ul  fr_full    MAE             0.10        -1.20         1.52 inconclusive
+ quectel_ul  fr_full   RMSE            -0.31        -0.72        -0.07       better
+ quectel_ul  fr_full     IS            -0.46        -1.40         0.26 inconclusive
+ quectel_ul fr_resid    MAE             0.66         0.25         1.16        worse
+ quectel_ul fr_resid   RMSE             0.04        -0.01         0.09 inconclusive
+ quectel_ul fr_resid     IS            -0.12        -0.30         0.06 inconclusive
+ quectel_ul   lqr_fr    MAE           -17.62       -18.90       -16.28       better
+ quectel_ul   lqr_fr   RMSE            -0.10        -0.50         0.14 inconclusive
+ quectel_ul   lqr_fr     IS           -26.61       -27.62       -25.71       better
+ quectel_ul ridge_fr    MAE             0.05        -1.34         1.65 inconclusive
+ quectel_ul ridge_fr   RMSE            -0.30        -0.72        -0.05       better
+ quectel_ul ridge_fr     IS            -0.36        -1.45         0.46 inconclusive
+wrote /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex and /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+wrote /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/session_stats.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.json
+
+=== fr_bootstrap 2026-11-07 06:35:23 | main fr_dist | extra ['fr_dist_w4', 'fr_gauss'] | ablation ['fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] | B=2000 seed=0 naive_B=2000 alpha=0.05
+[done] oneweb_dl: 11 sessions, 27492 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_dist_w4', 'fr_gauss', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (2s)
+[done] oneweb_ul: 11 sessions, 28125 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_dist_w4', 'fr_gauss', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (1s)
+[done] starlink_dl: 9 sessions, 25838 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_dist_w4', 'fr_gauss', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (1s)
+[done] starlink_ul: 9 sessions, 25666 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_dist_w4', 'fr_gauss', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (1s)
+[done] quectel_dl: 58 sessions, 169204 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_dist_w4', 'fr_gauss', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (11s)
+[done] quectel_ul: 58 sessions, 168519 windows, methods ['prev_seq2seq', 'fr_dist', 'fr_dist_w4', 'fr_gauss', 'fr_resid', 'fr_full', 'lqr_fr', 'ridge_fr'] (11s)
+
+[final model against the other methods, paired session bootstrap, change in %]
+       link    against metric  change_full_pct  boot_lo_pct  boot_hi_pct  sessions_better      verdict
+  oneweb_dl fr_dist_w4    MAE            11.02         8.30        13.47                0        worse
+  oneweb_dl fr_dist_w4   RMSE            -1.67        -4.39         2.10                4 inconclusive
+  oneweb_dl fr_dist_w4     IS             3.86        -2.65        10.26                1 inconclusive
+  oneweb_dl   fr_gauss    MAE           -46.66       -49.67       -43.74               11       better
+  oneweb_dl   fr_gauss   RMSE           -11.95       -14.45        -9.77               11       better
+  oneweb_dl   fr_gauss     IS           -13.26       -15.82        -9.99               11       better
+  oneweb_dl   fr_resid    MAE           -17.01       -20.85       -12.73               11       better
+  oneweb_dl   fr_resid   RMSE            -1.71        -3.20         0.41                6 inconclusive
+  oneweb_dl   fr_resid     IS           -19.00       -22.09       -15.81               11       better
+  oneweb_dl    fr_full    MAE           -24.73       -28.48       -21.48               11       better
+  oneweb_dl    fr_full   RMSE             0.13        -1.01         0.86                7 inconclusive
+  oneweb_dl    fr_full     IS           -19.42       -21.93       -16.33               11       better
+  oneweb_dl     lqr_fr    MAE             4.97         1.83         9.15                2        worse
+  oneweb_dl     lqr_fr   RMSE            -4.16        -5.58        -2.43               11       better
+  oneweb_dl     lqr_fr     IS            -1.79        -4.52         0.78                8 inconclusive
+  oneweb_dl   ridge_fr    MAE           -17.95       -20.18       -15.58               11       better
+  oneweb_dl   ridge_fr   RMSE            -3.66        -5.04        -1.96               11       better
+  oneweb_dl   ridge_fr     IS           -23.52       -26.76       -20.45               11       better
+  oneweb_ul fr_dist_w4    MAE             3.18        -0.27         6.86                4 inconclusive
+  oneweb_ul fr_dist_w4   RMSE             0.14        -1.70         2.02                6 inconclusive
+  oneweb_ul fr_dist_w4     IS            -2.19        -4.07        -0.18                9       better
+  oneweb_ul   fr_gauss    MAE           -17.43       -21.54       -13.55               11       better
+  oneweb_ul   fr_gauss   RMSE            -7.99       -12.54        -2.50                8       better
+  oneweb_ul   fr_gauss     IS            -4.08       -12.04         5.68                8 inconclusive
+  oneweb_ul   fr_resid    MAE            -5.51       -11.80         2.13               10 inconclusive
+  oneweb_ul   fr_resid   RMSE            -3.56        -5.89        -0.59                9       better
+  oneweb_ul   fr_resid     IS           -29.72       -34.01       -26.35               11       better
+  oneweb_ul    fr_full    MAE            -1.48        -4.88         2.74                8 inconclusive
+  oneweb_ul    fr_full   RMSE             2.70         0.50         4.80                3        worse
+  oneweb_ul    fr_full     IS           -23.92       -29.08       -19.81               11       better
+  oneweb_ul     lqr_fr    MAE           -17.44       -23.13       -10.20               10       better
+  oneweb_ul     lqr_fr   RMSE           -11.35       -15.54        -6.14               10       better
+  oneweb_ul     lqr_fr     IS             1.99        -5.69         9.79                4 inconclusive
+  oneweb_ul   ridge_fr    MAE           -23.23       -27.52       -19.26               11       better
+  oneweb_ul   ridge_fr   RMSE           -11.20       -15.34        -6.02               10       better
+  oneweb_ul   ridge_fr     IS           -33.53       -39.38       -27.53               11       better
+starlink_dl fr_dist_w4    MAE             2.02         0.89         3.37                2        worse
+starlink_dl fr_dist_w4   RMSE            -0.28        -0.82         0.38                4 inconclusive
+starlink_dl fr_dist_w4     IS             2.88         1.77         4.21                0        worse
+starlink_dl   fr_gauss    MAE           -34.11       -38.72       -29.79                9       better
+starlink_dl   fr_gauss   RMSE           -15.53       -18.85       -12.79                9       better
+starlink_dl   fr_gauss     IS           -18.76       -21.59       -16.11                9       better
+starlink_dl   fr_resid    MAE           -14.66       -18.92       -10.62                9       better
+starlink_dl   fr_resid   RMSE            -4.90        -7.19        -2.80                9       better
+starlink_dl   fr_resid     IS           -40.32       -42.42       -38.31                9       better
+starlink_dl    fr_full    MAE            -7.79       -10.04        -5.74                9       better
+starlink_dl    fr_full   RMSE            -0.37        -1.16         0.31                6 inconclusive
+starlink_dl    fr_full     IS           -39.76       -41.30       -38.48                9       better
+starlink_dl     lqr_fr    MAE            -6.84       -12.90         1.83                7 inconclusive
+starlink_dl     lqr_fr   RMSE            -6.39        -9.59        -3.03                8       better
+starlink_dl     lqr_fr     IS            -5.82        -8.30        -4.02                9       better
+starlink_dl   ridge_fr    MAE           -19.92       -25.64       -13.44                8       better
+starlink_dl   ridge_fr   RMSE            -6.24        -9.43        -2.81                8       better
+starlink_dl   ridge_fr     IS           -41.66       -43.77       -39.77                9       better
+starlink_ul fr_dist_w4    MAE             0.42         0.07         0.73                2        worse
+starlink_ul fr_dist_w4   RMSE             0.36         0.10         0.70                2        worse
+starlink_ul fr_dist_w4     IS             4.50         2.49         6.50                0        worse
+starlink_ul   fr_gauss    MAE           -17.49       -20.80       -13.73                9       better
+starlink_ul   fr_gauss   RMSE            -7.50        -8.59        -6.11                9       better
+starlink_ul   fr_gauss     IS            -4.96        -7.25        -2.81                8       better
+starlink_ul   fr_resid    MAE            -3.01        -3.99        -1.98                9       better
+starlink_ul   fr_resid   RMSE            -0.15        -0.49         0.11                6 inconclusive
+starlink_ul   fr_resid     IS            -9.75       -11.98        -7.52                9       better
+starlink_ul    fr_full    MAE            -2.45        -3.11        -1.79                9       better
+starlink_ul    fr_full   RMSE            -0.14        -0.31         0.04                6 inconclusive
+starlink_ul    fr_full     IS           -10.05       -12.10        -7.83                9       better
+starlink_ul     lqr_fr    MAE            -1.24        -2.11        -0.43                8       better
+starlink_ul     lqr_fr   RMSE            -1.20        -1.64        -0.71                9       better
+starlink_ul     lqr_fr     IS             2.52        -0.26         6.25                4 inconclusive
+starlink_ul   ridge_fr    MAE            -4.17        -5.07        -3.23                9       better
+starlink_ul   ridge_fr   RMSE            -0.95        -1.38        -0.46                9       better
+starlink_ul   ridge_fr     IS           -10.77       -13.60        -7.98                9       better
+ quectel_dl fr_dist_w4    MAE             1.17         0.94         1.42                6        worse
+ quectel_dl fr_dist_w4   RMSE             0.28         0.19         0.36                8        worse
+ quectel_dl fr_dist_w4     IS             1.30         1.04         1.56                5        worse
+ quectel_dl   fr_gauss    MAE           -11.51       -12.82       -10.22               58       better
+ quectel_dl   fr_gauss   RMSE            -6.11        -6.66        -5.62               58       better
+ quectel_dl   fr_gauss     IS            -7.85        -8.75        -6.91               57       better
+ quectel_dl   fr_resid    MAE            -2.47        -2.98        -1.99               55       better
+ quectel_dl   fr_resid   RMSE            -1.23        -1.62        -0.89               54       better
+ quectel_dl   fr_resid     IS           -13.36       -14.47       -12.21               58       better
+ quectel_dl    fr_full    MAE            -2.12        -2.47        -1.79               56       better
+ quectel_dl    fr_full   RMSE            -0.34        -0.42        -0.25               49       better
+ quectel_dl    fr_full     IS           -11.80       -12.92       -10.65               58       better
+ quectel_dl     lqr_fr    MAE            -6.68        -7.67        -5.70               56       better
+ quectel_dl     lqr_fr   RMSE            -3.58        -3.98        -3.21               58       better
+ quectel_dl     lqr_fr     IS            -3.14        -3.69        -2.57               53       better
+ quectel_dl   ridge_fr    MAE            -7.83        -8.92        -6.77               58       better
+ quectel_dl   ridge_fr   RMSE            -3.42        -3.82        -3.05               58       better
+ quectel_dl   ridge_fr     IS           -11.82       -13.18       -10.44               58       better
+ quectel_ul fr_dist_w4    MAE             0.27         0.20         0.33                4        worse
+ quectel_ul fr_dist_w4   RMSE            -0.02        -0.06         0.01               26 inconclusive
+ quectel_ul fr_dist_w4     IS             0.17         0.07         0.27               14        worse
+ quectel_ul   fr_gauss    MAE           -26.52       -28.20       -24.92               58       better
+ quectel_ul   fr_gauss   RMSE            -1.52        -1.73        -1.35               58       better
+ quectel_ul   fr_gauss     IS           -24.51       -25.00       -24.04               58       better
+ quectel_ul   fr_resid    MAE           -18.33       -19.66       -16.98               58       better
+ quectel_ul   fr_resid   RMSE            -0.36        -0.75        -0.11               43       better
+ quectel_ul   fr_resid     IS           -28.20       -28.93       -27.54               58       better
+ quectel_ul    fr_full    MAE           -17.87       -18.56       -17.11               58       better
+ quectel_ul    fr_full   RMSE            -0.01        -0.03         0.01               39 inconclusive
+ quectel_ul    fr_full     IS           -27.96       -28.65       -27.32               58       better
+ quectel_ul     lqr_fr    MAE            -0.20        -0.36        -0.06               30       better
+ quectel_ul     lqr_fr   RMSE            -0.22        -0.27        -0.17               47       better
+ quectel_ul     lqr_fr     IS            -2.29        -2.78        -1.75               43       better
+ quectel_ul   ridge_fr    MAE           -17.83       -18.51       -17.08               58       better
+ quectel_ul   ridge_fr   RMSE            -0.02        -0.05         0.02               32 inconclusive
+ quectel_ul   ridge_fr     IS           -28.03       -28.71       -27.39               58       better
+
+[interval-score decomposition, change vs S2S-E interval in %]
+variant      s2s_sym  s2s_asym  ds2s_med_sym  ds2s_med_asym  ds2s_cqr
+link                                                                 
+oneweb_dl        0.0      -6.3           2.0           -6.0     -19.9
+oneweb_ul        0.0      -1.7           1.1           -3.1     -26.3
+starlink_dl      0.0       1.1           2.2            4.2     -41.1
+starlink_ul      0.0      -3.6           3.5           -3.1      -9.4
+quectel_dl       0.0      -2.3           1.5           -2.6     -13.9
+quectel_ul       0.0     -24.1          11.6          -25.7     -28.3
+[point forecast and jumps]
+link                      oneweb_dl  oneweb_ul  starlink_dl  starlink_ul  quectel_dl  quectel_ul
+MAE_s2s_mean_ms              17.748     68.756       21.596        3.884       3.175      12.352
+MAE_ds2s_median_ms           15.936     67.507       18.451        3.758       3.125      10.155
+MAE_ds2s_mean_ms             18.293     68.943       19.094        3.856       3.169      12.326
+MAE_change_median_pct       -10.209     -1.817      -14.562       -3.255      -1.576     -17.789
+MAE_change_mean_pct           3.073      0.272      -11.587       -0.734      -0.194      -0.212
+calm_threshold_ms             1.900     25.200       30.878        3.300       4.000       5.530
+calm_share                    0.545      0.481        0.513        0.495       0.502       0.489
+calm_PICP_s2s                 0.998      0.993        0.988        0.988       0.990       0.998
+calm_width_s2s_ms            84.048    602.672      176.717       16.427      16.468      82.220
+calm_PICP_ds2s                0.986      0.992        0.973        0.986       0.985       0.978
+calm_width_ds2s_ms           71.976    305.694       67.146       16.485      15.219      63.719
+large_jump_threshold_ms     249.100    920.136      172.300       29.100      22.400      91.800
+large_jump_share              0.010      0.009        0.010        0.013       0.007       0.011
+large_jump_PICP_s2s           0.347      0.351        0.259        0.340       0.442       0.489
+large_jump_width_s2s_ms      84.378    722.231      181.560       16.433      16.528      82.219
+large_jump_PICP_ds2s          0.479      0.409        0.610        0.395       0.483       0.484
+large_jump_width_ds2s_ms    242.967    681.827      198.071       22.988      21.840      76.693
+
+       link     method metric  n_sessions  change_full_pct  boot_median_pct  boot_lo_pct  boot_hi_pct  frac_not_better  sessions_better      verdict  naive_lo_pct  naive_hi_pct
+  oneweb_dl    fr_dist    MAE          11           -10.21           -10.16       -12.87        -7.89             0.00               11       better        -10.73         -9.69
+  oneweb_dl    fr_dist   RMSE          11            -2.29            -2.23        -5.01         0.73             0.25                3 inconclusive         -3.58         -1.01
+  oneweb_dl    fr_dist     IS          11           -19.92           -19.83       -23.98       -15.87             0.00               11       better        -21.38        -18.43
+  oneweb_dl fr_dist_w4    MAE          11           -19.12           -19.15       -22.11       -15.99             0.00               11       better        -19.82        -18.40
+  oneweb_dl fr_dist_w4   RMSE          11            -0.63            -0.63        -1.96         0.71             0.17                6 inconclusive         -1.46          0.14
+  oneweb_dl fr_dist_w4     IS          11           -22.90           -22.87       -25.70       -20.85             0.00               11       better        -24.41        -21.43
+  oneweb_dl   fr_gauss    MAE          11            68.35            68.31        59.76        77.57             1.00                0        worse         65.94         70.86
+  oneweb_dl   fr_gauss   RMSE          11            10.98            11.13         8.32        16.63             1.00                0        worse          8.39         14.09
+  oneweb_dl   fr_gauss     IS          11            -7.68            -7.64       -11.52        -3.35             0.00                9       better         -9.33         -5.93
+  oneweb_ul    fr_dist    MAE          11            -1.82            -1.93        -6.77         3.45             0.24                8 inconclusive         -2.54         -1.13
+  oneweb_ul    fr_dist   RMSE          11            -0.05            -0.09        -2.51         2.79             0.47                8 inconclusive         -0.82          0.67
+  oneweb_ul    fr_dist     IS          11           -26.28           -26.18       -31.69       -21.81             0.00               11       better        -27.44        -25.15
+  oneweb_ul fr_dist_w4    MAE          11            -4.84            -4.66        -9.71        -0.76             0.01                7       better         -5.55         -4.19
+  oneweb_ul fr_dist_w4   RMSE          11            -0.19            -0.19        -2.80         2.58             0.45                5 inconclusive         -0.99          0.59
+  oneweb_ul fr_dist_w4     IS          11           -24.63           -24.58       -30.31       -19.89             0.00               11       better        -25.83        -23.47
+  oneweb_ul   fr_gauss    MAE          11            18.91            19.13        12.76        24.85             1.00                1        worse         17.77         20.02
+  oneweb_ul   fr_gauss   RMSE          11             8.63             8.48         2.12        15.20             1.00                2        worse          7.46          9.80
+  oneweb_ul   fr_gauss     IS          11           -23.14           -23.19       -30.97       -15.93             0.00               10       better        -24.40        -21.93
+starlink_dl    fr_dist    MAE           9           -14.56           -14.58       -19.78        -9.11             0.00                8       better        -14.99        -14.11
+starlink_dl    fr_dist   RMSE           9            -4.95            -4.95        -7.52        -2.54             0.00                8       better         -5.30         -4.58
+starlink_dl    fr_dist     IS           9           -41.11           -41.12       -42.94       -39.38             0.00                9       better        -41.76        -40.46
+starlink_dl fr_dist_w4    MAE           9           -16.25           -16.26       -21.87       -10.28             0.00                8       better        -16.74        -15.75
+starlink_dl fr_dist_w4   RMSE           9            -4.69            -4.71        -7.80        -1.85             0.00                7       better         -5.08         -4.26
+starlink_dl fr_dist_w4     IS           9           -42.76           -42.78       -44.96       -40.52             0.00                9       better        -43.40        -42.11
+starlink_dl   fr_gauss    MAE           9            29.66            29.68        27.21        32.09             1.00                0        worse         29.04         30.27
+starlink_dl   fr_gauss   RMSE           9            12.51            12.50        11.03        14.25             1.00                0        worse         12.05         12.99
+starlink_dl   fr_gauss     IS           9           -27.51           -27.53       -29.26       -25.63             0.00                9       better        -28.15        -26.85
+starlink_ul    fr_dist    MAE           9            -3.25            -3.22        -4.76        -1.97             0.00                9       better         -3.44         -3.08
+starlink_ul    fr_dist   RMSE           9            -0.11            -0.10        -0.51         0.22             0.28                4 inconclusive         -0.27          0.06
+starlink_ul    fr_dist     IS           9            -9.40            -9.35       -12.21        -6.40             0.00                9       better         -9.86         -8.91
+starlink_ul fr_dist_w4    MAE           9            -3.66            -3.64        -5.04        -2.41             0.00                9       better         -3.86         -3.46
+starlink_ul fr_dist_w4   RMSE           9            -0.46            -0.46        -0.90        -0.09             0.01                6       better         -0.63         -0.30
+starlink_ul fr_dist_w4     IS           9           -13.30           -13.25       -17.19        -9.09             0.00                9       better        -13.87        -12.71
+starlink_ul   fr_gauss    MAE           9            17.25            17.17        11.55        22.75             1.00                0        worse         16.74         17.77
+starlink_ul   fr_gauss   RMSE           9             7.99             7.94         6.23         9.54             1.00                0        worse          6.38         10.19
+starlink_ul   fr_gauss     IS           9            -4.67            -4.58        -9.03        -0.11             0.02                5       better         -5.56         -3.73
+ quectel_dl    fr_dist    MAE          58            -1.58            -1.57        -1.96        -1.21             0.00               48       better         -1.62         -1.53
+ quectel_dl    fr_dist   RMSE          58            -0.99            -0.98        -1.34        -0.65             0.00               43       better         -1.04         -0.94
+ quectel_dl    fr_dist     IS          58           -13.91           -13.88       -15.06       -12.74             0.00               58       better        -14.07        -13.75
+ quectel_dl fr_dist_w4    MAE          58            -2.72            -2.71        -3.23        -2.20             0.00               53       better         -2.77         -2.67
+ quectel_dl fr_dist_w4   RMSE          58            -1.26            -1.26        -1.60        -0.93             0.00               53       better         -1.32         -1.21
+ quectel_dl fr_dist_w4     IS          58           -15.02           -14.99       -16.22       -13.80             0.00               58       better        -15.18        -14.85
+ quectel_dl   fr_gauss    MAE          58            11.23            11.22         9.77        12.68             1.00                0        worse         11.13         11.32
+ quectel_dl   fr_gauss   RMSE          58             5.46             5.45         4.79         6.19             1.00                1        worse          5.16          5.82
+ quectel_dl   fr_gauss     IS          58            -6.58            -6.57        -7.76        -5.43             0.00               51       better         -6.72         -6.42
+ quectel_ul    fr_dist    MAE          58           -17.79           -17.80       -19.03       -16.47             0.00               58       better        -17.87        -17.70
+ quectel_ul    fr_dist   RMSE          58            -0.32            -0.31        -0.73        -0.08             0.00               39       better         -0.34         -0.30
+ quectel_ul    fr_dist     IS          58           -28.29           -28.29       -29.04       -27.61             0.00               58       better        -28.37        -28.21
+ quectel_ul fr_dist_w4    MAE          58           -18.01           -18.03       -19.23       -16.71             0.00               58       better        -18.09        -17.92
+ quectel_ul fr_dist_w4   RMSE          58            -0.30            -0.29        -0.69        -0.06             0.00               42       better         -0.32         -0.27
+ quectel_ul fr_dist_w4     IS          58           -28.41           -28.41       -29.20       -27.71             0.00               58       better        -28.50        -28.33
+ quectel_ul   fr_gauss    MAE          58            11.89            11.91         9.81        14.13             1.00                1        worse         11.82         11.95
+ quectel_ul   fr_gauss   RMSE          58             1.22             1.24         0.80         1.57             1.00                2        worse          1.09          1.38
+ quectel_ul   fr_gauss     IS          58            -5.00            -4.97        -6.16        -4.05             0.00               57       better         -5.10         -4.91
+
+[ablation, CSV only]
+       link   method metric  change_full_pct  boot_lo_pct  boot_hi_pct      verdict
+  oneweb_dl  fr_full    MAE            19.30        14.32        25.32        worse
+  oneweb_dl  fr_full   RMSE            -2.41        -5.61         1.25 inconclusive
+  oneweb_dl  fr_full     IS            -0.62        -3.45         2.55 inconclusive
+  oneweb_dl fr_resid    MAE             8.19         1.07        14.74        worse
+  oneweb_dl fr_resid   RMSE            -0.58        -2.32         1.98 inconclusive
+  oneweb_dl fr_resid     IS            -1.14        -3.41         1.74 inconclusive
+  oneweb_dl   lqr_fr    MAE           -14.46       -18.65       -10.72       better
+  oneweb_dl   lqr_fr   RMSE             1.96         0.34         4.35        worse
+  oneweb_dl   lqr_fr     IS           -18.46       -23.04       -13.71       better
+  oneweb_dl ridge_fr    MAE             9.43         4.42        14.22        worse
+  oneweb_dl ridge_fr   RMSE             1.42        -0.17         3.78 inconclusive
+  oneweb_dl ridge_fr     IS             4.71         2.37         7.65        worse
+  oneweb_ul  fr_full    MAE            -0.34        -5.01         3.50 inconclusive
+  oneweb_ul  fr_full   RMSE            -2.68        -5.18        -0.44       better
+  oneweb_ul  fr_full     IS            -3.09        -4.65        -1.60       better
+  oneweb_ul fr_resid    MAE             3.91         0.87         7.25        worse
+  oneweb_ul fr_resid   RMSE             3.64         1.42         6.15        worse
+  oneweb_ul fr_resid     IS             4.90         1.46         8.11        worse
+  oneweb_ul   lqr_fr    MAE            18.93         5.49        31.64        worse
+  oneweb_ul   lqr_fr   RMSE            12.75         5.77        20.19        worse
+  oneweb_ul   lqr_fr     IS           -27.72       -34.26       -21.46       better
+  oneweb_ul ridge_fr    MAE            27.89        17.46        37.38        worse
+  oneweb_ul ridge_fr   RMSE            12.56         5.61        19.95        worse
+  oneweb_ul ridge_fr     IS            10.92         3.89        19.16        worse
+starlink_dl  fr_full    MAE            -7.34       -11.38        -3.20       better
+starlink_dl  fr_full   RMSE            -4.60        -6.57        -2.79       better
+starlink_dl  fr_full     IS            -2.25        -3.89        -0.25       better
+starlink_dl fr_resid    MAE             0.12        -2.48         2.82 inconclusive
+starlink_dl fr_resid   RMSE            -0.06        -1.38         1.83 inconclusive
+starlink_dl fr_resid     IS            -1.33        -2.29        -0.21       better
+starlink_dl   lqr_fr    MAE            -8.29       -13.96        -3.72       better
+starlink_dl   lqr_fr   RMSE             1.53        -0.29         3.05 inconclusive
+starlink_dl   lqr_fr     IS           -37.47       -38.96       -35.99       better
+starlink_dl ridge_fr    MAE             6.70         2.90        10.04        worse
+starlink_dl ridge_fr   RMSE             1.37        -0.58         2.93 inconclusive
+starlink_dl ridge_fr     IS             0.95        -0.51         2.62 inconclusive
+starlink_ul  fr_full    MAE            -0.83        -2.60         0.81 inconclusive
+starlink_ul  fr_full   RMSE             0.03        -0.46         0.48 inconclusive
+starlink_ul  fr_full     IS             0.73        -0.93         2.57 inconclusive
+starlink_ul fr_resid    MAE            -0.25        -2.51         1.63 inconclusive
+starlink_ul fr_resid   RMSE             0.04        -0.28         0.29 inconclusive
+starlink_ul fr_resid     IS             0.39        -0.99         2.11 inconclusive
+starlink_ul   lqr_fr    MAE            -2.04        -4.16        -0.10       better
+starlink_ul   lqr_fr   RMSE             1.11         0.26         1.83        worse
+starlink_ul   lqr_fr     IS           -11.62       -16.15        -6.74       better
+starlink_ul ridge_fr    MAE             0.96        -1.24         3.02 inconclusive
+starlink_ul ridge_fr   RMSE             0.85         0.02         1.54        worse
+starlink_ul ridge_fr     IS             1.54        -0.97         3.30 inconclusive
+ quectel_dl  fr_full    MAE             0.55         0.13         0.94        worse
+ quectel_dl  fr_full   RMSE            -0.65        -0.98        -0.34       better
+ quectel_dl  fr_full     IS            -2.40        -3.07        -1.73       better
+ quectel_dl fr_resid    MAE             0.92         0.64         1.22        worse
+ quectel_dl fr_resid   RMSE             0.25         0.03         0.45        worse
+ quectel_dl fr_resid     IS            -0.64        -0.97        -0.34       better
+ quectel_dl   lqr_fr    MAE             5.47         4.54         6.42        worse
+ quectel_dl   lqr_fr   RMSE             2.69         2.13         3.27        worse
+ quectel_dl   lqr_fr     IS           -11.12       -12.38        -9.91       better
+ quectel_dl ridge_fr    MAE             6.79         5.74         7.84        worse
+ quectel_dl ridge_fr   RMSE             2.52         1.97         3.10        worse
+ quectel_dl ridge_fr     IS            -2.38        -3.42        -1.32       better
+ quectel_ul  fr_full    MAE             0.10        -1.20         1.52 inconclusive
+ quectel_ul  fr_full   RMSE            -0.31        -0.72        -0.07       better
+ quectel_ul  fr_full     IS            -0.46        -1.40         0.26 inconclusive
+ quectel_ul fr_resid    MAE             0.66         0.25         1.16        worse
+ quectel_ul fr_resid   RMSE             0.04        -0.01         0.09 inconclusive
+ quectel_ul fr_resid     IS            -0.12        -0.30         0.06 inconclusive
+ quectel_ul   lqr_fr    MAE           -17.62       -18.90       -16.28       better
+ quectel_ul   lqr_fr   RMSE            -0.10        -0.50         0.14 inconclusive
+ quectel_ul   lqr_fr     IS           -26.61       -27.62       -25.71       better
+ quectel_ul ridge_fr    MAE             0.05        -1.34         1.65 inconclusive
+ quectel_ul ridge_fr   RMSE            -0.30        -0.72        -0.05       better
+ quectel_ul ridge_fr     IS            -0.36        -1.45         0.46 inconclusive
+wrote /Users/josh/Desktop/Collins/reports/final_report/data/bootstrap_table.tex and /Users/josh/Desktop/Collins/reports/final_report/figs/fr_bootstrap.tex
+
+wrote /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/session_stats.csv, /Users/josh/Desktop/Collins/modeling/results_final/analysis/bootstrap/bootstrap_summary.json

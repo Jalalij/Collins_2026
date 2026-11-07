@@ -1,0 +1,85 @@
+{
+ "S2S_RMSE": {
+  "n_seeds": [
+   3,
+   3,
+   3
+  ],
+  "optimism_h1_pct": 5.214103130992798,
+  "optimism_avg_pct": 1.460680360412514,
+  "deploy_penalty_vs_causal_h1_pct": 8.769216232337884,
+  "deploy_penalty_vs_causal_avg_pct": 2.2213527785042375,
+  "reported_vs_true_h1_pct": 3.3789320970772696,
+  "reported_vs_true_avg_pct": 0.7497213850622853,
+  "A_avg": 38.00558771111111,
+  "B_avg": 38.56072786666667,
+  "C_avg": 37.722772022222216,
+  "A_h1": 34.922874,
+  "B_h1": 36.74378866666667,
+  "C_h1": 33.781422666666664
+ },
+ "S2S_MAE": {
+  "n_seeds": [
+   3,
+   3,
+   3
+  ],
+  "optimism_h1_pct": 5.394923314024824,
+  "optimism_avg_pct": 0.7088894842504523,
+  "deploy_penalty_vs_causal_h1_pct": 16.034771118805736,
+  "deploy_penalty_vs_causal_avg_pct": 3.2380565247012383,
+  "reported_vs_true_h1_pct": 10.095218507896654,
+  "reported_vs_true_avg_pct": 2.5113642434179573,
+  "A_avg": 22.876770755555558,
+  "B_avg": 23.038941777777776,
+  "C_avg": 22.31632651111111,
+  "A_h1": 21.665695666666668,
+  "B_h1": 22.834543333333333,
+  "C_h1": 19.679052333333335
+ },
+ "DS2S_RMSE": {
+  "n_seeds": [
+   3,
+   3,
+   3
+  ],
+  "optimism_h1_pct": 10.793049742775796,
+  "optimism_avg_pct": 3.927625003653623,
+  "deploy_penalty_vs_causal_h1_pct": 7.406945565522149,
+  "deploy_penalty_vs_causal_avg_pct": 3.653342266064641,
+  "reported_vs_true_h1_pct": -3.0562424133238175,
+  "reported_vs_true_avg_pct": -0.2639170649568201,
+  "A_avg": 36.09584584444444,
+  "B_avg": 37.513555311111105,
+  "C_avg": 36.19136102222222,
+  "A_h1": 29.459514,
+  "B_h1": 32.639094,
+  "C_h1": 30.38825266666667
+ },
+ "DS2S_MAE": {
+  "n_seeds": [
+   3,
+   3,
+   3
+  ],
+  "optimism_h1_pct": 20.0740365365631,
+  "optimism_avg_pct": 6.753331362967496,
+  "deploy_penalty_vs_causal_h1_pct": 16.744596686889544,
+  "deploy_penalty_vs_causal_avg_pct": 4.324371455393861,
+  "reported_vs_true_h1_pct": -2.7728224566346826,
+  "reported_vs_true_avg_pct": -2.2753012730956756,
+  "A_avg": 19.433052066666665,
+  "B_avg": 20.74543046666667,
+  "C_avg": 19.885507266666664,
+  "A_h1": 14.596757000000002,
+  "B_h1": 17.526915333333335,
+  "C_h1": 15.013041999999999
+ },
+ "persistence_RMSE": {
+  "leaky_h1": 56.676384,
+  "causal_h1": 62.167065,
+  "increase_h1_pct": 9.687775776238649,
+  "leaky_avg": 62.334664466666666,
+  "causal_avg": 64.3735558
+ }
+}

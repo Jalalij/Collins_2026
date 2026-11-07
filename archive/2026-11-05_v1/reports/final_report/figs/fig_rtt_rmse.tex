@@ -1,0 +1,39 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 2, horizontal sep=1.3cm, vertical sep=1.5cm}, frbase, width=5.3cm, height=4.0cm, xmin=0.2, xmax=3, xtick={0.2,1,2,3}, xlabel={horizon (s)}]
+\nextgroupplot[title={OneWeb DL}, ylabel={RTT RMSE (ms)}, legend to name=legRMSE, legend columns=5]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_oneweb_dl_rtt_RMSE.dat};
+\addlegendentry{Ridge-E}
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_oneweb_dl_rtt_RMSE.dat};
+\addlegendentry{Initial Seq2Seq (3-seed ens.)}
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_oneweb_dl_rtt_RMSE.dat};
+\addlegendentry{Final (seed mean)}
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_oneweb_dl_rtt_RMSE.dat};
+\addlegendentry{Final (3-seed ens.)}
+\nextgroupplot[title={Starlink DL}]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_starlink_dl_rtt_RMSE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_starlink_dl_rtt_RMSE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_starlink_dl_rtt_RMSE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_starlink_dl_rtt_RMSE.dat};
+\nextgroupplot[title={5G DL}]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_quectel_dl_rtt_RMSE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_quectel_dl_rtt_RMSE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_quectel_dl_rtt_RMSE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_quectel_dl_rtt_RMSE.dat};
+\nextgroupplot[title={OneWeb UL}, ylabel={RTT RMSE (ms)}]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_oneweb_ul_rtt_RMSE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_oneweb_ul_rtt_RMSE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_oneweb_ul_rtt_RMSE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_oneweb_ul_rtt_RMSE.dat};
+\nextgroupplot[title={Starlink UL}]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_starlink_ul_rtt_RMSE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_starlink_ul_rtt_RMSE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_starlink_ul_rtt_RMSE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_starlink_ul_rtt_RMSE.dat};
+\nextgroupplot[title={5G UL}]
+\addplot[mRidge] table[x expr=\thisrow{h}*0.2, y=ridgefr] {data/h_quectel_ul_rtt_RMSE.dat};
+\addplot[mPrev] table[x expr=\thisrow{h}*0.2, y=prevseq2seqens] {data/h_quectel_ul_rtt_RMSE.dat};
+\addplot[mResid] table[x expr=\thisrow{h}*0.2, y=frdist] {data/h_quectel_ul_rtt_RMSE.dat};
+\addplot[mFR] table[x expr=\thisrow{h}*0.2, y=frdistens] {data/h_quectel_ul_rtt_RMSE.dat};
+\end{groupplot}
+\node at ($(group c2r2.south)+(0,-1.25cm)$) {\pgfplotslegendfromname{legRMSE}};
+\end{tikzpicture}

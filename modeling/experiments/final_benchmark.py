@@ -10,11 +10,11 @@ Methods
 persistence   last observed value held over the horizon (no learning)
 ridge         direct multi-horizon ridge regression on the last input row
               plus the recent target history (closed form)
-y2_seq2seq    the initial study Seq2Seq-GRU (models/seq2seq_prev.py), initial study data pipeline
-y3_resid      final report Seq2Seq-GRU with residual decoder (models/seq2seq.py)
-y3_full       y3_resid + sentinel cleaning + causal engineered features
+prev_seq2seq    the initial study Seq2Seq-GRU (models/seq2seq_prev.py), initial study data pipeline
+fr_resid      final report Seq2Seq-GRU with residual decoder (models/seq2seq.py)
+fr_full       fr_resid + sentinel cleaning + causal engineered features
               + input clipping (|z| <= 5)
-y3_full_huber y3_full trained with a Huber loss (delta = 1 in z units)
+fr_full_huber fr_full trained with a Huber loss (delta = 1 in z units)
 
 Windows are gathered on the GPU from contiguous per-split arrays instead of a
 Python list of windows, which makes an epoch on the 5G data ~10x faster. The
@@ -29,7 +29,7 @@ which makes PICP 0.95 by construction; that number is also written
 Usage
 -----
 python experiments/final_benchmark.py --provider oneweb --direction dl \
-    --methods persistence ridge y2_seq2seq y3_resid y3_full --seeds 0 1 2
+    --methods persistence ridge prev_seq2seq fr_resid fr_full --seeds 0 1 2
 """
 
 from __future__ import annotations
@@ -101,19 +101,19 @@ EVENT_COL = {"oneweb": "satellite_change", "starlink": "satellite_handoff", "que
 
 
 def load_splits(provider, direction, variant, input_len, output_len, device, data_root,
-                causal_ping=True):
-    """variant: 'y2' (initial study pipeline) or 'y3' (clean + engineered + clip).
+                causal_ping=True, fixed_stats=None):
+    """variant: 'base' (pipeline of the previous report) or 'fr' (clean + engineered + clip).
 
     causal_ping (default on for every method): ping values that the parser
     interpolated from the next real ping are replaced in the INPUTS by the last
     real ping; targets keep the measured series (dataset.causal_ping_fix).
     """
-    y3 = variant == "y3"
+    fr = variant == "fr"
     cfg = DataConfig(
         provider=provider, experiment_type=EXP_TYPE[(provider, direction)],
         data_root=data_root, targets=TARGETS, input_len=input_len,
-        output_len=output_len, clean=y3, engineered=y3,
-        clip_z=5.0 if y3 else None, seed=42, causal_ping=causal_ping,
+        output_len=output_len, clean=fr, engineered=fr,
+        clip_z=5.0 if fr else None, seed=42, causal_ping=causal_ping,
     )
     feats, targs = cfg.features, cfg.targets
 
@@ -140,6 +140,8 @@ def load_splits(provider, direction, variant, input_len, output_len, device, dat
     trf = tr[avail].apply(pd.to_numeric, errors="coerce").ffill().bfill().fillna(0)
     fmean = trf.values.astype(np.float32).mean(0)
     fstd = trf.values.astype(np.float32).std(0) + 1e-8
+    if fixed_stats is not None:  # reuse the normalisation of another data variant
+        fmean, fstd = fixed_stats["fmean"], fixed_stats["fstd"]
     tmean = np.array([fmean[avail.index(t)] for t in targs], np.float32)
     tstd = np.array([fstd[avail.index(t)] for t in targs], np.float32)
     clip_cols = [i for i, c in enumerate(avail) if c not in targs]
@@ -156,7 +158,7 @@ def load_splits(provider, direction, variant, input_len, output_len, device, dat
             x = df.reindex(columns=avail).apply(pd.to_numeric, errors="coerce")
             x = x.ffill().bfill().fillna(0).values.astype(np.float32)
             x = (x - fmean) / fstd
-            if y3:
+            if fr:
                 x[:, clip_cols] = np.clip(x[:, clip_cols], -5.0, 5.0)
             y = pd.DataFrame({t: pd.to_numeric(df[target_source(df, t)], errors="coerce")
                               for t in targs}).ffill().bfill().fillna(0)
@@ -183,7 +185,7 @@ def load_splits(provider, direction, variant, input_len, output_len, device, dat
         out[name].M = torch.from_numpy(np.concatenate(M)).to(device)   # 1 = interpolated target row
         out[name].ts, out[name].sid, out[name].ev = np.concatenate(TS), np.concatenate(SID), np.concatenate(EV)
     meta = dict(features=avail, targets=targs, tmean=tmean, tstd=tstd,
-                fmean=fmean, fstd=fstd, clip_cols=clip_cols if y3 else [], clip_z=5.0 if y3 else None,
+                fmean=fmean, fstd=fstd, clip_cols=clip_cols if fr else [], clip_z=5.0 if fr else None,
                 variant=variant, causal_ping=causal_ping,
                 n_sessions={k: len(v) for k, v in parts.items()},
                 n_windows={k: len(v) for k, v in out.items()},
@@ -237,6 +239,10 @@ def train_model(model, data, L, H, epochs, patience, loss_name, batch_size, seed
     sch = torch.optim.lr_scheduler.ReduceLROnPlateau(opt, "min", factor=0.5, patience=8, min_lr=1e-6)
     if loss_name == "dist":
         crit = lambda o, y: seq2seq_dist.dist_loss(o, y, quantile_weight=QWEIGHT)
+    elif loss_name == "dist_w4":
+        crit = lambda o, y: seq2seq_dist.dist_loss(o, y, quantile_weight=4.0)
+    elif loss_name == "gauss":
+        crit = seq2seq_dist.gauss_nll
     else:
         crit = nn.MSELoss() if loss_name == "mse" else nn.HuberLoss(delta=1.0)
     g = torch.Generator(device="cpu").manual_seed(seed)
@@ -342,6 +348,51 @@ def ridge_fit_predict(data, L, H, tidx, lams=(1e-2, 1e-1, 1, 10, 1e2, 1e3, 1e4))
     return preds
 
 
+def lqr_fit_predict(data, L, H, tidx, seed, epochs=30, bs=4096, lr=3e-3, log=print):
+    """Linear distributional model: the ridge design (last input row + 30-row
+    target history) mapped linearly to the change of the mean and of five
+    non-crossing quantiles (same output layout and loss as fr_dist). It shows
+    how much of the gain comes from the distributional output alone."""
+    dev = data["train"].starts.device
+    T = len(tidx)
+    Xtr = ridge_design(data["train"], L, H, tidx)
+    D = Xtr.shape[1]
+    torch.manual_seed(seed)
+    lin = nn.Linear(D, H * T * 6).to(dev)
+    nn.init.zeros_(lin.weight); nn.init.zeros_(lin.bias)
+    opt = torch.optim.Adam(lin.parameters(), lr=lr)
+    Ytr = gather_targets(data["train"], L, H)
+    Ltr = persistence_pred(data["train"], L, H, tidx)
+
+    def head(X, last):
+        o = lin(X).view(-1, H, T, 6)
+        mean, med = o[..., 0], o[..., 1]
+        g = torch.nn.functional.softplus(o[..., 2:]) + 1e-4
+        q25 = med - g[..., 0]; q025 = q25 - g[..., 1]; q75 = med + g[..., 2]; q975 = q75 + g[..., 3]
+        return last.unsqueeze(-1) + torch.stack([mean, q025, q25, med, q75, q975], -1)
+
+    Xva = ridge_design(data["val"], L, H, tidx); Yva = gather_targets(data["val"], L, H)
+    Lva = persistence_pred(data["val"], L, H, tidx)
+    g = torch.Generator(device="cpu").manual_seed(seed)
+    best, best_state = float("inf"), None
+    for ep in range(epochs):
+        perm = torch.randperm(len(Xtr), generator=g).to(dev)
+        for i in range(0, len(Xtr), bs):
+            idx = perm[i:i + bs]
+            opt.zero_grad(set_to_none=True)
+            loss = seq2seq_dist.dist_loss(head(Xtr[idx], Ltr[idx]), Ytr[idx])
+            loss.backward(); opt.step()
+        with torch.no_grad():
+            vl = float(seq2seq_dist.dist_loss(head(Xva, Lva), Yva))
+        if vl < best:
+            best, best_state = vl, {k: v.clone() for k, v in lin.state_dict().items()}
+    lin.load_state_dict(best_state)
+    log(f"    lqr: best val loss {best:.4f}")
+    with torch.no_grad():
+        Xte = ridge_design(data["test"], L, H, tidx); Lte = persistence_pred(data["test"], L, H, tidx)
+        return head(Xte, Lte), head(Xva, Lva)
+
+
 # ---------------------------------------------------------------------------
 # Metrics
 # ---------------------------------------------------------------------------
@@ -412,11 +463,15 @@ QWEIGHT = 1.0
 def build_model(method, meta, L, H):
     F = len(meta["features"])
     T = len(meta["targets"])
-    if method.startswith("y3_dist"):
+    if method.startswith("fr_gauss"):
+        return seq2seq_dist.ThroughputSeq2SeqGauss(num_features=F, embed_dim=16, hidden_size=HIDDEN,
+                                                   dropout=0.3, input_len=L, output_len=H, num_targets=T,
+                                                   target_feature_indices=meta["target_idx"])
+    if method.startswith("fr_dist"):
         return seq2seq_dist.ThroughputSeq2SeqDist(num_features=F, embed_dim=16, hidden_size=HIDDEN,
                                                   dropout=0.3, input_len=L, output_len=H, num_targets=T,
                                                   target_feature_indices=meta["target_idx"])
-    if method == "y2_seq2seq":
+    if method == "prev_seq2seq":
         return seq2seq_prev.ThroughputSeq2Seq(num_features=F, embed_dim=16, hidden_size=HIDDEN,
                                               dropout=0.3, input_len=L, output_len=H, num_targets=T)
     return seq2seq_y3.ThroughputSeq2Seq(num_features=F, embed_dim=16, hidden_size=HIDDEN, dropout=0.3,
@@ -429,7 +484,7 @@ def main():
     ap.add_argument("--provider", required=True)
     ap.add_argument("--direction", required=True)
     ap.add_argument("--methods", nargs="+",
-                    default=["persistence", "ridge", "y2_seq2seq", "y3_resid", "y3_full"])
+                    default=["persistence", "ridge", "prev_seq2seq", "fr_resid", "fr_full"])
     ap.add_argument("--seeds", nargs="+", type=int, default=[0])
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--patience", type=int, default=40)
@@ -439,6 +494,8 @@ def main():
     ap.add_argument("--data_root", default=str(ROOT / "data/lsn-data"))
     ap.add_argument("--out_dir", default=str(ROOT / "results_final"))
     ap.add_argument("--save_models", action="store_true")
+    ap.add_argument("--eval_causal", action="store_true",
+                    help="with --legacy_data: also score the trained model on causal test inputs")
     ap.add_argument("--legacy_data", action="store_true",
                     help="keep parser-interpolated ping inputs (exact initial study data)")
     ap.add_argument("--hidden_size", type=int, default=128)
@@ -477,13 +534,13 @@ def main():
         return t.cpu().numpy() * meta["tstd"] + meta["tmean"]
 
     for method in a.methods:
-        variant = "y3" if method.startswith(("y3_full", "y3_dist", "ridge_y3")) else "y2"
+        variant = "fr" if method.startswith(("fr_full", "fr_dist", "fr_gauss", "ridge_fr", "lqr_fr")) else "base"
         data, meta = get(variant)
         tidx = meta["target_idx"]
         y_te = denorm(gather_targets(data["test"], L, H), meta)
         y_va = denorm(gather_targets(data["val"], L, H), meta)
         pers_te = denorm(persistence_pred(data["test"], L, H, tidx), meta)
-        seeds = a.seeds if method not in ("persistence", "snaive", "ridge", "ridge_y3") else [0]
+        seeds = a.seeds if method not in ("persistence", "snaive", "ridge", "ridge_fr", "lqr_fr") else [0]
         for seed in seeds:
             csv = out_dir / f"{method}_s{seed}.csv"
             if csv.exists():
@@ -498,14 +555,21 @@ def main():
             elif method == "snaive":
                 p_te = denorm(snaive_pred(data["test"], L, H, tidx), meta)
                 p_va = denorm(snaive_pred(data["val"], L, H, tidx), meta)
-            elif method in ("ridge", "ridge_y3"):
+            elif method == "lqr_fr":
+                o_te, o_va = lqr_fit_predict(data, L, H, tidx, seed, log=log)
+                sd = torch.tensor(meta["tstd"])[None, None, :, None]
+                mu = torch.tensor(meta["tmean"])[None, None, :, None]
+                d_te = (o_te.cpu() * sd + mu).numpy(); d_va = (o_va.cpu() * sd + mu).numpy()
+                p_te, p_va = d_te[..., 0], d_va[..., 0]
+            elif method in ("ridge", "ridge_fr"):
                 pr = ridge_fit_predict(data, L, H, tidx)
                 p_te, p_va = denorm(pr["test"], meta), denorm(pr["val"], meta)
                 info["ridge_lambda"] = pr["lambda"]
             else:
                 torch.manual_seed(seed); np.random.seed(seed)
                 model = build_model(method, meta, L, H).to(dev)
-                loss = ("dist" if method.startswith("y3_dist") else
+                loss = ("dist_w4" if method == "fr_dist_w4" else "gauss" if method == "fr_gauss" else
+                        "dist" if method.startswith("fr_dist") else
                         "huber" if method.endswith("huber") else "mse")
                 ep = train_model(model, data, L, H, a.epochs, a.patience, loss, a.batch_size, seed, log)
                 info = {"epochs": ep, "params": sum(p.numel() for p in model.parameters())}
@@ -540,6 +604,27 @@ def main():
                                     interp_te=gather_interp_mask(data["test"], L, H).cpu().numpy().astype(np.uint8),
                                     targets=np.array(meta["targets"]))
                 os.replace(tmp, pdir / "truth.npz")
+            if a.eval_causal and a.legacy_data and method not in ("persistence", "snaive", "ridge", "ridge_fr", "lqr_fr"):
+                # Same model, same windows and targets, but inputs with interpolated pings
+                # replaced by the last real ping (what the model would see in deployment).
+                cdata, cmeta = load_splits(a.provider, a.direction, variant, L, H, dev, a.data_root,
+                                           causal_ping=True, fixed_stats=meta)
+                oc_te, oc_va = predict(model, cdata["test"], L, H), predict(model, cdata["val"], L, H)
+                if oc_te.dim() == 4:
+                    sd = torch.tensor(meta["tstd"])[None, None, :, None]
+                    mu = torch.tensor(meta["tmean"])[None, None, :, None]
+                    dc_te = (oc_te.cpu() * sd + mu).numpy(); dc_va = (oc_va.cpu() * sd + mu).numpy()
+                    pc_te, pc_va = dc_te[..., 0], dc_va[..., 0]
+                else:
+                    dc_te = dc_va = None
+                    pc_te, pc_va = denorm(oc_te, meta), denorm(oc_va, meta)
+                yc_te = denorm(gather_targets(cdata["test"], L, H), cmeta)
+                assert np.allclose(yc_te, y_te, atol=1e-3), "targets must not change"
+                dfc = metrics(pc_te, y_te, pc_va, y_va, pers_te, meta, dist_te=dc_te, dist_va=dc_va)
+                dfc.insert(0, "seed", seed); dfc.insert(0, "method", method + "_causaltest")
+                dfc.insert(0, "dataset", f"{a.provider}_{a.direction}")
+                dfc.to_csv(out_dir / f"{method}_s{seed}_causaltest.csv", index=False)
+                log(f"  [causal test inputs] AGG MAE={dfc.MAE.mean():.4f} RMSE={dfc.RMSE.mean():.4f}")
             df = metrics(p_te, y_te, p_va, y_va, pers_te, meta, dist_te=d_te, dist_va=d_va)
             df.insert(0, "seed", seed); df.insert(0, "method", method)
             df.insert(0, "dataset", f"{a.provider}_{a.direction}")

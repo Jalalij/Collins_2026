@@ -111,7 +111,7 @@ Each slide below has a target time, a short script in plain words, the numbers t
 \say The final model beats the initial one for every window and horizon we tried. The most useful finding: weighting the quantile loss 4 instead of 1 improves the final model further (OneWeb DL MAE $-10.4\%$), so our main tables slightly understate the model. Window length is link specific.
 
 \slide{28}{Scheduler}{1:00}
-\say The upper bound is a per-path risk bound: send on a path if its bound meets the deadline, otherwise duplicate. Tight bounds on calm paths mean fewer needless duplicates. For spike warning, Final is clearly better on Starlink DL (AUROC \AUCYthreeSLDL{} vs.\ \AUCYtwoSLDL), similar on four links, and worse on OneWeb DL (\AUCYthreeOWDL{} vs.\ \AUCYtwoOWDL).
+\say The upper bound is a per-path risk bound: send on a path if its bound meets the deadline, otherwise duplicate. Tight bounds on calm paths mean fewer needless duplicates. For spike warning, Final is clearly better on Starlink DL (AUROC \AUCFRSLDL{} vs.\ \AUCPrevSLDL), similar on four links, and worse on OneWeb DL (\AUCFROWDL{} vs.\ \AUCPrevOWDL).
 
 \slide{29}{Limitations and next steps}{0:45}
 \say RMSE did not improve. Coverage is measured, not guaranteed. One site and one split. The next step is the end-to-end test inside the liquid tunnel.

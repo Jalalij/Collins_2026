@@ -1,6 +1,6 @@
 [data y3] 31 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 117558, 'val': 22655, 'test': 27492} (1s)
 
-=== oneweb dl | y3_dist | seed 0 ===
+=== oneweb dl | fr_dist | seed 0 ===
     ep   1 train=1.0185 val=1.7110 ema=1.7110 lr=1.0e-03 [63.8s]
     ep   2 train=0.9044 val=1.6138 ema=1.6818 lr=1.0e-03 [61.5s]
     ep   3 train=0.8848 val=1.6417 ema=1.6698 lr=1.0e-03 [61.1s]
@@ -30,7 +30,7 @@ rtt    18.3548 68.3854 0.1869       89.2043 0.9510
   AGG MAE=6.2960 RMSE=23.9094 R2=0.2058 (1199s)
 [data y3] 31 features, sessions {'train': 45, 'val': 9, 'test': 11}, windows {'train': 117558, 'val': 22655, 'test': 27492} (1s)
 
-=== oneweb dl | y3_dist | seed 1 ===
+=== oneweb dl | fr_dist | seed 1 ===
     ep   1 train=1.0245 val=1.6695 ema=1.6695 lr=1.0e-03 [53.6s]
     ep   2 train=0.9082 val=1.6315 ema=1.6581 lr=1.0e-03 [53.3s]
     ep   3 train=0.8882 val=1.7096 ema=1.6736 lr=1.0e-03 [53.6s]

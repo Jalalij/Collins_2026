@@ -2,7 +2,7 @@ The initial QoE-predictive scheduler uses point forecasts of each path. The cali
 
 \paragraph{Emulation.} We emulate deadline-aware packet duplication on the test sessions of the four satellite links, with the satellite path as primary and the 5G path of the same direction as backup. At time $t$ the scheduler plans the packets it will send at $t+h$, $h\in\{0.2,\dots,3\}$\,s. A packet on the primary misses its deadline $D$ if the measured RTT at $t+h$ exceeds $D$, set to the 90th percentile of the calibration-session RTT (\SchedDSLDL\,ms on Starlink DL). The scheduler duplicates a packet on the backup when its forecast bound exceeds $D$. We count the share of duplicated packets, which costs backup capacity, and the share of late packets that were not duplicated (misses).
 
-\begin{figure}[t]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figs_pdf/fr_scheduler.pdf}
   \caption{Deadline-aware duplication on the test sessions: share of late, non-duplicated packets against the share of duplicated packets, pooled over 0.2--3\,s. Curves sweep the knob of each policy. Markers: one-sided bounds calibrated at 0.80 to 0.99, circled at 0.95. Insets: low duplication. S2S-E adapt.\ scales its margin by the input volatility.}
@@ -15,7 +15,7 @@ The initial QoE-predictive scheduler uses point forecasts of each path. The cali
 
 \paragraph{Same mean, different risk.} Fig.~\ref{fig:risk} groups the test windows by the S2S-E mean forecast and, within each group, by the spread that DS2S-E predicts. At the same mean forecast of \RiskMeanLo{} to \RiskMeanHi\,ms on Starlink DL, \RiskLowPct\% of the packets are late when DS2S-E predicts a narrow spread and \RiskHighPct\% when it predicts a wide one. A scheduler that sees only the mean must treat these windows alike.
 
-\begin{figure}[t]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figs_pdf/fr_scheduler_risk.pdf}
   \caption{Same mean, different risk. Share of late packets (log color scale) when the test windows are grouped by the S2S-E mean forecast (deciles, x) and, within each decile, by the predicted DS2S-E spread $\hat{q}_{0.975}-\hat{q}_{0.5}$ (quintiles, y).}

@@ -1,6 +1,6 @@
 We rebuilt the initial evaluation in one script (\texttt{experiments/\allowbreak final\_benchmark.py}) that loads the data with the initial functions, uses the same session split, and trains the initial Seq2Seq-GRU with the initial optimizer settings. With the original data it reproduces the initial Starlink DL result (MAE \ReproSLMAE, RMSE \ReproSLRMSE, $R^2$ \ReproSLRtwo, against 8.55, 14.95, and 0.406 in the Modeling Dynamics report) and the OneWeb DL result (MAE \ReproOWMAE, RMSE \ReproOWRMSE, $R^2$ \ReproOWRtwo, against 6.12, 23.73, and 0.217). The script was then reviewed independently, and the surviving findings were fixed. Table~\ref{tab:audit} summarizes them.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering
 \caption{Issues found in the previous pipeline and how this report handles them.}
 \label{tab:audit}
@@ -21,7 +21,7 @@ A6. One seed & Each model was trained once. & Three seeds, seed ensembles, sessi
 
 \paragraph{Effect of the leak.} Replacing the interpolated inputs raises the Starlink DL persistence RTT error at the first step by \AuditPersHonePct\%, from \AuditPersLegacyHone\,ms to \AuditPersCausalHone\,ms RMSE. To measure the effect on a trained forecaster, we trained the initial model (S2S) and the final model (DS2S) on Starlink DL with the interpolated and with the causal inputs, three seeds each, and tested the leaky models on both versions of the test inputs (Fig.~\ref{fig:leak}). Trained and tested on interpolated inputs, DS2S reports a 0.2\,s RTT MAE of \LeakDSAhOne\,ms. On the causal inputs that a deployed forecaster sees, the same model reaches \LeakDSBhOne\,ms, \LeakOptDSMAEhOne\% worse. The model trained on causal inputs reaches \LeakDSChOne\,ms, so causal training also gives the better deployed model. The gap shrinks with the horizon (\LeakOptDSMAEavg\% averaged over 0.2 to 3\,s) and is smaller for S2S (\LeakOptSSMAEhOne\% at 0.2\,s). The leak inflates exactly the short-horizon accuracy that a packet scheduler relies on most. Every result in this report uses causal inputs, and the initial model is retrained on them.
 
-\begin{figure}[t]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.85\linewidth]{figs_pdf/fr_leak.pdf}
   \caption{Effect of the interpolation leak on a trained forecaster (DS2S, Starlink DL, mean of three seeds). Trained and tested on interpolated inputs, the model reports a lower error than it reaches on the causal inputs available online. Inset: the first 0.6\,s.}

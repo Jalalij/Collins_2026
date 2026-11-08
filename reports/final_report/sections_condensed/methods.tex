@@ -1,6 +1,6 @@
 The final forecaster (DS2S) keeps the encoder and attention of the initial Seq2Seq-GRU~\cite{cho2014learning,bahdanau2015neural} and changes it in four steps, each evaluated separately in Section~\ref{sec:results}. Figure~\ref{fig:arch} shows the result.
 
-\begin{figure}[t]
+\begin{figure}[htbp]
   \centering
   \resizebox{0.8\linewidth}{!}{\input{tikz/model_arch.tex}}
   \caption{Final forecaster. The encoder and attention are those of the initial model. The decoder is anchored on the last observation and each head outputs a mean and five non-crossing quantiles of the change.}

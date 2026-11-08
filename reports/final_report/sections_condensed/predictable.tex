@@ -1,6 +1,6 @@
 Before comparing forecasters, we ask which properties of the RTT carry over from the 6\,s input window to the 3\,s horizon. The statistics use the measured pings of the training sessions, each centered on its own mean, with session-bootstrap confidence intervals (script \texttt{fr\_volatility.py}).
 
-\begin{figure}[t]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{figs_pdf/fr_volatility.pdf}
   \caption{Autocorrelation of the RTT level, of its 200\,ms change $\Delta$RTT, and of the size of the change $|\Delta\mathrm{RTT}|$ in the training sessions (shaded: 95\% session-bootstrap interval). Circles: value of a memoryless series at 0.2\,s. Insets: lags of 0.2 to 3\,s. Starlink DL peaks every second because of a load-driven sawtooth.}
@@ -15,7 +15,7 @@ Before comparing forecasters, we ask which properties of the RTT carry over from
 
 \paragraph{Consequence.} A constant-width interval around a point forecast, as in the previous report, ignores both properties. Calibrated to cover 95\% of all windows, it covers \CovConstCalmLo{} to \CovConstCalmHi{} of the calmest tenth and \CovConstVolLo{} to \CovConstVolHi{} of the most volatile tenth. Because the interval score is minimized by the conditional quantiles~\cite{gneiting2007strictly}, a forecaster should learn the spread and its skew from the input and be calibrated on sessions it has not seen. Fig.~\ref{fig:trace1min} shows the result on one minute of Starlink DL.
 
-\begin{figure}[t]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.95\linewidth]{figs_pdf/fr_trace.pdf}
   \caption{One minute of a Starlink DL test session, forecast 1\,s ahead. The initial model (S2S-E) has a constant 95\% interval of \TraceWidS\,ms. The calibrated interval of the final model (DS2S-E) is \TraceWidDCalm\,ms wide (median) while the link is quiet and \TraceWidDLoad\,ms once it swings. Inset: the quiet part.}

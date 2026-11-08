@@ -1,7 +1,7 @@
 \subsection{Sensitivity to the design choices}
 Each alternative setting was trained with two seeds on the four satellite links (80 additional runs, \texttt{results\_final/sweeps/}): a 3\,s and a 12\,s input window, a 6\,s horizon, hidden sizes 64 and 256, and pinball weights $\omega=0.25$ and $\omega=4$ in~\eqref{eq:loss}. Table~\ref{tab:sweepvs} compares the final and initial models trained with the same setting. The interval-score gain holds in every setting and on every link, from 7\% to 41\%, and so does the MAE gain. The RMSE changes by $-7.8\%$ to $+2.1\%$. The conclusions therefore do not depend on the window or horizon chosen in the initial study.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering
 \caption{Change (\%) of the final model against the initial model trained with the same setting (RTT, two seeds, averaged over all steps of the setting). Negative is better.}
 \label{tab:sweepvs}
@@ -29,7 +29,7 @@ For the final model itself (scored on the same 0.2--3\,s targets in every settin
 \subsection{Adaptivity, handovers, and training cost}
 The width of the final 95\% RTT interval is positively rank-correlated with the absolute error on every link (\RhoMin{} to \RhoMax), highest on Starlink DL and OneWeb, where the RTT alternates between calm periods and bursts. Table~\ref{tab:events} splits the test windows by whether a satellite handover occurs inside the 3\,s horizon. On OneWeb UL a handover more than doubles the RTT error of both models, and neither anticipates it. Elsewhere the errors around handovers are similar to the errors outside, and the final gain is of the same size in both groups. Handover flags alone do not predict the RTT jumps. A full forecast takes \TimeDSCPU\,ms on one CPU thread against \TimeSSCPU\,ms for the initial model, well below the 200\,ms between measurements.
 
-\begin{table}[t]
+\begin{table}[htbp]
 \centering
 \caption{RTT MAE (ms) of the ensembles for test windows with and without a handover inside the forecast horizon.}
 \label{tab:events}

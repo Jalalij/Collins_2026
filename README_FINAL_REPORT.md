@@ -18,4 +18,4 @@
 
 Headline (test sessions, 6 links, three-seed ensembles, against the previous Seq2Seq retrained on the same corrected data): the 95% interval score of the RTT forecasts improves by 9.4% to 41.1%, significantly on every link with a session-level bootstrap. The RTT MAE improves on five links, and the RMSE changes by at most 5%. Past RTT changes hardly predict the next change, but the spread of the RTT depends on a link state that the recent input reveals. A calibrated distributional forecaster exploits this, and in an emulated deadline-aware duplication scheduler it needs 55% less duplication on Starlink DL with no more late packets.
 
-Test-set prediction arrays (`results_final/**/preds/`, several GB) are not in the repository. `docs/final_report/REPRODUCE.md` regenerates them.
+Test-set prediction arrays (`results_final/**/preds/`, several GB) are not in the repository. `python3 modeling/experiments/regen_preds.py` rebuilds them from the saved models in about 10 minutes (see `docs/final_report/REPRODUCE.md`).

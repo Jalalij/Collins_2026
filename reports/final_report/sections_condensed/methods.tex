@@ -1,0 +1,35 @@
+The final forecaster (DS2S) keeps the encoder and attention of the initial Seq2Seq-GRU~\cite{cho2014learning,bahdanau2015neural} and changes it in four steps, each evaluated separately in Section~\ref{sec:results}. Figure~\ref{fig:arch} shows the result.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{0.8\linewidth}{!}{\input{tikz/model_arch.tex}}
+  \caption{Final forecaster. The encoder and attention are those of the initial model. The decoder is anchored on the last observation and each head outputs a mean and five non-crossing quantiles of the change.}
+  \label{fig:arch}
+\end{figure}
+
+\paragraph{Step 1: residual decoder.} The initial decoder starts from a zero vector and predicts each level directly. The final decoder starts from the last observed values and predicts the change,
+\begin{equation}
+\hat{\mathbf{y}}_{t+h} = \hat{\mathbf{y}}_{t+h-1} + g_\theta(\mathbf{s}_h), \qquad \hat{\mathbf{y}}_{t} = \mathbf{y}_t ,
+\label{eq:resid}
+\end{equation}
+where $\mathbf{s}_h$ is the decoder state. With $g_\theta\equiv 0$ the model is the persistence forecast. Teacher forcing is applied per sample~\cite{bengio2015scheduled}.
+
+\paragraph{Step 2: causal pipeline and context features.} Causal ping inputs (A3) for every method. Logger sentinels in the 5G radio values (for example SINR $=-32768$) are set to missing and forward filled. For each target we add seven causal per-session statistics (rows since the last change, mean and maximum over the last second, means over 30\,s and 60\,s, SD over 60\,s, and the session-to-date mean) and the time since the previous row. These give the model a view longer than its 6\,s window. Non-target inputs are clipped to $[-5,5]$ after $z$-scoring.
+
+\paragraph{Step 3: distributional heads.} Link-state targets are heavy tailed. The RTT RMSE of the retrained initial model is \RatioRMSEMAEMin{} to \RatioRMSEMAEMax{} times its MAE, against about 1.25 for Gaussian errors. Squared-error training learns the conditional mean, which is not the best forecast under absolute error and says nothing about uncertainty~\cite{gneiting2011making}. Each head therefore outputs a mean $\hat{\mu}$ and the quantiles $\hat{q}_\tau$ for $\tau\in\mathcal{T}=\{0.025, 0.25, 0.5, 0.75, 0.975\}$, anchored as in~\eqref{eq:resid}. The quantiles are the median plus or minus cumulative softplus gaps, which rules out crossing. The loss on normalized targets is
+\begin{equation}
+\mathcal{L} = \frac{1}{NHK}\sum_{n,h,k}\Big[\big(\hat{\mu}_{nhk}-y_{nhk}\big)^2 + \frac{\omega}{|\mathcal{T}|}\sum_{\tau\in\mathcal{T}}\rho_\tau\big(y_{nhk}-\hat{q}_{\tau,nhk}\big)\Big],
+\qquad \rho_\tau(e)=\max\{\tau e,(\tau-1)e\},
+\label{eq:loss}
+\end{equation}
+with the pinball loss $\rho_\tau$~\cite{koenker1978regression} and weight $\omega=1$ in the main study. The mean is used for RMSE and $R^2$, the median for MAE. The model has \ParamsDist{} parameters against \ParamsResid{} for the Step 1 model on OneWeb DL.
+
+\paragraph{Step 4: calibration and ensembles.} Quantiles learned on training sessions are not guaranteed to cover unseen sessions. We calibrate them with conformalized quantile regression (CQR)~\cite{romano2019conformalized}. For each target and step, the score on validation window $i$ is $s_i=\max\{\hat{q}_{0.025,i}-y_i,\ y_i-\hat{q}_{0.975,i}\}$, $c$ is its $\lceil (n+1)(1-\alpha)\rceil$-th smallest value, and the test interval is $[\hat{q}_{0.025}-c,\ \hat{q}_{0.975}+c]$ with $\alpha=0.05$. Models without quantiles get the split conformal interval $\hat{y}\pm q$~\cite{lei2018distribution}. Windows of one session are correlated and sessions differ in load, so the coverage guarantee is approximate~\cite{barber2023conformal}, and we report the coverage measured on the test sessions. The three seeds are averaged into a deep ensemble~\cite{lakshminarayanan2017simple} that is calibrated in the same way. Ensembles are marked ``-E'' (S2S-E for the initial model, DS2S-E for the final model).
+
+\paragraph{References and comparison models.} Persistence ($\hat{\mathbf{y}}_{t+h}=\mathbf{y}_t$), a one-second seasonal repeat, and direct ridge regressions on the initial features (Ridge) and the final features (Ridge-E). To bound how specific the gain is to DS2S, we also train a linear quantile model (LQR), the final network with Gaussian heads (GS2S), and the final network with a scalar output (S2S-AE), all calibrated in the same way.
+
+\paragraph{Training and metrics.} All neural models use the initial optimizer settings (AdamW, learning rate $10^{-3}$, weight decay $10^{-3}$, batch 512, hidden size 128) with a 60-epoch budget and early stopping after 15 epochs. All \NRuns{} runs stopped after \EpochsMin{} to \EpochsMax{} epochs with the selected checkpoint at or before epoch \BestEpochMax, so the budget does not limit the models. For 5G every fourth training window is used, for every method. We report MAE, RMSE, $R^2$, skill against persistence, the measured coverage (PICP) of the calibrated 95\% interval, and the interval score~\cite{gneiting2007strictly}
+\begin{equation}
+\mathrm{IS}_\alpha(l,u,y)=(u-l)+\tfrac{2}{\alpha}(l-y)\mathbb{1}\{y<l\}+\tfrac{2}{\alpha}(y-u)\mathbb{1}\{y>u\},
+\end{equation}
+called MIS in the Modeling Dynamics report. Lower is better. Per-target numbers are averages over the 15 steps.

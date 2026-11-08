@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+\usepackage[english]{babel}
+\usepackage[paper=letterpaper, top=0.85in, bottom=1.0in, left=0.9in, right=0.9in, includehead, includefoot]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots,fillbetween,colormaps}
+\pgfplotsset{compat=1.18}
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage[colorlinks=true, allcolors=blue!50!black]{hyperref}
+\usepackage{cleveref}
+\linespread{1.08}
+
+\newcommand{\best}[1]{\textbf{#1}}
+\makeatletter\newcommand{\tabinput}[1]{\@@input #1 }\makeatother
+\input{data/plotstyle.tex}
+\input{data/numbers_audit.tex}
+\input{data/numbers_results.tex}
+\input{data/numbers_analysis.tex}
+\input{data/numbers_story.tex}
+
+\begin{document}
+\sloppy
+
+\begin{titlepage}
+  \noindent\begin{minipage}[t]{0.3\textwidth}
+    \vspace{-1.5em}
+    \includegraphics[width=\linewidth,height=1.5cm,keepaspectratio]{figures/collins_logo.jpeg}%
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[t]{0.55\textwidth}
+    \vspace{-1.5em}
+    \raggedleft
+    \includegraphics[width=\linewidth,height=1.5cm,keepaspectratio]{figures/wici_log3.png}%
+  \end{minipage}\par
+  \centering
+  \vspace*{\fill}
+  {\LARGE\bfseries Collins Aerospace -- ISU WiCI \\[1em]
+  Integrated Terrestrial and Satellite Communications (Year 2)\\[0.5em]Final Report\\[1em]
+  Link-State Forecasting: Audit, Distributional Models,\\ and Calibrated Uncertainty\\[0.6em]\large Condensed Edition\par}
+  \vspace*{\fill}
+  {\large
+    ISU Personnel: Jalal Jalali, Evan Gossling, Daji Qiao, Hongwei Zhang\\
+    Collins Personnel: Naveen Rajanikantha, Ben Haan, Andrew Bys \par}
+  \vspace*{1em}
+  {\large November 2026\par}
+  \vspace*{\fill}
+  {\normalsize Copyright \copyright{} 2026 Center for Wireless, Communities and Innovation (WiCI) \par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\section{Executive Summary}
+\input{sections_condensed/summary.tex}
+
+\section{What Changed Since the Previous Report}
+\label{sec:improved}
+\input{sections_condensed/improved.tex}
+
+\section{System, Data, and Forecasting Problem}
+\label{sec:system}
+\input{sections_condensed/system.tex}
+
+\section{Audit of the Previous Pipeline}
+\label{sec:audit}
+\input{sections_condensed/audit.tex}
+
+\section{What Is Predictable in Sub-Second Link State?}
+\label{sec:predictable}
+\input{sections_condensed/predictable.tex}
+
+\section{The Final Forecaster}
+\label{sec:methods}
+\input{sections_condensed/methods.tex}
+
+\section{Results}
+\label{sec:results}
+\input{sections_condensed/results.tex}
+
+\section{Why the Interval Improves}
+\label{sec:why}
+\input{sections_condensed/why.tex}
+
+\section{Robustness of the Gain}
+\label{sec:robust}
+\input{sections_condensed/robust.tex}
+
+\section{Value for Prediction-Aware Multipath Scheduling}
+\label{sec:sched}
+\input{sections_condensed/scheduling.tex}
+
+\section{Open Questions, Open Problems, and How to Close the Gaps}
+\label{sec:open}
+\input{sections_condensed/open.tex}
+
+\appendix
+\section{Reproducing the Results}
+\label{app:repro}
+\input{sections_condensed/appendix.tex}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

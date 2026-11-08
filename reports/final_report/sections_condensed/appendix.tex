@@ -1,0 +1,16 @@
+All code is in \texttt{modeling/} of the project repository. The commands below regenerate every number, table, and figure. They take about seven hours on an Apple M3 Max with six jobs in parallel. \texttt{docs/final\_report/REPRODUCE.md} lists the analysis scripts (\texttt{fr\_*.py}) behind each figure.
+
+\begin{small}
+\begin{verbatim}
+cd modeling
+# all 78 jobs (link, method, seed), 5G uses --train_stride 4
+cat results_final/main/jobs.txt | xargs -P 6 -L 1 results_final/main/run_job.sh
+# tables, ensembles and figure data
+python3 experiments/final_aggregate.py && python3 experiments/final_extras.py
+python3 experiments/final_audit_numbers.py && python3 experiments/final_tables.py
+# figures of the report (from reports/final_report)
+python3 build_figs.py
+\end{verbatim}
+\end{small}
+
+\noindent Main files: \texttt{experiments/final\_benchmark.py} (data loading on the initial split, training, baselines, metrics, conformal calibration), \texttt{models/seq2seq\_dist.py} (the final forecaster), \texttt{dataset.py} (causal ping fix, sentinel cleaning, context features, input clipping), \texttt{results\_final/main/<link>/} (per-run metrics, settings, trained models), and \texttt{results\_final/summary/} (summaries, per-horizon values for all 15 steps, and the deployment CQR offsets).

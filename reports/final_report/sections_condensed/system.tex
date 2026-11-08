@@ -1,0 +1,36 @@
+Integrated terrestrial and low Earth orbit (LEO) satellite networks give an airborne or remote terminal several paths with very different behavior. A 5G link has low and fairly stable latency but limited coverage. Starlink and OneWeb links have global coverage, but their RTT, jitter, and loss change quickly with satellite handovers, scheduler reconfigurations, and load~\cite{michel2022first,mohan2024multifaceted,tanveer2023making,zhao2025measuring,perrin2025measurement}. The initial work of this project built a Multipath QUIC (MPQUIC) \emph{liquid tunnel} that combines these paths and showed that a scheduler fed with short-horizon forecasts of path state loses fewer video frames than a reactive minRTT scheduler~\cite{deconinck2017multipath}. Learned link prediction is established for cellular networks~\cite{narayanan2020lumos5g,mei2019realtime}, but at sub-second resolution simple predictors are hard to beat~\cite{basit2024predictability}, and LEO work has so far predicted at coarse resolution~\cite{liu2025vivisecting,benghe2026horizon} or without calibration on unseen sessions~\cite{chi2026reading}. MPQUIC schedulers act on smoothed RTT estimates~\cite{paasch2014experimental,lim2017ecf,baltaci2023multipath}, and forecast-driven schedulers have been proposed~\cite{yang2024mams,maglione2025intelligent}. None of these works checks the causality of the input alignment or calibrates forecast uncertainty on unseen sessions, which are the two gaps this report addresses.
+
+\subsection{Measurement setup}
+The data were collected on the ARA wireless living lab~\cite{islam2025design}. A client node is connected to a Starlink user terminal, a OneWeb user terminal, and a 5G network through a Quectel modem. During each session the node runs a 5\,Hz ping stream to a server, an iperf3 UDP stream that reports throughput, jitter, and loss once per second, and collectors for terminal telemetry and local weather. The parsers align all sources on the ping time base, which gives one row every 200\,ms. Figure~\ref{fig:system} shows the setup and where the forecaster sits in the multipath client.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{0.78\linewidth}{!}{\input{tikz/system_model.tex}}
+  \caption{System model. Three access links are measured in parallel on the ARA client node. The forecaster maps a window of link-state features to a distribution of future RTT, jitter, and loss, which a conformal step turns into calibrated intervals for the prediction-aware MPQUIC scheduler.}
+  \label{fig:system}
+\end{figure}
+
+\subsection{Forecasting problem and data}
+For a link, let $\mathbf{x}_t\in\mathbb{R}^{F}$ be the feature vector at row $t$ and $\mathbf{y}_t\in\mathbb{R}^{K}$ the $K=3$ targets (RTT in ms, iperf jitter in ms, iperf loss in \%). Given the window $\mathbf{X}_t=(\mathbf{x}_{t-L+1},\dots,\mathbf{x}_t)$ with $L=30$ rows, the model predicts $\mathbf{y}_{t+h}$ for $h=1,\dots,H$ with $H=15$. The input covers 6\,s of history and the horizon spans 0.2\,s to 3\,s. Sessions (one CSV file each) are split 70/15/15 into training, validation, and test sets by a random permutation with seed 42, exactly as in the initial study. The test sessions are never seen during training, model selection, or calibration. Table~\ref{tab:data} lists the six datasets.
+
+\begin{table}[t]
+\centering
+\caption{Datasets. Windows are 30 input rows plus 15 target rows at 5\,Hz. For 5G, every fourth training window is used. Features: initial set / final set.}
+\label{tab:data}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+Link & Sessions (tr/va/te) & Train windows & Val windows & Test windows & Features \\
+\midrule
+OneWeb DL   & 45 / 9 / 11   & 117{,}558 & 22{,}655  & 27{,}492  & 9 / 31 \\
+OneWeb UL   & 45 / 9 / 11   & 115{,}847 & 22{,}751  & 28{,}125  & 9 / 31 \\
+Starlink DL & 37 / 7 / 9    & 105{,}906 & 20{,}025  & 25{,}838  & 19 / 41 \\
+Starlink UL & 37 / 7 / 9    & 106{,}165 & 20{,}090  & 25{,}666  & 19 / 41 \\
+5G DL       & 266 / 57 / 58 & 194{,}725$^\dagger$ & 166{,}266 & 169{,}204 & 10 / 32 \\
+5G UL       & 265 / 56 / 58 & 193{,}502$^\dagger$ & 162{,}894 & 168{,}519 & 10 / 32 \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\footnotesize $^\dagger$ after keeping every fourth window (778{,}898 and 774{,}006 before subsampling).
+\end{table}

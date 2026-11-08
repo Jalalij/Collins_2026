@@ -1,0 +1,21 @@
+This report covers the final work on forecasting the state of satellite and terrestrial links for the prediction-aware multipath client built in the initial study. The task is to predict the RTT, jitter, and packet loss of a Starlink, a OneWeb, and a 5G link (each in downlink and uplink) from 0.2\,s to 3\,s ahead, from 6\,s of 5\,Hz measurements. This condensed edition keeps every result of the full final report and shortens the explanations. It focuses on what changed since the previous report (Modeling Dynamics) and ends with the open problems and a plan to close them (Section~\ref{sec:open}).
+
+\paragraph{What we found in the initial pipeline.} We reproduced the initial results and audited the data and the evaluation (Section~\ref{sec:audit}). Six issues were found and fixed. Three of them change how the initial numbers should be read.
+\begin{itemize}[leftmargin=*]
+  \item The Starlink parser fills missing server pings by interpolating toward the next real ping (\InterpFracSLDL\% of the downlink test targets). This leaks part of the future into the model input. A model trained and tested on these inputs reports a 0.2\,s error \LeakOptDSMAEhOne\% lower than it reaches in deployment.
+  \item The earlier 95\% interval coverage was computed from the test residuals themselves and is 0.95 by construction.
+  \item The horizon steps are 200\,ms, not 1\,s. The earlier ``15\,s'' horizon is 3\,s.
+\end{itemize}
+
+\paragraph{What the final model changes.} Every method now uses causal inputs. The final forecaster keeps the encoder and attention of the initial model, anchors the decoder on the last observation, adds causal context features, and predicts a mean and five quantiles for every target and step instead of a single value. Intervals are calibrated on held-out sessions with conformalized quantile regression, and three seeds are combined into an ensemble.
+
+\paragraph{Results} (test sessions, three-seed ensembles, against the initial model retrained on the same corrected data).
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Calibrated uncertainty:} the 95\% interval score of the RTT forecasts improves on all six links, by \BSISWorstAbs\% to \BSISBestAbs\%, significantly at the session level on every link, with measured coverage of \PICPEnsMin{} to \PICPEnsMax{} on unseen sessions. Jitter and loss intervals improve on every link where these targets vary.
+  \item \textbf{Absolute error:} the RTT MAE improves significantly on five links, by \BSMAEsigLoAbs\% to \BSMAEsigHiAbs\%, and is unchanged within the uncertainty on OneWeb UL.
+  \item \textbf{Squared error:} the RTT RMSE changes by at most \BSRMSEMaxAbs\%. The level of the next RTT is close to unpredictable from a 6\,s window (Section~\ref{sec:predictable}).
+  \item \textbf{Scheduling:} in an emulated deadline-aware duplication scheduler, the final model needs \SchedSaveSLDL\% less duplication on Starlink DL with no more late packets. It ties on two links and loses on OneWeb DL (Section~\ref{sec:sched}).
+\end{itemize}
+The improvement is therefore not in the squared error of the point forecast but in its robustness to RTT spikes and in calibrated, input-dependent uncertainty. For the multipath scheduler this means a per-path risk bound that is tight when a path is calm and widens when it is about to become unstable. A linear quantile model calibrated in the same way recovers most of the interval gain, so the main lesson is the calibrated distributional output, not the network.
+
+\paragraph{What remains open.} The RTT level is not predictable from the current inputs, coverage drifts under session shift on Starlink UL, the most volatile OneWeb windows are under-covered, and the scheduler gain has been shown only in a trace-driven emulation. Section~\ref{sec:open} gives each gap with its evidence, the work that would close it, and the measurement that would show it is closed.

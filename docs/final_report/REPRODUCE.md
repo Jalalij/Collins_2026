@@ -2,6 +2,12 @@
 
 Hardware used: Apple M3 Max (48 GB) with PyTorch on the MPS backend. Round 1 (the main study) takes about 7 hours with 6 parallel jobs, round 2 (comparison models and leak experiment) about 6 hours. The 5G jobs are the slowest. All analyses run on the CPU from the saved predictions.
 
+**Prediction arrays only.** The trained models are in the repository but `results_final/main/*/preds/` (about 6.5 GB) is not. To rebuild it without retraining (about 10 minutes), after unpacking `data_release/` into `modeling/data/`:
+```bash
+cd modeling && python3 experiments/regen_preds.py
+```
+It loads `models/<method>_s<seed>.pt`, recomputes the linear baselines, and checks every file against the saved metrics CSVs (`results_final/main/regen_preds_check.csv`).
+
 ```bash
 cd modeling
 pip install -r requirements.txt   # plus scikit-learn

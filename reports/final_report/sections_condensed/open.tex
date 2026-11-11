@@ -1,0 +1,52 @@
+This section is new. It collects what the final work did not settle, separates questions we cannot yet answer from problems we know how to attack, and gives a plan to close each gap. Table~\ref{tab:gaps} is the summary. Each row names the evidence in this report, the work that would close the gap, and the measurement that would show it is closed.
+
+\begin{table}[htbp]
+\centering
+\caption{Open gaps, the evidence for each, how to close it, and when it counts as closed. Effort: S (days, existing data and code), M (weeks, new training or code), L (a new measurement campaign or system test).}
+\label{tab:gaps}
+\footnotesize
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{3.0cm}c}
+\toprule
+Gap & Evidence & How to close it & Closed when & Effort \\
+\midrule
+G1. RTT level not predictable & RMSE within \BSRMSEMaxAbs\% of the initial model on every link. $\Delta$RTT has almost no memory (Section~\ref{sec:predictable}). & Add information the 6\,s window lacks: the Starlink 15\,s reallocation slots~\cite{tanveer2023making}, the state of the other paths, terminal telemetry at a higher rate. & RTT RMSE skill rises by more than the seed spread on two or more links. & M \\
+G2. Volatile OneWeb windows under-covered & DS2S-E covers the most volatile tenth at \CovDSOWDLdTen{} (DL) and \CovDSOWULdTen{} (UL), an SD-scaled interval at \CovNormTunedOWDLdTen{} and \CovNormTunedOWULdTen{} (Section~\ref{sec:why}). & Regime-conditional calibration: conformal offsets per input-volatility bin, or a CQR interval with an SD-scaled floor. & Coverage gap on OneWeb below that of the constant interval with no worse interval score. & S \\
+G3. OneWeb DL spikes and duplication & Spike AUROC \AUCFROWDL{} against \AUCPrevOWDL. More duplication than the initial bound (Section~\ref{sec:sched}). & Anchor the decoder on a robust recent level (median of the last second) or gate between anchored and free decoding. & DS2S-E at least ties S2S-E in the OneWeb DL emulation. & M \\
+G4. Calibration under session shift & Starlink UL coverage 0.930 to 0.936 for every interval. Validation sessions serve both early stopping and calibration. & Separate calibration sessions from early-stopping sessions. Online adaptive conformal correction during operation~\cite{gibbs2021adaptive}. & Test coverage within $\pm0.01$ of 0.95 on every link, also in a later campaign. & S \\
+G5. Tails beyond the 97.5\% quantile & Duplication saving shrinks for deadlines at the 99th percentile (Section~\ref{sec:sched}). & Add the 0.99 and 0.995 quantiles to the heads and calibrate them. & Saving at the 99th percentile deadline comparable to that at the 95th. & S \\
+G6. Pinball weight not tuned & $\omega=4$ is preferred on all six links (Section~\ref{sec:robust}). & Retrain the main study with $\omega=4$ and rerun all analyses. & Main tables reported with the tuned weight. & S \\
+G7. iperf time stamps & Reports are stamped at the start of their one-second interval (Section~\ref{sec:audit}). & Re-stamp at the end of the interval in the parsers and rerun. & Jitter and loss inputs strictly causal. Results change by less than the seed spread, or the change is reported. & S \\
+G8. One campaign, one split & Sessions from one campaign per link, one random session split, 5G training subsampled. & Time-ordered splits (train on earlier, test on later sessions), several splits, full 5G training set. & Gains hold on sessions recorded after the training data. & M \\
+G9. Scheduler gain only emulated & Paths not recorded at the same time. Emulation assumes independent paths and a saturating test load (Section~\ref{sec:sched}). & Simultaneous recording of all paths under realistic traffic. End-to-end test of the final model in the liquid tunnel. & Fewer late frames or less duplicated traffic in the tunnel at equal QoE. & L \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Open questions}
+These are questions the data of this project cannot answer yet.
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Is the RTT level predictable with more information (G1)?} Section~\ref{sec:predictable} shows that the next change is close to unpredictable from the last 6\,s of the same path. It does not show that it is unpredictable from information outside that window. The Starlink reallocation every 15\,s is scheduled and globally synchronized, so its timing is knowable in advance. The state of the other paths may reveal shared causes such as local load. A longer window helped OneWeb UL and hurt OneWeb DL, so more history alone is not the answer.
+  \item \textbf{Is the Starlink DL sawtooth a property of the link or of the test?} The one-second sawtooth appears only under the saturating downlink iperf test and is the most predictable structure in the data. Under the real traffic of the multipath client the queue may not build up in this way, and part of the Starlink DL gain may not carry over. Recording under realistic traffic (G9) answers this.
+  \item \textbf{Do the results transfer to other times, terminals, and places (G8)?} Each link was measured in one campaign with one terminal at one site. Both the regime structure and the calibration offsets may change with season, firmware, and constellation growth. Only new data can test this.
+  \item \textbf{How much of the emulated gain survives end to end (G9)?} The emulation counts late and duplicated packets. The client cares about frames and QoE, and duplication interacts with congestion control and with the capacity of the backup path.
+  \item \textbf{When is the network worth it?} LQR recovers most of the interval gain. DS2S-E adds a better point forecast and a better scheduler result on Starlink DL. Whether that is worth the larger model depends on the target hardware and on the end-to-end result.
+\end{itemize}
+
+\subsection{Open problems}
+These are known shortcomings with a clear path to a fix.
+\begin{itemize}[leftmargin=*]
+  \item \textbf{OneWeb under-reaction (G2).} The input carries the warning that DS2S-E ignores. An SD-scaled interval with a tuned floor covers the most volatile OneWeb tenth almost at the nominal level. Calibrating the final quantiles separately per volatility bin, or taking the wider of the CQR interval and an SD-scaled floor, uses this information without retraining.
+  \item \textbf{Anchored decoder on spiky links (G3).} Anchoring on the last value helps where the RTT moves smoothly and hurts where single spikes are followed by a return to the base level. The fix is to anchor on a robust recent level, or to let the model learn a gate between the anchored and the free decoder per link.
+  \item \textbf{Calibration and shift (G4).} The validation sessions are used for early stopping and for calibration. Splitting them, or using cross-conformal calibration, removes the dependence. For drift in operation, an online adaptive conformal update adjusts the offset after each observed miss and keeps the long-run coverage at the target.
+  \item \textbf{Strict deadlines (G5).} The heads describe the distribution only up to the 97.5\% quantile, and the conformal offset extrapolates beyond it. Adding upper quantiles is a small change to the heads and the loss.
+  \item \textbf{Settings and pipeline (G6, G7).} The pinball weight and the iperf stamps are one-line changes followed by a full rerun, which takes about seven hours with the scripts of Appendix~\ref{app:repro}.
+\end{itemize}
+
+\subsection{Plan to close the gaps}
+We propose three stages, ordered so that each stage uses only data and code that the previous one provides.
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Consolidate (weeks 1 to 4, existing data).} Fix the iperf stamps (G7), retrain with $\omega=4$ and two extra upper quantiles (G5, G6), split calibration from early stopping (G4), and add regime-conditional calibration (G2). Rerun every table, figure, and number with the existing scripts. Report the change of each fix against this report.
+  \item \textbf{Improve the forecaster (weeks 4 to 10, existing data).} Test the robust anchor and the gated decoder on OneWeb DL (G3). Add the Starlink slot timing and cross-path features (G1). Accept a change only if it improves the interval score or the RMSE beyond the seed spread with the session bootstrap of Section~\ref{sec:results}. Compare the final candidate with LQR at equal calibration to decide the deployed model.
+  \item \textbf{Validate in the system (from week 8, new data).} Record all paths at the same time on ARA under the traffic of the multipath client, in sessions spread over several weeks (G8, G9). Test the forecasters trained on the existing data on the new sessions without retraining, then with online calibration. Run the final model inside the liquid tunnel and compare late frames and duplicated traffic with the minRTT scheduler and with the initial predictive scheduler.
+\end{enumerate}
+The first stage needs no new measurements and can start immediately. The third stage is the only one that tests the claim that matters most for the project, that calibrated forecasts improve multipath delivery.

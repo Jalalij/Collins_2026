@@ -1,0 +1,50 @@
+\subsection{Sensitivity to the design choices}
+Each alternative setting was trained with two seeds on the four satellite links (80 additional runs, \texttt{results\_final/sweeps/}): a 3\,s and a 12\,s input window, a 6\,s horizon, hidden sizes 64 and 256, and pinball weights $\omega=0.25$ and $\omega=4$ in~\eqref{eq:loss}. Table~\ref{tab:sweepvs} compares the final and initial models trained with the same setting. The interval-score gain holds in every setting and on every link, from 7\% to 41\%, and so does the MAE gain. The RMSE changes by $-7.8\%$ to $+2.1\%$. The conclusions therefore do not depend on the window or horizon chosen in the initial study.
+
+\begin{table}[htbp]
+\centering
+\caption{Change (\%) of the final model against the initial model trained with the same setting (RTT, two seeds, averaged over all steps of the setting). Negative is better.}
+\label{tab:sweepvs}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{l*{12}{r}}
+\toprule
+ & \multicolumn{3}{c}{OneWeb DL} & \multicolumn{3}{c}{OneWeb UL} & \multicolumn{3}{c}{Starlink DL} & \multicolumn{3}{c}{Starlink UL} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(lr){11-13}
+Setting & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS & MAE & RMSE & MIS \\
+\midrule
+\tabinput{data/tab3_sweeps_vs.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+For the final model itself (scored on the same 0.2--3\,s targets in every setting):
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Input window.} A 12\,s window helps OneWeb UL (MAE $-9.4\%$) and hurts OneWeb DL ($+11.2\%$). A per-link window is an easy gain.
+  \item \textbf{Horizon.} Training for 6\,s costs little at 0.2--3\,s on three links but raises the Starlink DL MAE by 7.8\%. The interval score of the final model stays below that of the initial model at every step up to 6\,s.
+  \item \textbf{Model size.} A hidden size of 64 is worse on the downlinks (up to $+7.9\%$ MAE). A size of 256 changes the results by a few percent in both directions.
+  \item \textbf{Pinball weight.} \WeightSentence{} The main results with $\omega=1$ therefore understate what the distributional model can reach (Fig.~\ref{fig:hzoom}).
+\end{itemize}
+
+\subsection{Adaptivity, handovers, and training cost}
+The width of the final 95\% RTT interval is positively rank-correlated with the absolute error on every link (\RhoMin{} to \RhoMax), highest on Starlink DL and OneWeb, where the RTT alternates between calm periods and bursts. Table~\ref{tab:events} splits the test windows by whether a satellite handover occurs inside the 3\,s horizon. On OneWeb UL a handover more than doubles the RTT error of both models, and neither anticipates it. Elsewhere the errors around handovers are similar to the errors outside, and the final gain is of the same size in both groups. Handover flags alone do not predict the RTT jumps. A full forecast takes \TimeDSCPU\,ms on one CPU thread against \TimeSSCPU\,ms for the initial model, well below the 200\,ms between measurements.
+
+\begin{table}[htbp]
+\centering
+\caption{RTT MAE (ms) of the ensembles for test windows with and without a handover inside the forecast horizon.}
+\label{tab:events}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrrr}
+\toprule
+ & & \multicolumn{3}{c}{handover in horizon} & \multicolumn{3}{c}{no handover} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+Link & windows (\%) & Initial & Final & $\Delta$\% & Initial & Final & $\Delta$\% \\
+\midrule
+\tabinput{data/tab2_events.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{What the model uses}
+Input gradients and attention weights of DS2S (seed 0, 20{,}000 test windows per link, \texttt{fr\_attention.py}) tell different stories. The forecast is most sensitive to the newest second of input, which receives \GradLastLo\% to \GradLastHi\% of the input gradient (17\% if uniform), and \GradEngLo\% to \GradEngHi\% of the sensitivity at the 3\,s step goes to the engineered 30--60\,s and session statistics, which let the model read the session regime. The attention mostly looks elsewhere. On OneWeb and 5G UL it puts \AttnSinkLo\% to \AttnSinkHi\% of its weight on the oldest encoder state, and on Starlink UL and 5G DL it is nearly flat. Replacing it with a fixed map or uniform weights raises the RTT MAE by at most \AttnAblMax\% on Starlink and 5G and by $+$\AttnAblOWDL\% on OneWeb DL. The gain of DS2S comes from its distributional output and its inputs, not from where it attends.
